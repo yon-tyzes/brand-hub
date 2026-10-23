@@ -47,6 +47,9 @@ function colorVars(c: ResolvedColors): Record<string, string> {
 export function rootVars(t: BrandTokens): Record<string, string> {
   const vars: Record<string, string> = {
     ...colorVars(resolveColors(t.color)),
+    // Fixed light and dark backgrounds for asset previews (logos on light or dark). Not overridden by the dark theme.
+    "--preview-light": t.color.bg,
+    "--preview-dark": t.color.text,
     "--font-display": fontStack(t.font.display, SANS),
     "--font-body": fontStack(t.font.body, SANS),
     "--font-mono": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
