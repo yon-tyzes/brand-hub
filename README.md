@@ -1,20 +1,31 @@
 # Brand Hub
 
-An engine for brand resource sites. It builds a static site of logos, colors, fonts, icons, photos, templates, and brand rules from a folder of brand data, and (from version 0.2) an in-site editor for changing that data. One engine serves many brands. Each brand lives in its own instance repository and pins a tagged engine version.
+An engine for brand resource sites. It builds a static site of logos, colors, fonts, icons, photos, templates, and brand rules from a folder of brand data, plus an in-site editor for changing that data. One engine serves many brands. Each brand lives in its own instance repository and pins a tagged engine version.
 
 The engine is an [Astro](https://astro.build) integration. Pages are static HTML. React is used only for interactive islands (search, icon detail, logo helper, signature generator, admin).
 
-Status: 0.1, with the 0.2 editor in progress. The public site is built: home, search, logos, colors, fonts, icons, photos, templates, What's new, and rule pages under `/guide`. The editor at `/admin` edits everything in memory; saving and publishing come next. Start, signature, and boilerplate are placeholders until 0.3 and 0.4.
+Status: 0.1.0. The public site covers home, search, logos, colors, fonts, icons, photos, templates, What's new, and rule pages under `/guide`. The editor at `/admin` edits, previews, saves, and publishes through adapters (`docs/ADAPTERS.md`). Start, signature, and boilerplate arrive in 0.3 and 0.4.
+
+![Home page of the demo brand, Pocket Comet Teapots: search field, top tasks, and recent changes](docs/screenshot.png)
+
+The screenshot shows `brands/demo`, a fictional teapot maker used for development, tests, and the public demo.
 
 ## Requirements
 
 - Node.js 22.23.4 or later (the repo runs TypeScript scripts with Node's built-in type stripping)
-- pnpm 12, through Corepack: `corepack enable`
+- pnpm 12, through Corepack: `corepack enable` (or prefix commands with `corepack`, as in `corepack pnpm install`)
 
-## Run it
+## Quick start
 
 ```sh
-pnpm install      # also points git at .githooks (see "Commit hooks")
+pnpm install
+pnpm dev          # http://localhost:4321 with the demo brand; the editor is at /admin
+```
+
+## Commands
+
+```sh
+pnpm setup-hooks  # once after cloning: points git at .githooks (see "Commit hooks")
 pnpm dev          # dev server with the demo brand
 pnpm build        # static site in dist/
 pnpm check        # schemas, brand data, copy standards, types
@@ -23,7 +34,7 @@ pnpm test:e2e     # end-to-end tests against dist/ (run pnpm build first)
 pnpm test:local   # local adapter tests: astro dev on a temporary copy of the repo
 ```
 
-`pnpm test:e2e` runs axe on every route in light and dark, checks for horizontal scroll at 390, 768, and 1440 pixels, runs a keyboard-only task flow, and measures home page JavaScript against the 100 KB gzipped budget. It writes the size report to `test-results/js-size.json`. First run: `pnpm exec playwright install chromium`.
+`pnpm test:e2e` runs axe on every route in light and dark, checks for horizontal scroll at 320, 390, 768, and 1440 pixels and at 200% zoom, runs a keyboard-only task flow, and measures home page JavaScript against the 100 KB gzipped budget. It writes the size report to `test-results/js-size.json`. First run: `pnpm exec playwright install chromium`.
 
 The repo runs as its own instance. `hub.config.ts` selects `brands/demo`, a fictional brand used for development, tests, and the public demo.
 
@@ -112,9 +123,16 @@ An instance is a separate, usually private, Astro project that holds one brand's
    export default defineHub({ brand: "example", modules: ["logos", "colors", "fonts", "icons"] });
    ```
 
-4. Add the brand folder at `brands/example/` and run `pnpm build`.
+4. Add the brand folder at `brands/example/` and run `pnpm build`. Copying `brands/demo/` from this repo is a quick start; its icons and fonts keep the licenses in `THIRD_PARTY.md`.
 
-Known gap: the package currently ships TypeScript source and has no `exports` map. Node does not strip types from files inside `node_modules`, so steps 1 and 2 will not load until the package ships compiled JavaScript. That build step is required before the first tag. Inside this repo the engine runs from source.
+The package ships TypeScript source with no build step on either side. Astro bundles packages that list `astro` as a peer dependency, so Vite compiles the engine while it builds the instance. The package exports:
+
+| Import | What it is |
+|---|---|
+| `@yon-tyzes/brand-hub` | `brandHub()` integration and `defineHub()` |
+| `@yon-tyzes/brand-hub/adapters` | `AuthAdapter`, `ContentAdapter`, `ChangeSet`, `Session`, and the `ConflictError` and `AdapterError` classes, for instance adapters |
+
+The engine has no install scripts, because pnpm refuses git-hosted dependencies that run them without an allowlist entry.
 
 ## Editor
 
@@ -146,7 +164,11 @@ Preview renders the public pages from the draft in a panel marked "Preview, not 
 3. `check-copy.mjs`: copy and markup standards from `docs/STANDARDS.md` in `src`, `docs`, `brands`, and this README.
 4. `astro check`: TypeScript and Astro diagnostics.
 
-`.github/workflows/ci.yml` runs `pnpm check`, `pnpm test`, `pnpm build`, and `pnpm test:e2e` on every push and pull request.
+`.github/workflows/ci.yml` runs `pnpm check`, `pnpm test`, `pnpm build`, `pnpm test:e2e`, and `pnpm test:local` on every push and pull request.
+
+## Demo deployment
+
+`netlify.toml` builds the public demo: `pnpm build` into `dist/`, with the `demo` adapter so the editor needs no server. Production deploys set `BRAND_HUB_INDEXING=true`, which turns on `indexing` in `hub.config.ts`; deploy previews and branch deploys stay `noindex`. Netlify's `URL` variable becomes Astro's `site`, which adds canonical links. `public/demo-template/` is the page the demo's template entries open.
 
 ## JavaScript on pages
 
@@ -154,7 +176,7 @@ Every page loads one small shell script (about 2.5 KB gzipped) for the theme swi
 
 ## Commit hooks
 
-`.githooks/commit-msg` rejects commit messages with tool or assistant attribution lines and messages with em dashes. `pnpm install` runs `scripts/setup-hooks.mjs`, which sets `git config core.hooksPath .githooks`. Do not bypass the hook with `--no-verify`.
+`.githooks/commit-msg` rejects commit messages with tool or assistant attribution lines and messages with em dashes. Run `pnpm setup-hooks` once after cloning: it sets `git config core.hooksPath .githooks`. It is not an install script, so instances that install the engine from git run nothing. Do not bypass the hook with `--no-verify`.
 
 ## Documentation
 
@@ -165,4 +187,4 @@ Every page loads one small shell script (about 2.5 KB gzipped) for the theme swi
 
 ## License
 
-MIT. See `LICENSE`. The demo brand's Inter font files are under the SIL Open Font License 1.1 (`brands/demo/files/fonts/inter/OFL.txt`).
+MIT. See `LICENSE`. The demo brand's icons (Bootstrap Icons, MIT) and fonts (Inter and Fraunces, SIL Open Font License 1.1) keep their own licenses, listed in `THIRD_PARTY.md`.
