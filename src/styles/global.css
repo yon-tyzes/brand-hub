@@ -140,33 +140,139 @@ h4, .h4 { font-size: var(--step-2); line-height: var(--leading-snug); letter-spa
 }
 .skip-link:focus { transform: none; }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons (DESIGN_SYSTEM.md, Button) ---------- */
 
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
-  min-height: 48px; padding: 12px 20px;
-  border: 1px solid transparent; border-radius: var(--radius-control);
-  font-size: var(--step-0); line-height: 1.5; font-weight: var(--weight-medium);
-  text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 14px;
+  border: 1px solid transparent; border-radius: var(--radius-md);
+  font-size: var(--label-size); line-height: 1; font-weight: 500;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
-.btn svg { width: 20px; height: 20px; flex: none; }
-.btn-sm { min-height: 40px; padding: 8px 14px; font-size: var(--step--1); }
-.btn-sm svg { width: 16px; height: 16px; }
-/* At 320px wide, long labels such as "Download variable font (ZIP)" wrap instead of widening the page. */
-@media (max-width: 359px) {
-  .btn { white-space: normal; text-align: center; }
-}
-.btn-primary { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
-.btn-primary:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
-.btn-secondary { background: var(--color-surface); border-color: var(--color-border); color: var(--color-text); }
-.btn-secondary:hover { background: var(--color-surface-2); border-color: var(--color-border-strong); }
-.btn-text { background: none; color: var(--color-text); padding-inline: 4px; min-height: 40px; }
-.btn-text:hover { color: var(--color-link); text-decoration: underline; }
-.btn-icon { padding: 0; width: 40px; min-height: 40px; }
-.btn[aria-disabled="true"], .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn svg { flex: none; }
+.btn-sm { height: 32px; padding: 0 10px; gap: 6px; font-size: 13px; }
+.btn-primary { background: var(--fill-primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--fill-primary-hover); }
+.btn-secondary { background: var(--bg); border-color: var(--border-control); color: var(--text); }
+.btn-secondary:hover { background: var(--surface-subtle); }
+.btn-ghost, .btn-text { background: transparent; color: var(--text); padding-inline: 6px; }
+.btn-ghost:hover, .btn-text:hover { background: var(--surface-subtle); }
+.btn-icon { padding: 0; width: 40px; }
 .btn-block { width: 100%; }
-@media (max-width: 479px) { .btn-block-sm { width: 100%; } }
+.btn-format { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.btn-primary .btn-format { color: inherit; opacity: 0.75; }
+.btn[aria-disabled="true"] { opacity: 0.5; }
+/* Phones: 44px targets, and buttons wrap their label rather than widen the page. */
+@media (max-width: 767.98px) {
+  .btn:not(.btn-sm) { height: auto; min-height: 44px; white-space: normal; text-align: center; }
+}
+
+/* Long and short versions of one label: the short one on phones. */
+.label-short { display: none; }
+@media (max-width: 767.98px) {
+  .label-long { display: none; }
+  .label-short { display: inline; }
+}
+
+/* ---------- Chips (DESIGN_SYSTEM.md, Chip) ---------- */
+
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; flex: none;
+  height: 32px; padding: 0 12px; border-radius: var(--radius-pill);
+  background: var(--bg); border: 1px solid var(--border-control); color: var(--text);
+  font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+}
+.chip:hover { background: var(--surface-subtle); }
+.chip[aria-pressed="true"] { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-primary); }
+.chip-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+/* Frosted quick picks over the hero mesh (DESIGN_SYSTEM.md, section 8). */
+.chip-glass {
+  background: var(--glass-fill); border-color: var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+.chip-glass:hover { background: var(--glass-fill-strong); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Asset card (DESIGN_SYSTEM.md, AssetCard) ---------- */
+
+.asset-card {
+  position: relative; display: flex; flex-direction: column;
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-raised); overflow: hidden;
+  transition: transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);
+}
+.asset-card:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.asset-well {
+  height: 150px; display: grid; place-items: center; flex: none;
+  background: var(--surface-subtle); border-bottom: 1px solid var(--border);
+}
+.asset-well img { max-width: 70%; max-height: 56px; object-fit: contain; }
+.asset-body { display: flex; flex-direction: column; flex: 1; padding: 14px 16px 16px; }
+.asset-title { margin: 0; font-size: var(--label-size); line-height: var(--label-leading); font-weight: 500; letter-spacing: 0; }
+.asset-title a { color: inherit; text-decoration: none; }
+.asset-title a:hover { text-decoration: underline; }
+.asset-help { margin: 4px 0 0; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+.asset-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 14px; }
+/* Library page cards: larger well and title. */
+.asset-card-lg .asset-body { padding: 16px 20px 20px; }
+.asset-card-lg .asset-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.asset-card-lg .asset-help { font-size: var(--small-size); }
+.asset-card-lg .asset-actions { padding-top: 16px; }
+@media (max-width: 767.98px) {
+  .asset-card-lg .asset-body { padding: 14px 16px 16px; }
+}
+
+/* ---------- Value rows (DESIGN_SYSTEM.md, ColorSwatch) ---------- */
+
+.value-rows { display: grid; }
+.value-row {
+  width: calc(100% + 12px); margin: 0 -6px; height: 30px; padding: 0 6px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text);
+  font-family: var(--font-mono); font-size: 12px; cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+.value-row:hover { background: var(--surface-subtle); }
+.value-row-use { font-family: var(--font-sans); font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.value-row-value { overflow-wrap: anywhere; text-align: right; }
+
+/* ---------- Rules strip ---------- */
+
+.rule-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
+  padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-subtle); font-size: var(--small-size); line-height: 1.5;
+}
+.rule-strip p { margin: 0; }
+.rule-strip-label { font-weight: 500; }
+.rule-strip-line { color: var(--text-secondary); }
+.rule-strip-link { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--text); text-decoration: none; }
+.rule-strip-link:hover { text-decoration: underline; }
+@media (max-width: 767.98px) {
+  .rule-strip { display: block; }
+  .rule-strip-label { margin-bottom: 4px; }
+  .rule-strip-line { display: inline; }
+  .rule-strip-line + .rule-strip-line::before { content: " "; }
+  .rule-strip-link { display: flex; min-height: 44px; margin: 0; }
+}
+
+/* ---------- Library page frame ---------- */
+
+.library { box-sizing: border-box; max-width: var(--content-max); padding: 48px 48px 96px; display: flex; flex-direction: column; gap: 32px; }
+@media (max-width: 991.98px) { .library { padding: 32px var(--gutter) 64px; } }
+@media (max-width: 767.98px) { .library { padding: 24px var(--gutter) 48px; gap: 20px; } }
+.library-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.library-title { margin: 0; font-size: var(--h1-size); line-height: var(--h1-leading); font-weight: 600; letter-spacing: var(--h1-tracking); }
+.library-intro { margin: 8px 0 0; font-size: var(--body-size); line-height: var(--body-leading); color: var(--text-secondary); }
+@media (max-width: 767.98px) { .library-title { font-size: 28px; } }
+.library-section-title { margin: 0 0 20px; font-size: var(--h2-size); line-height: var(--h2-leading); font-weight: 600; letter-spacing: var(--h2-tracking); }
+@media (max-width: 767.98px) { .library-section-title { font-size: 20px; margin-bottom: 16px; } }
+.library-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fill, minmax(var(--card-min, 230px), 1fr)); }
+@media (max-width: 767.98px) { .library-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
 
 /* ---------- Card ---------- */
 

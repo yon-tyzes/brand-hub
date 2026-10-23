@@ -1,10 +1,11 @@
 // Shared public components (docs/DESIGN_SYSTEM.md). Rendered to static HTML by Astro on the site, with no
 // hydration, and rendered live by the editor's preview. Behavior comes from src/scripts/*, not from React.
-import { createContext, useContext, type ReactNode } from "react";
-import type { Asset, RuleAsset } from "../../schemas/asset.ts";
+import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
+import type { Asset, ColorAsset, RuleAsset } from "../../schemas/asset.ts";
 import { renderMarkdown } from "../lib/markdown.ts";
 import { uiIconSvg } from "../lib/ui-icons.ts";
 import type { Site } from "./data.ts";
+import type { ColorRow, Download, RuleStripData } from "./library.ts";
 
 export const SiteContext = createContext<Site | null>(null);
 export function useSite(): Site {
@@ -18,11 +19,14 @@ export const Icon = ({ name, size = 20 }: { name: string; size?: number }) => (
 );
 
 type ButtonProps = {
-  variant?: "primary" | "secondary" | "text";
+  /** One primary per view (DESIGN_SYSTEM.md, Button). "text" is the 0.1 name for ghost. */
+  variant?: "primary" | "secondary" | "ghost" | "text";
   size?: "md" | "sm";
   href?: string;
   icon?: string;
   iconEnd?: string;
+  /** Format shown beside the label, in small type: "For Word and PowerPoint" PNG. */
+  format?: string;
   /** Opens in a new tab with an announced hint. */
   external?: boolean;
   download?: string | true;
@@ -32,25 +36,142 @@ type ButtonProps = {
   "aria-label"?: string;
 } & Record<`data-${string}`, string | undefined>;
 
-export function Button({ variant = "secondary", size = "md", href, icon, iconEnd, external, download, className, children, type = "button", ...rest }: ButtonProps) {
-  const classes = ["btn", `btn-${variant}`, size === "sm" && "btn-sm", className].filter(Boolean).join(" ");
+export function Button({ variant = "secondary", size = "md", href, icon, iconEnd, format, external, download, className, children, type = "button", ...rest }: ButtonProps) {
+  const v = variant === "text" ? "ghost" : variant;
+  const classes = ["btn", `btn-${v}`, size === "sm" && "btn-sm", className].filter(Boolean).join(" ");
   const end = iconEnd ?? (external ? "external" : undefined);
+  const iconSize = 16;
+  const body = (
+    <>
+      {icon && <Icon name={icon} size={iconSize} />}
+      {children}
+      {format && <span className="btn-format">{format}</span>}
+    </>
+  );
   if (href) {
     return (
       <a className={classes} href={href} {...(external ? { target: "_blank", rel: "noopener" } : {})} download={download === true ? "" : download} {...rest}>
-        {icon && <Icon name={icon} />}
-        {children}
+        {body}
         {external && <span className="visually-hidden">(opens in a new tab)</span>}
-        {end && <Icon name={end} />}
+        {end && <Icon name={end} size={iconSize} />}
       </a>
     );
   }
   return (
     <button className={classes} type={type} {...rest}>
-      {icon && <Icon name={icon} />}
-      {children}
-      {iconEnd && <Icon name={iconEnd} />}
+      {body}
+      {iconEnd && <Icon name={iconEnd} size={iconSize} />}
     </button>
+  );
+}
+
+/** A button or link that downloads a file, named by use with the format beside it. */
+export function DownloadButton({ d, variant = "secondary", size, short, assetLabel }: { d: Download; variant?: "primary" | "secondary"; size?: "md" | "sm"; short?: boolean; assetLabel: string }) {
+  return (
+    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={d.format} aria-label={`${short ? d.short : d.label}, ${d.format}: ${assetLabel}`}>
+      {short ? d.short : (
+        <>
+          <span className="label-long">{d.label}</span>
+          <span className="label-short">{d.short}</span>
+        </>
+      )}
+    </Button>
+  );
+}
+
+/**
+ * Chips (DESIGN_SYSTEM.md, Chip): quick picks and filters. `pressed` makes it a filter toggle. `dot` is the brand
+ * color the chip names, the one place brand color appears in a shell control.
+ */
+export function Chip({ children, href, pressed, dot, icon, glass, download, className, ...rest }: {
+  children: ReactNode; href?: string; pressed?: boolean; dot?: string; icon?: string; glass?: boolean; download?: string; className?: string;
+} & Record<`data-${string}`, string | undefined> & { "aria-label"?: string }) {
+  const classes = ["chip", glass && "chip-glass", className].filter(Boolean).join(" ");
+  const body = (
+    <>
+      {dot && <span className="chip-dot" style={{ background: dot }} aria-hidden="true" />}
+      {icon && <Icon name={icon} size={16} />}
+      {children}
+    </>
+  );
+  if (href) return <a className={classes} href={href} download={download} {...rest}>{body}</a>;
+  return <button className={classes} type="button" aria-pressed={pressed === undefined ? undefined : pressed} {...rest}>{body}</button>;
+}
+
+/**
+ * An asset card (DESIGN_SYSTEM.md, AssetCard): the real asset in the well, a title, one line on where it is
+ * used, and its actions, always visible. Nothing sits above the title.
+ */
+export function AssetCard({ id, title, help, well, wellStyle, actions, children, headingLevel = 3, size = "md", className }: {
+  id?: string; title: ReactNode; help?: string; well?: ReactNode; wellStyle?: CSSProperties; actions?: ReactNode; children?: ReactNode;
+  headingLevel?: 2 | 3; size?: "md" | "lg"; className?: string;
+}) {
+  const H = `h${headingLevel}` as "h2" | "h3";
+  return (
+    <article className={["asset-card", size === "lg" && "asset-card-lg", className].filter(Boolean).join(" ")} id={id}>
+      {well !== undefined && <div className="asset-well" style={wellStyle}>{well}</div>}
+      <div className="asset-body">
+        <H className="asset-title">{title}</H>
+        {help && <p className="asset-help">{help}</p>}
+        {children}
+        {actions && <div className="asset-actions">{actions}</div>}
+      </div>
+    </article>
+  );
+}
+
+/** Copyable value rows labeled by use (DESIGN_SYSTEM.md, ColorSwatch). Clicking a row copies its value. */
+export function ColorRows({ color, rows, className }: { color: ColorAsset; rows: ColorRow[]; className?: string }) {
+  return (
+    <ul className={["value-rows", className].filter(Boolean).join(" ")} role="list">
+      {rows.map((r) => (
+        <li key={r.use} data-use={r.use.toLowerCase()}>
+          <button className="value-row" type="button" data-copy={r.value} data-copy-name={color.label} aria-label={`Copy ${r.name} ${r.value}: ${color.label}`}>
+            <span className="value-row-use">{r.use}</span>
+            <span className="value-row-value">{r.value}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The short strip of rules at the top of a Library page, with a link to the chapter. */
+export function RuleStrip({ strip }: { strip?: RuleStripData }) {
+  if (!strip) return null;
+  return (
+    <aside className="rule-strip" aria-label={strip.label}>
+      <p className="rule-strip-label">{strip.label}</p>
+      {strip.lines.map((l) => <p key={l} className="rule-strip-line">{l}</p>)}
+      {strip.link && (
+        <a className="rule-strip-link" href={strip.link.href}>
+          {strip.link.label}
+          <Icon name="arrow-right" size={16} />
+        </a>
+      )}
+    </aside>
+  );
+}
+
+/** A Library page's title and intro. `introShort` replaces the intro on phones. */
+export function LibraryHead({ title, intro, introShort, action }: { title: string; intro?: ReactNode; introShort?: ReactNode; action?: ReactNode }) {
+  return (
+    <div className="library-head">
+      <div>
+        <h1 className="library-title">{title}</h1>
+        {intro && (
+          <p className="library-intro">
+            {introShort ? (
+              <>
+                <span className="label-long">{intro}</span>
+                <span className="label-short">{introShort}</span>
+              </>
+            ) : intro}
+          </p>
+        )}
+      </div>
+      {action}
+    </div>
   );
 }
 
