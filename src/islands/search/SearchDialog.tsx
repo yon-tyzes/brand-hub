@@ -1,6 +1,6 @@
-// Search dialog (docs/DESIGN_SYSTEM.md, "Search dialog"). Loads the build-time MiniSearch index on first open.
-// Keys: type to search, Down moves into results, Up and Down move between results, Enter runs the
-// default action (first action), Escape closes and returns focus to the opener.
+// Search dialog (SearchOpen.dc.html, SearchMobile.dc.html; DESIGN_SYSTEM.md, SearchField). Loads the
+// build-time MiniSearch index on first open. Results are grouped by type and carry inline actions.
+// Keys: Up and Down move between results, Enter runs the first action, Escape closes and returns focus.
 import { useEffect, useMemo, useRef, useState } from "react";
 import MiniSearch, { type SearchResult } from "minisearch";
 import { copyText } from "../../scripts/client.ts";
@@ -39,6 +39,21 @@ const Svg = ({ markup, className }: { markup: string; className?: string }) => (
   <span className={className} aria-hidden="true" dangerouslySetInnerHTML={{ __html: markup }} />
 );
 
+function Thumb({ hit: h }: { hit: Hit }) {
+  if (h.swatch) return <span className="result-thumb" style={{ background: h.swatch }} aria-hidden="true" />;
+  if (h.image) {
+    return (
+      <span className="result-thumb result-thumb-image" style={h.ground ? { background: h.ground } : undefined} aria-hidden="true">
+        <img src={h.image} alt="" loading="lazy" />
+      </span>
+    );
+  }
+  return <Svg className="result-thumb result-thumb-icon" markup={h.svg ?? uiIconSvg(h.type === "rule" ? "book" : "arrow-right", 18)} />;
+}
+
+/** Results whose only action opens a page are links; the rest show their actions inline. */
+const isLink = (h: Hit) => h.actions.length > 0 && h.actions.every((a) => a.kind === "open");
+
 export function SearchDialog({ register }: { register: (api: SearchApi) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -46,6 +61,7 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
   const [index, setIndex] = useState<MiniSearch<SearchDoc> | null>(null);
   const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
 
   useEffect(() => {
     register({
@@ -66,6 +82,9 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
     for (const h of hits) map.set(h.group, [...(map.get(h.group) ?? []), h]);
     return [...map];
   }, [hits]);
+  // Results in the order they are drawn, so arrows and the highlight follow the groups.
+  const ordered = useMemo(() => groups.flatMap(([, items]) => items), [groups]);
+  useEffect(() => setActive(0), [query]);
 
   const close = () => dialog.current?.close();
   const run = (action: SearchAction | undefined) => {
@@ -96,43 +115,40 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
     }
     if (e.key === "Enter" && document.activeElement === input.current) {
       e.preventDefault();
-      run(hits[0]?.actions[0]);
+      run(ordered[active]?.actions[0]);
     }
   }
 
-  const status = !query.trim()
-    ? ""
-    : !index
-      ? failed ? "Search could not load. Reload the page and try again." : "Loading search"
-      : `${hits.length} ${hits.length === 1 ? "result" : "results"}`;
+  const count = `${hits.length} ${hits.length === 1 ? "result" : "results"}`;
+  const status = !query.trim() ? "" : !index ? (failed ? "Search could not load. Reload the page and try again." : "Loading search") : count;
 
   return (
     <dialog
       ref={dialog}
       className="search-dialog"
-      aria-labelledby="search-title"
+      aria-label="Search the brand"
       onKeyDown={onKeyDown}
       onClose={() => opener.current?.focus()}
       onClick={(e) => e.target === dialog.current && close()}
     >
-      <h2 id="search-title" className="visually-hidden">Search</h2>
-      <div className="search-input-row">
-        <Svg markup={uiIconSvg("search")} />
-        <input
-          ref={input}
-          className="search-input"
-          type="search"
-          placeholder="Search assets and rules"
-          aria-label="Search assets and rules"
-          aria-describedby="search-status"
-          autoComplete="off"
-          spellCheck={false}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button className="btn btn-text btn-sm" type="button" onClick={close}>
-          Close <kbd className="kbd" aria-hidden="true">Esc</kbd>
-        </button>
+      <div className="search-head">
+        <div className="search-input-row">
+          <Svg markup={uiIconSvg("search", 20)} />
+          <input
+            ref={input}
+            className="search-input"
+            type="search"
+            placeholder="Search the brand"
+            aria-label="Search the brand"
+            aria-describedby="search-status"
+            autoComplete="off"
+            spellCheck={false}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button className="search-esc" type="button" onClick={close} aria-label="Close search">Esc</button>
+        </div>
+        <button className="search-cancel" type="button" onClick={close}>Cancel</button>
       </div>
       <p id="search-status" className="visually-hidden" role="status">{status}</p>
       {query.trim() !== "" && (
@@ -141,41 +157,64 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
           {failed && <p className="search-empty">{status}</p>}
           {groups.map(([group, items]) => (
             <section className="search-group" key={group} aria-label={group}>
-              <h3>{group}</h3>
+              <p className="search-group-label" aria-hidden="true">{group}</p>
               <ul role="list">
                 {items.map((h) => {
-                  const [first, ...more] = h.actions;
-                  return (
-                    <li className="search-result" key={h.id}>
-                      <button className="search-result-main" type="button" data-result-main onClick={() => run(first)}>
-                        {h.swatch ? (
-                          <span className="swatch-dot" style={{ background: h.swatch }} aria-hidden="true" />
-                        ) : h.image ? (
-                          <img className="result-thumb" src={h.image} alt="" loading="lazy" data-bg={h.imageBg} />
-                        ) : (
-                          <Svg className="icon-tile icon-tile-sm" markup={h.svg ?? uiIconSvg(h.type === "rule" ? "book" : "arrow-right")} />
-                        )}
-                        <span>
-                          <strong>{h.label}</strong>
-                          <small>
-                            {first ? `${first.label} · ` : ""}
-                            {h.typeLabel}
-                          </small>
-                        </span>
-                      </button>
-                      <span className="search-result-actions">
-                        {more.slice(0, 2).map((a) => (
-                          <button key={a.label} className="btn btn-secondary btn-sm" type="button" onClick={() => run(a)} aria-label={`${a.label}: ${h.label}`}>
-                            {a.label}
-                          </button>
-                        ))}
+                  const n = ordered.indexOf(h);
+                  const link = isLink(h);
+                  const first = h.actions[0];
+                  const body = (
+                    <>
+                      <Thumb hit={h} />
+                      <span className="search-result-text">
+                        <span className="search-result-label">{h.label}</span>
+                        {h.help && <span className="search-result-help">{h.help}</span>}
                       </span>
+                      {link && <Svg className="search-result-arrow" markup={uiIconSvg("arrow-right", 16)} />}
+                    </>
+                  );
+                  return (
+                    <li className={n === active ? "search-result is-active" : "search-result"} key={h.id}>
+                      {link && first?.kind === "open" ? (
+                        <a className="search-result-main" href={first.href} data-result-main onFocus={() => setActive(n)} onClick={(e) => { e.preventDefault(); run(first); }}>
+                          {body}
+                        </a>
+                      ) : (
+                        <button className="search-result-main" type="button" data-result-main onFocus={() => setActive(n)} onClick={() => run(first)}
+                          aria-label={first ? `${h.label}: ${first.kind === "copy" ? `copy ${first.label}` : first.label}` : h.label}>
+                          {body}
+                        </button>
+                      )}
+                      {!link && h.actions.length > 0 && (
+                        <span className={h.type === "color" ? "search-result-actions is-values" : "search-result-actions"}>
+                          {h.actions.filter((a) => a.kind !== "open").slice(0, 3).map((a, i) => (
+                            <button
+                              key={a.label}
+                              className={["btn btn-sm", i === 0 && a.kind === "copy" ? "btn-primary" : "btn-secondary", a.kind === "copy" && a.value ? "btn-value" : ""].join(" ")}
+                              type="button"
+                              onClick={() => run(a)}
+                              aria-label={`${a.kind === "copy" ? "Copy" : "Download"} ${a.label}: ${h.label}`}
+                            >
+                              {i === 0 && a.kind === "copy" && <Svg markup={uiIconSvg("copy", 16)} />}
+                              {a.kind === "copy" && i === 0 && <span className="label-short">Copy&nbsp;</span>}
+                              {a.label}
+                            </button>
+                          ))}
+                        </span>
+                      )}
                     </li>
                   );
                 })}
               </ul>
             </section>
           ))}
+        </div>
+      )}
+      {query.trim() !== "" && index && hits.length > 0 && (
+        <div className="search-foot" aria-hidden="true">
+          <span><kbd>↑↓</kbd>Move</span>
+          <span><kbd>Enter</kbd>Copy or download</span>
+          <span className="search-foot-count">{count}</span>
         </div>
       )}
     </dialog>

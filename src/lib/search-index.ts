@@ -3,6 +3,7 @@ import MiniSearch from "minisearch";
 import type { Asset } from "../../schemas/asset.ts";
 import { MODULES } from "../modules/registry.ts";
 import { logoFile, MODULE_FOR_TYPE, TYPE_LABEL } from "../site/data.ts";
+import { darkGround } from "../site/library.ts";
 import { searchOptions, type SearchDoc } from "./search-config.ts";
 import { site } from "./site-server.ts";
 
@@ -30,7 +31,7 @@ export function searchDocs(): SearchDoc[] {
       swatch: a.type === "color" ? a.hex : undefined,
       svg: a.type === "icon" ? site.iconMarkup(a, 20) : undefined,
       image: previewImage(a),
-      imageBg: a.type === "logo" ? a.background : undefined,
+      ground: a.type === "logo" && a.background === "dark" ? darkGround(site) : undefined,
       actions: site.actionsFor(a),
     });
   }
@@ -38,8 +39,9 @@ export function searchDocs(): SearchDoc[] {
     for (const r of site.rules) {
       const href = site.assetHref(r);
       docs.push({
-        id: r.id, type: "rule", typeLabel: "Rule", group: MODULES.guide.label, label: r.title, help: r.label,
-        keywords: (r.keywords ?? []).join(" "), actions: href ? [{ kind: "open", label: "Read rule", href }] : [],
+        id: r.id, type: "rule", typeLabel: "Rule", group: "Rules", label: r.title,
+        help: `${MODULES.guide.label}, ${site.brand.guide.chapters.find((c) => c.id === r.chapter)?.title ?? r.label}`,
+        keywords: (r.keywords ?? []).join(" "), actions: href ? [{ kind: "open", label: "Open", href }] : [],
       });
     }
   }

@@ -2,7 +2,8 @@
 import type { Options } from "minisearch";
 
 export type SearchAction =
-  | { kind: "copy"; label: string; text: string; message: string }
+  /** `value`: the label is the value itself, set in the mono face. */
+  | { kind: "copy"; label: string; text: string; message: string; value?: boolean }
   | { kind: "download"; label: string; href: string; filename: string }
   | { kind: "open"; label: string; href: string; external?: boolean };
 
@@ -21,8 +22,8 @@ export interface SearchDoc {
   svg?: string;
   /** Preview image URL for logo and template results. */
   image?: string;
-  /** Background the preview image is drawn for. */
-  imageBg?: "light" | "dark";
+  /** Ground color behind the preview image (logos made for dark backgrounds). */
+  ground?: string;
   /** First action is the default (Enter). */
   actions: SearchAction[];
 }
@@ -31,6 +32,6 @@ export const SEARCH_INDEX_URL = "/search-index.json";
 
 export const searchOptions: Options<SearchDoc> = {
   fields: ["label", "keywords", "help", "typeLabel"],
-  storeFields: ["type", "typeLabel", "group", "label", "help", "swatch", "svg", "image", "imageBg", "actions"],
+  storeFields: ["type", "typeLabel", "group", "label", "help", "swatch", "svg", "image", "ground", "actions"],
   searchOptions: { boost: { label: 3, keywords: 2 }, prefix: true, fuzzy: 0.2 },
 };

@@ -33,7 +33,6 @@ export const LOGOS_ZIP = "/downloads/logos-all.zip";
 
 const dateFormat = new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 export const formatDate = (iso: string) => dateFormat.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso));
-export const formatRgb = (c: ColorAsset) => `rgb(${c.rgb.join(", ")})`;
 export const formatCmyk = (c: ColorAsset) => (c.cmyk ? c.cmyk.join(", ") : undefined);
 export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
@@ -115,45 +114,34 @@ export function createSite(input: SiteInput) {
     },
     /** Newest first. */
     sortedChangelog: (): ChangelogEntry[] => [...input.changelog].sort((a, b) => b.date.localeCompare(a.date)),
-    /** Inline actions for an asset, default first. Shared by search results and the home Quick downloads. */
+    /** Inline actions for an asset in search results, default first. Labels are short: the value or the format. */
     actionsFor: (a: Asset): SearchAction[] => {
       const href = assetHref(a);
-      const view = (label = "View"): SearchAction[] => (href ? [{ kind: "open", label, href }] : []);
+      const view = (label = "Open"): SearchAction[] => (href ? [{ kind: "open", label, href }] : []);
+      const copy = (name: string, value: string): SearchAction => ({ kind: "copy", label: value, text: value, message: `${name} ${value} copied`, value: true });
       switch (a.type) {
         case "color":
-          return [
-            { kind: "copy", label: "Copy hex", text: a.hex, message: `${a.label} hex ${a.hex} copied.` },
-            { kind: "copy", label: "Copy RGB", text: formatRgb(a), message: `${a.label} RGB ${formatRgb(a)} copied.` },
-            ...view(),
-          ];
+          return [copy(a.label, a.hex), ...(a.pms ? [copy(a.label, a.pms)] : [])];
         case "icon":
-          return [
-            ...view("Open icon"),
-            { kind: "copy", label: "Copy SVG", text: iconMarkup(a), message: `${a.label} icon SVG copied.` },
-            { kind: "download", label: "Download SVG", href: input.urlFor(a.svgPath), filename: fileName(a.svgPath) },
-          ];
+          return [...view(), { kind: "download", label: "SVG", href: input.urlFor(a.svgPath), filename: fileName(a.svgPath) }];
         case "logo": {
           const out: SearchAction[] = [];
-          for (const ext of ["svg", "png"]) {
+          for (const ext of ["png", "svg"]) {
             const f = logoFile(a, ext);
-            if (f) out.push({ kind: "download", label: `Download ${ext.toUpperCase()}`, href: input.urlFor(f.path), filename: fileName(f.path) });
+            if (f) out.push({ kind: "download", label: ext.toUpperCase(), href: input.urlFor(f.path), filename: fileName(f.path) });
           }
           return [...out, ...view()];
         }
-        case "font":
-          return [
-            ...fontZips(a).map((z): SearchAction => ({ kind: "download", label: `Download ${z.kind} fonts`, href: z.href, filename: z.href.split("/").pop()! })),
-            ...view(),
-          ];
+        case "font": {
+          const z = fontZips(a)[0];
+          return [...(z ? [{ kind: "download", label: "Font files", href: z.href, filename: z.href.split("/").pop()! } as SearchAction] : []), ...view()];
+        }
         case "template":
-          return [
-            ...templateLinks(a, input.urlFor).map((l): SearchAction =>
-              l.filename ? { kind: "download", label: `Download ${l.label}`, href: l.href, filename: l.filename } : { kind: "open", label: l.label, href: l.href, external: l.external },
-            ),
-            ...view(),
-          ];
+          return templateLinks(a, input.urlFor).map((l): SearchAction =>
+            l.filename ? { kind: "download", label: l.label, href: l.href, filename: l.filename } : { kind: "open", label: l.label, href: l.href, external: l.external },
+          );
         case "photo-source":
-          return [{ kind: "open", label: "Open photo library", href: a.url, external: true }, ...view()];
+          return [{ kind: "open", label: "Open photo library", href: a.url, external: true }];
         default:
           return view();
       }
