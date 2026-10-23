@@ -12,6 +12,8 @@ export interface StoredFile {
   blob: Blob;
   width?: number;
   height?: number;
+  /** What cleaning the upload changed, shown next to the file. */
+  notes?: string[];
 }
 
 export interface Draft {
@@ -101,6 +103,14 @@ export const setStatus = (ids: string[], status: Status): Edit => (d) =>
   mapRecords(d, (r) => (ids.includes(r.id) && r.status !== status ? ({ ...r, status } as AnyRecord) : r));
 
 export const retire = (ids: string[]): Edit => setStatus(ids, "retired");
+
+/** Puts a deleted record back at its old position (Undo on the delete toast). */
+export const restoreRecord = (record: AnyRecord, index: number): Edit => (d) =>
+  d.records.some((r) => r.id === record.id) ? d : { ...d, records: [...d.records.slice(0, index), record, ...d.records.slice(index)] };
+
+/** Sets each record back to the status it had (Undo on the retire toast). */
+export const restoreStatuses = (previous: Record<string, Status>): Edit => (d) =>
+  mapRecords(d, (r) => (previous[r.id] && previous[r.id] !== r.status ? ({ ...r, status: previous[r.id] } as AnyRecord) : r));
 
 /** Removes a record for good. Its files leave the brand folder when the change set is applied. */
 export const deleteRecord = (id: string): Edit => (d) => ({ ...d, records: d.records.filter((r) => r.id !== id) });
