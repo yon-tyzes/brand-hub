@@ -16,58 +16,6 @@ const PageHead = ({ title, children }: { title: string; children?: React.ReactNo
   </div>
 );
 
-export function LogosPage() {
-  const site = useSite();
-  const logos = site.assetsOfType("logo");
-  const label = (f: { ext: string; width?: number }) => `Download ${f.ext.toUpperCase()}${f.width ? `, ${f.width} px` : ""}`;
-  return (
-    <>
-      <PageHead title={MODULES.logos.label}>
-        {logos.length > 0 && (
-          <div className="row">
-            <Button href={LOGOS_ZIP} download icon="download">Download all logos (ZIP)</Button>
-          </div>
-        )}
-      </PageHead>
-      <section className="section frame" aria-label="Logo files">
-        <div className="grid cards-2">
-          {logos.map((l) => (
-            <Card
-              key={l.id}
-              headingLevel={2}
-              id={l.id}
-              title={l.label}
-              description={l.help}
-              preview={<AssetPreview record={l} urlFor={site.urlFor} />}
-              meta={<span className="caption">{l.lockup} · {l.colorway}</span>}
-              footer={
-                <ul className="row" role="list" aria-label={`Downloads: ${l.label}`}>
-                  {l.files.map((f) => (
-                    <li key={f.path}>
-                      <Button size="sm" href={site.urlFor(f.path)} download={fileName(f.path)} icon="download" aria-label={`${label(f)}: ${l.label}`}>
-                        {label(f)}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              }
-            >
-              <div className="pills" role="group" aria-label={`Preview background: ${l.label}`} data-bg-toggle={l.id}>
-                {(["light", "dark"] as const).map((bg) => (
-                  <button key={bg} className="pill" type="button" data-bg={bg} aria-pressed={l.background === bg}>
-                    {bg === "light" ? "Light background" : "Dark background"}
-                  </button>
-                ))}
-              </div>
-              <RuleLinks asset={l} />
-            </Card>
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
-
 const USE_LABEL = { text: "Text", "large-text": "Large text", graphic: "Graphics" } as const;
 
 export function ColorsPage() {

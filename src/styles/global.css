@@ -721,6 +721,35 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
   .quick-color .value-row-icon { display: inline-flex; }
 }
 
+/* ---------- Logos ---------- */
+
+.hide-phone { display: contents; }
+.show-phone { display: none; }
+@media (max-width: 767.98px) {
+  .hide-phone { display: none; }
+  .show-phone { display: block; }
+  .show-phone .btn { width: 100%; }
+}
+
+.logo-grid { --card-min: 420px; }
+.logo-card .asset-well { height: 220px; }
+.logo-img-wide { max-width: 60%; max-height: 64px; }
+.logo-img-stacked { max-width: 40%; max-height: 120px; }
+.logo-img-mark { max-width: 88px; max-height: 88px; }
+.asset-well img.logo-img { object-fit: contain; }
+.asset-well img.logo-img-wide { max-width: 60%; max-height: 64px; }
+.asset-well img.logo-img-stacked { max-width: 40%; max-height: 120px; }
+.asset-well img.logo-img-mark { max-width: 88px; max-height: 88px; }
+@media (max-width: 767.98px) {
+  .logo-card .asset-well { height: 150px; }
+  .asset-well img.logo-img-wide { max-width: 70%; max-height: 48px; }
+  .asset-well img.logo-img-stacked { max-width: 45%; max-height: 96px; }
+  .asset-well img.logo-img-mark { max-width: 72px; max-height: 72px; }
+  .logo-card .asset-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 14px; }
+  .logo-card .asset-actions .btn { padding: 0 8px; }
+  .logo-card .asset-actions .btn svg { display: none; }
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer { border-top: 1px solid var(--border); padding-block: var(--space-5); margin-top: var(--space-7); }
