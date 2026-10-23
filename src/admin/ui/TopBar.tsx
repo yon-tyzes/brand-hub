@@ -43,7 +43,7 @@ export function TopBar({ changes, autosave, busy, canPublish, onShowChanges, onP
       <div className="row admin-top-actions">
         {autosave === "off" && <span className="small">Changes are not kept if you close this tab.</span>}
         <button type="button" className="btn btn-secondary btn-sm" onClick={onPreview}>
-          <Icon name="search" /> Preview
+          <Icon name="eye" /> Preview
         </button>
         <button type="button" className="btn btn-secondary btn-sm" onClick={onHistory}>
           History

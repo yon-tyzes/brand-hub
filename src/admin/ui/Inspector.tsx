@@ -107,7 +107,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
               </button>
               <button
                 type="button"
-                className="btn btn-primary btn-sm"
+                className="btn btn-secondary btn-sm"
                 onClick={() => {
                   const index = records.indexOf(record);
                   setConfirming(false);

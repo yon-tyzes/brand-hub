@@ -78,7 +78,7 @@ export function Grid({ filter }: { filter: StatusFilter }) {
             {DROP_HINT[mod.id] ?? `Press Add to create a ${mod.noun}.`}
           </p>
         </div>
-        <button type="button" className="btn btn-primary btn-sm" onClick={add}>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={add}>
           <Icon name="plus" /> Add {mod.noun}
         </button>
         <input

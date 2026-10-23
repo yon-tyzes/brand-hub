@@ -25,6 +25,7 @@ export const UI_ICONS: Record<string, string> = {
   flag: '<path d="M5 21V4h11l-2 4 2 4H5"/>',
   pen: '<path d="m4 20 4-1 11-11-3-3L5 16z"/><path d="m14 6 3 3"/>',
   text: '<path d="M4 6h16M4 11h16M4 16h10"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
 };
 
 export function uiIconSvg(name: string, size = 20): string {
