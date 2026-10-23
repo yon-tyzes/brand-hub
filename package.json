@@ -12,7 +12,8 @@
     "prepare": "node scripts/setup-hooks.mjs",
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "schemas": "node scripts/build-schemas.ts"
   },
   "dependencies": {
     "vite": "^8.3.5",
