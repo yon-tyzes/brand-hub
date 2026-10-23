@@ -27,7 +27,7 @@
     "schemas": "node scripts/build-schemas.ts",
     "validate": "node scripts/validate-brands.ts",
     "test": "vitest run",
-    "check": "node scripts/build-schemas.ts --check && node scripts/validate-brands.ts && node scripts/check-copy.mjs && astro check",
+    "check": "node scripts/build-schemas.ts --check && node scripts/validate-brands.ts && node scripts/check-copy.mjs && node scripts/check-shell-size.ts && astro check",
     "test:e2e": "playwright test",
     "test:local": "playwright test --config playwright.local.config.ts"
   },

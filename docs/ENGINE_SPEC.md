@@ -154,7 +154,7 @@ brands/<slug>/
 
 ### Performance and access budgets
 
-- Home page JS under 100 KB gzipped. Pages without islands ship zero JS.
+- Home page JS under 100 KB gzipped. Pages without islands ship only the shared shell script (theme, menus, search shortcut), under 5 KB gzipped.
 - LCP under 2.0s on a throttled 4G profile.
 - WCAG 2.2 AA. Every control keyboard-reachable with visible focus.
 

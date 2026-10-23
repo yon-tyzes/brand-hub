@@ -60,7 +60,7 @@ hub.config.ts ──► integration ──► loader (schemas + integrity + cont
 | `src/styles/global.css` | Base styles and component classes. Reads only tokens. |
 | `schemas/` | zod schemas for every data file, and the generated JSON Schema files. |
 | `brands/demo/` | Demo brand. |
-| `scripts/` | `check-copy.mjs`, `validate-brands.ts`, `build-schemas.ts`, `setup-hooks.mjs`. |
+| `scripts/` | `check-copy.mjs`, `check-shell-size.ts`, `validate-brands.ts`, `build-schemas.ts`, `setup-hooks.mjs`. |
 | `tests/` | Vitest tests for the loader, theme pipeline, and integration. |
 
 A module left out of `modules` in `hub.config.ts` gets no route. Navigation and search will follow the same list.
@@ -162,7 +162,8 @@ Preview renders the public pages from the draft in a panel marked "Preview, not 
 1. `build-schemas.ts --check`: JSON Schema files match the zod sources.
 2. `validate-brands.ts`: every brand under `brands/` passes the loader.
 3. `check-copy.mjs`: copy and markup standards from `docs/STANDARDS.md` in `src`, `docs`, `brands`, and this README.
-4. `astro check`: TypeScript and Astro diagnostics.
+4. `check-shell-size.ts`: the shared shell script, which loads on every page, stays under 5 KB gzipped.
+5. `astro check`: TypeScript and Astro diagnostics.
 
 `.github/workflows/ci.yml` runs `pnpm check`, `pnpm test`, `pnpm build`, `pnpm test:e2e`, and `pnpm test:local` on every push and pull request.
 
@@ -172,7 +173,7 @@ Preview renders the public pages from the draft in a panel marked "Preview, not 
 
 ## JavaScript on pages
 
-Every page loads one small shell script (about 2.5 KB gzipped) for the theme switch, menus, toasts, copy buttons, and the search shortcut. The search dialog and its index load the first time search opens. The icons page adds the icon detail island. Other pages add only small inline scripts for tabs, filters, or the logo background toggle.
+Every page loads one small shell script (about 2.5 KB gzipped, 5 KB budget checked by `pnpm check`) for the theme switch, menus, toasts, copy buttons, and the search shortcut. The search dialog and its index load the first time search opens. The icons page adds the icon detail island. Other pages add only small inline scripts for tabs, filters, or the logo background toggle.
 
 ## Commit hooks
 
