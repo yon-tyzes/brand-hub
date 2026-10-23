@@ -1,0 +1,28 @@
+---
+// Preview frame for the editor: draws public pages from draft data sent by the editor. Never indexed.
+import "../styles/global.css";
+import { config, engineVersion, fontCss, themeCss } from "virtual:brand-hub";
+import PreviewApp from "./preview/PreviewApp.tsx";
+
+const previewConfig = { modules: config.modules, indexing: config.indexing, search: config.search };
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Preview</title>
+    <style is:inline set:html={themeCss}></style>
+    {fontCss && <style is:inline set:html={fontCss}></style>}
+  </head>
+  <body>
+    <PreviewApp client:only="react" config={previewConfig} engineVersion={engineVersion}>
+      <main slot="fallback" class="admin-message">
+        <h1 class="h3">Preview</h1>
+        <p role="status">Waiting for the editor. Open the preview from the editor's Preview button.</p>
+      </main>
+    </PreviewApp>
+  </body>
+</html>
