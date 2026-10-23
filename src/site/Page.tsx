@@ -2,7 +2,7 @@
 import type { ReactNode } from "react";
 import type { ModuleId } from "../../schemas/hub-config.ts";
 import { MODULES } from "../modules/registry.ts";
-import { Footer, Header } from "./Chrome.tsx";
+import { Footer, Header, Sidebar } from "./Chrome.tsx";
 import type { Site } from "./data.ts";
 import { ColorsPage, FontsPage, IconsPage, LogosPage, PhotosPage, TemplatesPage } from "./pages/AssetPages.tsx";
 import { GuidePage, HomePage, PlaceholderPage, RulePage, WhatsNewPage } from "./pages/OtherPages.tsx";
@@ -57,21 +57,33 @@ export const SiteHeader = ({ site, path }: { site: Site; path: string }) => (
   </SiteContext.Provider>
 );
 
+export const SiteSidebar = ({ site, path }: { site: Site; path: string }) => (
+  <SiteContext.Provider value={site}>
+    <Sidebar path={path} />
+  </SiteContext.Provider>
+);
+
 export const SiteFooter = ({ site }: { site: Site }) => (
   <SiteContext.Provider value={site}>
     <Footer />
   </SiteContext.Provider>
 );
 
-/** A whole page body (header, main, footer) for the editor's preview frame. */
+/** A whole page (top bar, sidebar, main, footer) for the editor's preview frame. Same structure as Layout.astro. */
 export function PreviewDocument({ site, page }: { site: Site; page: PageId }) {
+  const path = pagePath(page).replace(/\/$/, "") || "/";
   return (
     <SiteContext.Provider value={site}>
-      <Header path={pagePath(page).replace(/\/$/, "") || "/"} />
-      <main id="main" tabIndex={-1}>
-        <PageBody site={site} page={page} />
-      </main>
-      <Footer />
+      <Header path={path} />
+      <div className="shell">
+        <Sidebar path={path} />
+        <div className="shell-main">
+          <main id="main" tabIndex={-1}>
+            <PageBody site={site} page={page} />
+          </main>
+          <Footer />
+        </div>
+      </div>
     </SiteContext.Provider>
   );
 }

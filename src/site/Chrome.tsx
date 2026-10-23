@@ -1,7 +1,8 @@
 // Site top bar and footer (docs/DESIGN_SYSTEM.md, TopTabs). Theme, search, and the frosted bar are wired by
 // src/scripts/shell.ts.
 import { formatDate, logoFile } from "./data.ts";
-import { currentTab, navTabs } from "./nav.ts";
+import { currentTab, navTabs, sidebarFor } from "./nav.ts";
+import { uiIconSvg } from "../lib/ui-icons.ts";
 import { Icon, ThemeToggle, useSite } from "./ui.tsx";
 
 export function Header({ path }: { path: string }) {
@@ -39,6 +40,46 @@ export function Header({ path }: { path: string }) {
         </div>
       </header>
     </>
+  );
+}
+
+/** The current tab's categories (DESIGN_SYSTEM.md, Sidebar). On every page, the home page included. */
+export function Sidebar({ path }: { path: string }) {
+  const site = useSite();
+  const nav = sidebarFor(site, path);
+  const email = site.brand.contact?.email;
+  return (
+    <nav className="sidebar" aria-label={nav.label}>
+      <div className="sidebar-inner">
+        <ul className="sidebar-items" role="list">
+          {nav.items.map((item) => (
+            <li key={item.id}>
+              <a
+                className="sidebar-item"
+                href={item.href}
+                aria-current={item.id === nav.current ? "page" : undefined}
+                {...(item.external ? { target: "_blank", rel: "noopener" } : {})}
+              >
+                {item.icon && <Icon name={item.icon} size={18} />}
+                <span className="sidebar-label">{item.label}</span>
+                {item.external ? (
+                  <span className="sidebar-end" role="img" aria-label="Opens in a new tab" dangerouslySetInnerHTML={{ __html: uiIconSvg("external", 14) }} />
+                ) : (
+                  item.count !== undefined && <span className="sidebar-end sidebar-count">{item.count}</span>
+                )}
+              </a>
+            </li>
+          ))}
+        </ul>
+        {email && (
+          <p className="sidebar-contact">
+            Brand questions
+            <br />
+            <a href={`mailto:${email}`}>{email}</a>
+          </p>
+        )}
+      </div>
+    </nav>
   );
 }
 

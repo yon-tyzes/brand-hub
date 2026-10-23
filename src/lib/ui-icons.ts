@@ -1,7 +1,8 @@
-// Engine interface icons: 24px grid, 2px stroke, currentColor. Shared by Astro components and React islands.
+// Engine interface icons: 24px grid, 1.75px stroke, round caps and joins, currentColor (DESIGN_SYSTEM.md, section 12). Shared by Astro components and React islands.
 // Brand icons live in brand data, not here.
 
 export const UI_ICONS: Record<string, string> = {
+  home: '<path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   "chevron-down": '<path d="m6 9 6 6 6-6"/>',
   "arrow-right": '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
@@ -30,5 +31,5 @@ export const UI_ICONS: Record<string, string> = {
 
 export function uiIconSvg(name: string, size = 20): string {
   const body = UI_ICONS[name] ?? "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
 }
