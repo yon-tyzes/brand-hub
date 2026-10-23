@@ -15,6 +15,14 @@ These rules apply to the engine, the demo brand, every brand instance, and all d
 - Copy feedback names the thing copied: "Navy hex #0F3D6B copied."
 - Each person's name and title appear in their own wording.
 
+### Redesign copy and layout
+
+- No short text label directly above a heading. A line of four words or fewer placed right before an `h1`, `h2`, or `h3` counts as a label, whatever its styling.
+- Name downloads by use, with the format beside the label: "For Word and PowerPoint (PNG)", "For print and web (SVG)".
+- Label color values Web, RGB, Print, and Sign.
+- The home row is called "Quick downloads". Do not label it by usage until the site collects download counts.
+- The engine version never appears on public pages.
+
 ## Visual
 
 Banned patterns:
