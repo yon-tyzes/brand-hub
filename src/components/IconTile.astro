@@ -1,0 +1,15 @@
+---
+// 40px (or 32px dense) tile around one icon. Takes an engine icon name or raw SVG markup.
+import { uiIconSvg } from "../lib/ui-icons.ts";
+
+interface Props {
+  name?: string;
+  svg?: string;
+  dense?: boolean;
+}
+
+const { name, svg, dense = false } = Astro.props;
+const markup = svg ?? (name ? uiIconSvg(name) : "");
+---
+
+<span class:list={["icon-tile", dense && "icon-tile-sm"]} aria-hidden="true" set:html={markup} />

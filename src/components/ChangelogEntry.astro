@@ -1,0 +1,26 @@
+---
+// One row in the changelog list (docs/DESIGN_SYSTEM.md, "Changelog entry").
+import Icon from "./Icon.astro";
+
+interface Props {
+  date?: string;
+  dateLabel?: string;
+  tag: string;
+  title: string;
+  detail?: string;
+  href?: string;
+  muted?: boolean;
+}
+
+const { date, dateLabel, tag, title, detail, href, muted } = Astro.props;
+---
+
+<li class="changelog-entry">
+  {date ? <time class="caption" datetime={date}>{dateLabel ?? date}</time> : <span class="caption" />}
+  <div class="changelog-main">
+    <span class:list={["tag", muted && "tag-muted"]}>{tag}</span>
+    <span class="changelog-title">{href ? <a href={href}>{title}</a> : title}</span>
+    {detail && <span class="small">{detail}</span>}
+  </div>
+  {href && <span class="changelog-arrow" aria-hidden="true"><Icon name="arrow-right" /></span>}
+</li>

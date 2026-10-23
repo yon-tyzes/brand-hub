@@ -1,0 +1,20 @@
+---
+// "Rules:" line linking an asset to the rules that govern it. Renders nothing when there are none.
+import type { Asset } from "../../schemas/asset.ts";
+import { assetHref, rulesFor } from "../lib/assets.ts";
+
+interface Props {
+  asset: Asset;
+}
+
+const rules = rulesFor(Astro.props.asset).map((r) => ({ label: r.label, href: assetHref(r) }));
+---
+
+{
+  rules.length > 0 && (
+    <p class="rule-links above-link">
+      <span>Rules:</span>
+      {rules.map((r) => (r.href ? <a href={r.href}>{r.label}</a> : <span>{r.label}</span>))}
+    </p>
+  )
+}

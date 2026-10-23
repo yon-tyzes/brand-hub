@@ -1,0 +1,38 @@
+---
+// Button or link styled as a button (docs/DESIGN_SYSTEM.md, "Buttons"). Renders <a> when href is set.
+import type { HTMLAttributes } from "astro/types";
+import Icon from "./Icon.astro";
+
+type Props = Omit<HTMLAttributes<"a"> & HTMLAttributes<"button">, "type"> & {
+  variant?: "primary" | "secondary" | "text";
+  size?: "md" | "sm";
+  href?: string;
+  /** Leading icon name. */
+  icon?: string;
+  /** Trailing icon name, e.g. "arrow-right" or "external". */
+  iconEnd?: string;
+  /** Opens in a new tab with rel="noopener" and an announced hint. */
+  external?: boolean;
+  type?: "button" | "submit";
+};
+
+const { variant = "secondary", size = "md", href, icon, iconEnd, external, type = "button", class: className, ...rest } = Astro.props;
+const classes = ["btn", `btn-${variant}`, size === "sm" && "btn-sm", className].filter(Boolean).join(" ");
+---
+
+{
+  href ? (
+    <a class={classes} href={href} {...(external ? { target: "_blank", rel: "noopener" } : {})} {...rest}>
+      {icon && <Icon name={icon} />}
+      <slot />
+      {external && <span class="visually-hidden">(opens in a new tab)</span>}
+      {(iconEnd ?? (external ? "external" : undefined)) && <Icon name={iconEnd ?? "external"} />}
+    </a>
+  ) : (
+    <button class={classes} type={type} {...rest}>
+      {icon && <Icon name={icon} />}
+      <slot />
+      {iconEnd && <Icon name={iconEnd} />}
+    </button>
+  )
+}
