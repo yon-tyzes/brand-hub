@@ -4,6 +4,7 @@
 import Button from "../../components/Button.astro";
 import Card from "../../components/Card.astro";
 import Layout from "../../components/Layout.astro";
+import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
 import Pills from "../../components/Pills.astro";
 import RuleLinks from "../../components/RuleLinks.astro";
 import { assetsOfType, fileUrl, templateOpenLabel } from "../../lib/assets.ts";
@@ -33,7 +34,7 @@ const categories = [...new Set(templates.map((t) => t.category))];
           <li data-filter-item data-values={slug(t.category)} style="display: grid">
             <Card headingLevel={2} id={t.id} title={t.label} description={t.help}>
               <Fragment slot="preview">
-                <img src={fileUrl(t.thumbnail)} alt="" loading="lazy" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover" />
+                <AssetPreview record={t} urlFor={fileUrl} />
               </Fragment>
               <Fragment slot="meta">
                 <span class="caption">{t.category}</span>

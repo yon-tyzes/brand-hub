@@ -4,6 +4,7 @@ import { brand } from "virtual:brand-hub";
 import Card from "../../components/Card.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../components/Layout.astro";
+import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
 import RuleLinks from "../../components/RuleLinks.astro";
 import SectionHead from "../../components/SectionHead.astro";
 import Tabs from "../../components/Tabs.astro";
@@ -49,7 +50,7 @@ const pairings = colors.flatMap((c) =>
         colors.map((c) => (
           <Card headingLevel={2} id={c.id} title={c.label} description={c.help}>
             <Fragment slot="preview">
-              <div class="swatch" style={`background:${c.hex}; width: 100%; border: 0`} />
+              <AssetPreview record={c} urlFor={(p) => p} />
             </Fragment>
             <Fragment slot="meta">
               <span class="caption">{c.role}</span>

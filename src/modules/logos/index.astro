@@ -3,13 +3,13 @@
 import Button from "../../components/Button.astro";
 import Card from "../../components/Card.astro";
 import Layout from "../../components/Layout.astro";
+import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
 import RuleLinks from "../../components/RuleLinks.astro";
 import { assetsOfType, fileName, fileUrl, LOGOS_ZIP } from "../../lib/assets.ts";
 import { MODULES } from "../registry.ts";
 
 const logos = assetsOfType("logo");
 const label = (f: { ext: string; width?: number }) => `Download ${f.ext.toUpperCase()}${f.width ? `, ${f.width} px` : ""}`;
-const preview = (l: (typeof logos)[number]) => l.files.find((f) => f.ext === "svg") ?? l.files.find((f) => ["png", "jpg", "webp"].includes(f.ext));
 ---
 
 <Layout title={MODULES.logos.label}>
@@ -21,13 +21,10 @@ const preview = (l: (typeof logos)[number]) => l.files.find((f) => f.ext === "sv
     <div class="grid cards-2">
       {
         logos.map((l) => {
-          const img = preview(l);
           return (
             <Card headingLevel={2} id={l.id} title={l.label} description={l.help}>
               <Fragment slot="preview">
-                <div class="logo-preview" data-bg={l.background} data-logo-preview style="width: 100%; display: grid; place-items: center;">
-                  {img && <img src={fileUrl(img.path)} alt={l.label} loading="lazy" />}
-                </div>
+                <AssetPreview record={l} urlFor={fileUrl} />
               </Fragment>
               <Fragment slot="meta">
                 <span class="caption">{l.lockup} · {l.colorway}</span>
