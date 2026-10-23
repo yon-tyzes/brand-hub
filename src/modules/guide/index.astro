@@ -1,6 +1,20 @@
 ---
-import PlaceholderPage from "../../components/PlaceholderPage.astro";
+// Guide index: every locked rule, linking to its page.
+import { content } from "virtual:brand-hub";
+import Card from "../../components/Card.astro";
+import Layout from "../../components/Layout.astro";
 import { MODULES } from "../registry.ts";
+
+const rules = content.rules;
 ---
 
-<PlaceholderPage title={MODULES["guide"].label} />
+<Layout title={MODULES.guide.label}>
+  <div class="frame page-head">
+    <h1>{MODULES.guide.label}</h1>
+  </div>
+  <section class="section frame" aria-label="Rules">
+    <div class="grid cards-3">
+      {rules.map((r) => <Card headingLevel={2} title={r.title} description={r.label} href={`/guide/${r.id}`} id={r.id} />)}
+    </div>
+  </section>
+</Layout>
