@@ -674,7 +674,6 @@
           "audience",
           "type",
           "category",
-          "url",
           "thumbnail"
         ],
         "additionalProperties": false
@@ -772,6 +771,10 @@
               "open",
               "sign-in"
             ]
+          },
+          "accessGroup": {
+            "type": "string",
+            "minLength": 1
           },
           "guidelines": {
             "default": [],

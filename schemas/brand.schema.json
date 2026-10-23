@@ -282,19 +282,34 @@
       ],
       "additionalProperties": false
     },
+    "topTasks": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+      }
+    },
     "modules": {
       "default": {},
       "type": "object",
-      "propertyNames": {
-        "type": "string"
+      "properties": {
+        "icons": {
+          "type": "object",
+          "properties": {
+            "colors": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              }
+            }
+          },
+          "additionalProperties": false
+        }
       },
-      "additionalProperties": {
-        "type": "object",
-        "propertyNames": {
-          "type": "string"
-        },
-        "additionalProperties": {}
-      }
+      "additionalProperties": {}
     }
   },
   "required": [

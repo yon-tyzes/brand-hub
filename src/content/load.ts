@@ -188,6 +188,13 @@ export function loadBrand(brandDir: string): BrandContent {
     }
   }
 
+  // brand.json references into the records.
+  if (brand && !unreadable) {
+    const at = rel(join(brandDir, "brand.json"));
+    for (const ref of brand.topTasks) if (!assetIds.has(ref)) problems.push({ file: at, problem: `topTasks: asset "${ref}" does not exist` });
+    for (const ref of brand.modules.icons?.colors ?? []) if (!colorIds.has(ref)) problems.push({ file: at, problem: `modules.icons.colors: color "${ref}" does not exist` });
+  }
+
   // 4. Every file path exists on disk.
   for (const { record, file } of records) {
     for (const { field, path } of filePaths(record)) {

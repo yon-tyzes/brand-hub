@@ -1,6 +1,6 @@
 // brand.json (spec section 9). Tokens feed the theme pipeline in src/theme.
 import { z } from "zod";
-import { hex } from "./asset.ts";
+import { hex, id } from "./asset.ts";
 
 /** Colors every brand declares. Names match the CSS custom properties (--color-<name>). */
 export const baseColors = z.strictObject({
@@ -44,8 +44,15 @@ export const brand = z.strictObject({
   description: z.string().min(1).optional(),
   contact: z.strictObject({ email: z.email().optional(), url: z.url().optional() }).optional(),
   tokens: brandTokens,
-  /** Per-module settings, keyed by module id. Each module validates its own entry. */
-  modules: z.record(z.string(), z.record(z.string(), z.unknown())).default({}),
+  /** Asset ids shown as top tasks on the home page, in order. */
+  topTasks: z.array(id).default([]),
+  /** Per-module settings, keyed by module id. */
+  modules: z
+    .looseObject({
+      /** Color asset ids offered when recoloring icons. The first is the default. */
+      icons: z.strictObject({ colors: z.array(id).default([]) }).optional(),
+    })
+    .default({}),
 });
 
 export type BrandColors = z.infer<typeof baseColors>;

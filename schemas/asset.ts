@@ -122,7 +122,8 @@ export const templateAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("template"),
   category: z.string().min(1),
-  url: z.url(),
+  /** Template link. Templates without one are not rendered on the public site. */
+  url: z.url().optional(),
   fallbackUrl: z.url().optional(),
   thumbnail: brandPath,
   rules: z.array(id).default([]),
@@ -134,6 +135,8 @@ export const photoSourceAsset = z.strictObject({
   provider: z.enum(["dropbox", "drive", "sharepoint", "url"]),
   url: z.url(),
   access: z.enum(["open", "sign-in"]),
+  /** Who can open a sign-in source, e.g. "Anyone with a company account". */
+  accessGroup: z.string().min(1).optional(),
   guidelines: z.array(z.string().min(1)).default([]),
 });
 
