@@ -7,7 +7,7 @@ import { renderMarkdown } from "../../lib/markdown.ts";
 import { fileName } from "../../lib/paths.ts";
 import type { PhotoSourceAsset } from "../../../schemas/asset.ts";
 import { fontZips, formatCmyk, formatRgb, LOGOS_ZIP, slug } from "../data.ts";
-import { Accordion, Button, Card, Icon, IconTile, Pills, RuleBody, RuleLinks, SectionHead, Tabs, useSite } from "../ui.tsx";
+import { Accordion, Button, Card, Icon, IconTile, Pills, RuleBody, RuleLinks, SectionHead, useSite } from "../ui.tsx";
 
 const PageHead = ({ title, children }: { title: string; children?: React.ReactNode }) => (
   <div className="frame page-head">
@@ -15,80 +15,6 @@ const PageHead = ({ title, children }: { title: string; children?: React.ReactNo
     {children}
   </div>
 );
-
-const USE_LABEL = { text: "Text", "large-text": "Large text", graphic: "Graphics" } as const;
-
-export function ColorsPage() {
-  const site = useSite();
-  const colors = site.assetsOfType("color");
-  const byId = new Map(colors.map((c) => [c.id, c]));
-  const formats = (c: (typeof colors)[number]) => {
-    const out = [
-      { id: "hex", label: "HEX", name: "hex", value: c.hex },
-      { id: "rgb", label: "RGB", name: "RGB", value: formatRgb(c) },
-    ];
-    const cmyk = formatCmyk(c);
-    if (cmyk) out.push({ id: "cmyk", label: "CMYK", name: "CMYK", value: cmyk });
-    if (c.pms) out.push({ id: "pms", label: "PMS", name: "PMS", value: c.pms });
-    return out;
-  };
-  const pairings = colors.flatMap((c) =>
-    c.pairings.flatMap((p) => {
-      const fg = byId.get(p.fg);
-      const bg = byId.get(p.bg);
-      if (!fg || !bg) return [];
-      const ratio = contrastRatio(fg.hex, bg.hex);
-      const level = ratio >= 7 ? "AAA" : ratio >= MIN_RATIO[p.use] ? "AA" : "Below AA";
-      return [{ key: `${p.fg}-on-${p.bg}-${p.use}`, fg, bg, ratio, level, use: USE_LABEL[p.use] }];
-    }),
-  );
-  return (
-    <>
-      <PageHead title={MODULES.colors.label} />
-      <section className="section frame" aria-label="Color values">
-        <div className="grid swatches">
-          {colors.map((c) => (
-            <Card key={c.id} headingLevel={2} id={c.id} title={c.label} description={c.help} preview={<AssetPreview record={c} urlFor={(p) => p} />} meta={<span className="caption">{c.role}</span>}>
-              <Tabs
-                label={`${c.label} values`}
-                idPrefix={c.id}
-                tabs={formats(c).map((f) => ({
-                  id: f.id,
-                  label: f.label,
-                  panel: (
-                    <>
-                      <code className="value">{f.value}</code>
-                      <button className="btn btn-secondary btn-sm" type="button" data-copy={f.value} data-copy-message={`${c.label} ${f.name} ${f.value} copied.`} aria-label={`Copy ${f.name}: ${c.label}`}>
-                        <Icon name="copy" size={16} />
-                        Copy {f.name}
-                      </button>
-                    </>
-                  ),
-                }))}
-              />
-              <RuleLinks asset={c} />
-            </Card>
-          ))}
-        </div>
-      </section>
-      {pairings.length > 0 && (
-        <section className="section frame" aria-labelledby="pairings">
-          <SectionHead title="Approved pairings" id="pairings" />
-          <ul className="grid swatches" role="list">
-            {pairings.map((p) => (
-              <li key={p.key} className="pairing" style={{ background: p.bg.hex, color: p.fg.hex, borderColor: p.fg.hex }}>
-                <span className="pairing-sample">{site.brand.name}</span>
-                <span className="caption" style={{ color: "inherit" }}>
-                  {p.fg.label} on {p.bg.label} · {p.ratio.toFixed(2)}:1 · {p.level} for {p.use.toLowerCase()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </>
-  );
-}
 
 const ZIP_LABEL = { static: "Download static fonts (ZIP)", variable: "Download variable font (ZIP)" } as const;
 

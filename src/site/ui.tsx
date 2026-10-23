@@ -293,26 +293,6 @@ export function RuleBody({ rule, level = 3 }: { rule: RuleAsset; level?: 2 | 3 |
   );
 }
 
-/** ARIA tabs markup. src/scripts/tabs.ts adds keyboard and selection; without it every panel shows. */
-export function Tabs({ label, idPrefix, tabs }: { label: string; idPrefix: string; tabs: { id: string; label: string; panel: ReactNode }[] }) {
-  return (
-    <div className="tabs" data-tabs="">
-      <div className="tab-list" role="tablist" aria-label={label}>
-        {tabs.map((t, i) => (
-          <button key={t.id} className="tab" type="button" role="tab" id={`${idPrefix}-tab-${t.id}`} aria-controls={`${idPrefix}-panel-${t.id}`} aria-selected={i === 0} tabIndex={i === 0 ? 0 : -1}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-      {tabs.map((t, i) => (
-        <div key={t.id} className="tab-panel" role="tabpanel" id={`${idPrefix}-panel-${t.id}`} aria-labelledby={`${idPrefix}-tab-${t.id}`} hidden={i !== 0}>
-          {t.panel}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /** Filter pills markup. Place inside [data-filter-root]; src/scripts/filter.ts does the filtering. */
 export function Pills({ label, options, allCount }: { label: string; options: { value: string; label: string; count?: number }[]; allCount?: number }) {
   return (

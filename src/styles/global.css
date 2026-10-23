@@ -329,24 +329,6 @@ h4, .h4 { font-size: var(--step-2); line-height: var(--leading-snug); letter-spa
 }
 .tag-muted { color: var(--color-muted); }
 
-/* ---------- Tabs ---------- */
-
-.tabs { display: grid; gap: var(--space-3); }
-.tab-list {
-  display: inline-flex; flex-wrap: wrap; gap: 2px; justify-self: start;
-  padding: 4px; background: var(--color-surface-2); border-radius: var(--radius-md);
-}
-.tab {
-  min-height: 32px; padding: 6px 12px; border: 0; border-radius: var(--radius-sm);
-  background: none; color: var(--color-muted);
-  font-size: var(--step--1); line-height: var(--leading-ui); font-weight: var(--weight-medium);
-  transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
-}
-.tab:hover { color: var(--color-text); }
-.tab[aria-selected="true"] { background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-sm); }
-.tab-panel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); }
-.tab-panel .value { font-size: var(--step-0); overflow-wrap: anywhere; }
-
 /* ---------- Pills ---------- */
 
 .pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -748,6 +730,55 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
   .logo-card .asset-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding-top: 14px; }
   .logo-card .asset-actions .btn { padding: 0 8px; }
   .logo-card .asset-actions .btn svg { display: none; }
+}
+
+/* ---------- Colors ---------- */
+
+.colors-page { gap: 40px; }
+.color-grid { --card-min: 250px; }
+.color-card, .support-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); overflow: hidden; }
+.color-card-block { height: 140px; border-bottom: 1px solid var(--border); }
+.color-card-body { padding: 14px 16px 16px; }
+.color-card-name { margin: 0; font-size: 15px; line-height: 1.3; font-weight: 600; letter-spacing: 0; }
+.color-card-help { margin: 4px 0 12px; font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+.support-card { display: flex; }
+.support-card-block { width: 88px; flex: none; border-right: 1px solid var(--border); }
+.support-card-body { padding: 14px 16px; min-width: 0; }
+.support-card .color-card-help { margin-bottom: 8px; }
+.support-copy {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 6px; margin-left: -6px;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text);
+  font-family: var(--font-mono); font-size: 12px; cursor: pointer;
+}
+.support-copy:hover { background: var(--surface-subtle); }
+.support-copy-swatch, .support-copy-name { display: none; }
+.pairs-title { margin-bottom: 8px; }
+.pairs-intro { margin: 0 0 20px; font-size: var(--small-size); color: var(--text-secondary); }
+.pair-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.pair { padding: 20px; border-radius: var(--radius-lg); }
+.pair-light { box-shadow: inset 0 0 0 1px var(--border); }
+.pair p { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 600; }
+
+@media (max-width: 767.98px) {
+  .colors-page { gap: 20px; }
+  .colors-page .library-section-title { margin: 4px 0 20px; }
+  .color-grid { gap: 20px; }
+  .color-card-block { height: 88px; }
+  .color-card-body { padding: 12px 16px 8px; }
+  .color-card-help { margin: 2px 0 6px; }
+  .color-card .value-rows li[data-use="rgb"] { display: none; }
+  .color-card .value-row { width: 100%; margin: 0; padding: 0; height: 44px; border-radius: 0; border-top: 1px solid var(--border); font-size: 13px; }
+  .color-card .value-row-use { font-size: 13px; }
+  /* Supporting colors become one list of rows: swatch, name, and hex. */
+  .support-grid { gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .support-card { border: 0; border-radius: 0; border-bottom: 1px solid var(--border); }
+  .support-card:last-child { border-bottom: 0; }
+  .support-card-block, .support-card .color-card-name, .support-card .color-card-help { display: none; }
+  .support-card-body { padding: 0; width: 100%; }
+  .support-copy { display: flex; width: 100%; min-height: 60px; margin: 0; padding: 8px 16px; gap: 12px; border-radius: 0; background: var(--surface-raised); text-align: left; font-size: 13px; }
+  .support-copy svg { display: none; }
+  .support-copy-swatch { display: block; width: 32px; height: 32px; flex: none; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--border); }
+  .support-copy-name { display: block; flex: 1; font-family: var(--font-sans); font-size: 14px; font-weight: 500; }
 }
 
 /* ---------- Footer ---------- */
