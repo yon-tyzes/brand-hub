@@ -75,6 +75,9 @@ const historyLoader = () => content.history(20);
  * leaves a short-lived note so the reload comes back with the same section, item, and message.
  */
 const AFTER_RELOAD = "bh-editor-after-reload";
+/** The inspector's first form control: the checked status option, or the first field. */
+const FIRST_FIELD = ".inspector :is(input[type=radio]:checked, input:not([type=radio]):not([type=hidden]), select, textarea)";
+
 type AfterReload = { message: string; moduleId: string; selectedId: string | null; at: number };
 
 function rememberForReload(note: Omit<AfterReload, "at">) {
@@ -112,6 +115,10 @@ export default function AdminApp() {
   const { toast, show, clear } = useToasts();
   const wide = useWide();
   const urls = useRef(new Map<string, string>());
+  // Keyboard focus around the inspector: Edit moves focus to its first field, and closing it returns focus
+  // to the card it was opened from.
+  const openedFrom = useRef<string | null>(null);
+  const [focusRequest, setFocusRequest] = useState(0);
   const slug = state?.base.slug;
 
   // Load the session and the draft, then any autosaved work for the same revision.
@@ -168,6 +175,19 @@ export default function AdminApp() {
     window.addEventListener("beforeunload", guard);
     return () => window.removeEventListener("beforeunload", guard);
   }, [changes.length > 0]);
+
+  // On wide screens the inspector is a side panel: focus its first field after Edit. The sheet used on small
+  // screens does this itself through `initialFocus`.
+  useEffect(() => {
+    if (focusRequest && wide) document.querySelector<HTMLElement>(`.admin-inspector ${FIRST_FIELD}`)?.focus();
+  }, [focusRequest]);
+
+  useEffect(() => {
+    if (selectedId || !openedFrom.current) return;
+    const id = openedFrom.current;
+    openedFrom.current = null;
+    document.querySelector<HTMLElement>(`.admin-card[data-id="${CSS.escape(id)}"] .admin-card-title`)?.focus();
+  }, [selectedId]);
 
   // Undo and redo shortcuts work everywhere in the editor, including in fields.
   useEffect(() => {
@@ -359,6 +379,12 @@ export default function AdminApp() {
       setSelectedId(null);
     },
     selectedId, select: setSelectedId,
+    edit: (id) => {
+      openedFrom.current = id;
+      setSelectedId(id);
+      setFocusRequest((n) => n + 1);
+    },
+    closeInspector: () => setSelectedId(null),
     toast: show, urlFor,
     svgFor: (path) => state.base.svgs[path],
     fileLabel: (path) => state.present.files[path]?.name ?? fileName(path),
@@ -394,11 +420,20 @@ export default function AdminApp() {
           <Grid filter={filter} key={mod.id} />
         </main>
         {wide ? (
-          <aside className="admin-inspector" aria-label="Details">
+          <aside
+            className="admin-inspector"
+            aria-label="Details"
+            onKeyDown={(e) => {
+              // Dialogs opened from the inspector (delete confirm) handle their own Escape.
+              if (e.key !== "Escape" || e.defaultPrevented || (e.target as Element).closest("dialog")) return;
+              e.preventDefault();
+              setSelectedId(null);
+            }}
+          >
             <Inspector />
           </aside>
         ) : (
-          <Sheet open={!!selected} title={selected ? `Details: ${selected.label}` : "Details"} onClose={() => setSelectedId(null)}>
+          <Sheet open={!!selected} title={selected ? `Details: ${selected.label}` : "Details"} initialFocus={FIRST_FIELD} onClose={() => setSelectedId(null)}>
             <Inspector inSheet />
           </Sheet>
         )}

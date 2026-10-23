@@ -34,6 +34,10 @@ export interface EditorApi {
   retireItems: (ids: string[]) => void;
   /** Problems the last save attempt found for an item, in plain words. */
   issuesFor: (id: string) => string[];
+  /** Opens an item in the inspector and moves focus to its first field. */
+  edit: (id: string) => void;
+  /** Closes the inspector and returns focus to the card it was opened from. */
+  closeInspector: () => void;
 }
 
 export const EditorContext = createContext<EditorApi | null>(null);

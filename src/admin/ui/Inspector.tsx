@@ -18,7 +18,7 @@ const STATUSES: { value: Exclude<Status, "retired">; help: string }[] = [
 
 /** In a sheet, the sheet supplies the title and close button. */
 export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
-  const { records, selectedId, select, apply, toast, issuesFor } = useEditor();
+  const { records, selectedId, select, apply, toast, issuesFor, closeInspector } = useEditor();
   const [confirming, setConfirming] = useState(false);
   const record = records.find((r) => r.id === selectedId);
   if (!record) {
@@ -37,7 +37,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
       {!inSheet && (
         <div className="inspector-head">
           <h2 className="h4">{record.label}</h2>
-          <button type="button" className="btn btn-text btn-sm" onClick={() => select(null)}>
+          <button type="button" className="btn btn-text btn-sm" onClick={closeInspector}>
             Close<span className="visually-hidden"> details</span>
           </button>
         </div>

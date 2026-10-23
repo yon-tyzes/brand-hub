@@ -1,5 +1,5 @@
 // Editor at /admin: add by drop, inline rename, status, retire and undo, keyboard reorder, autosave,
-// leave guard, accessibility, and no technical terms on screen.
+// leave guard, inspector focus, accessibility, and no technical terms on screen.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
@@ -200,4 +200,43 @@ test("module editors: hex updates RGB live, Canva edit links get a warning, icon
   await (await chooser).setFiles({ name: "steam-cloud.svg", mimeType: "image/svg+xml", buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 12h16" stroke="#000000"/></svg>') });
   await expect(card(page, "Steam cloud")).toBeVisible();
   await expect(details.getByText("Set the icon's colors to follow the color chosen on the site.")).toBeVisible();
+});
+
+test("Edit moves focus to the inspector's first field; Escape and Close return it to the card", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await open(page);
+  const edit = page.getByRole("button", { name: "Edit Horizontal logo", exact: true });
+  const details = page.getByRole("complementary", { name: "Details" });
+
+  await edit.focus();
+  await page.keyboard.press("Enter");
+  await expect(details.getByRole("radio", { name: "Live" })).toBeFocused();
+
+  // Escape from a field closes the inspector and puts focus back on the card.
+  await page.keyboard.press("Tab");
+  await expect(details.getByLabel("Name", { exact: true })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(details.getByText("Select an item to edit its details.")).toBeVisible();
+  await expect(edit).toBeFocused();
+
+  // The Close button does the same.
+  await page.keyboard.press("Enter");
+  await expect(details.getByRole("radio", { name: "Live" })).toBeFocused();
+  await details.getByRole("button", { name: "Close details" }).click();
+  await expect(edit).toBeFocused();
+});
+
+test("on small screens, Edit opens the details sheet on its first field and Escape returns to the card", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page);
+  const edit = page.getByRole("button", { name: "Edit Stacked logo", exact: true });
+  await edit.focus();
+  await page.keyboard.press("Enter");
+  const sheet = page.getByRole("dialog", { name: "Details: Stacked logo" });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByRole("radio", { name: "Live" })).toBeFocused();
+
+  await page.keyboard.press("Escape");
+  await expect(sheet).toBeHidden();
+  await expect(edit).toBeFocused();
 });

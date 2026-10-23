@@ -22,7 +22,7 @@ interface Props {
 }
 
 export function ItemCard({ record: r, index, count, checked, onCheck, onReorder }: Props) {
-  const { apply, select, selectedId, urlFor, svgFor, replaceFile, retireItems, module, issuesFor } = useEditor();
+  const { apply, selectedId, urlFor, svgFor, replaceFile, retireItems, module, issuesFor, edit } = useEditor();
   const [renaming, setRenaming] = useState(false);
   const [dropHint, setDropHint] = useState<"" | "file" | "before" | "after">("");
   const picker = useRef<HTMLInputElement>(null);
@@ -86,7 +86,7 @@ export function ItemCard({ record: r, index, count, checked, onCheck, onReorder 
         <span className={`status-badge status-${r.status}`}>{STATUS_LABEL[r.status]}</span>
         {errors && <span className="status-badge status-attention">Needs details</span>}
       </div>
-      <button className="admin-card-preview" type="button" tabIndex={-1} aria-hidden="true" onClick={() => select(r.id)}>
+      <button className="admin-card-preview" type="button" tabIndex={-1} aria-hidden="true" onClick={() => edit(r.id)}>
         <AssetPreview record={r} urlFor={urlFor} svgFor={svgFor} alt="" />
       </button>
       <div className="admin-card-name">
@@ -104,7 +104,7 @@ export function ItemCard({ record: r, index, count, checked, onCheck, onReorder 
             onBlur={(e) => renaming && save(e.currentTarget.value)}
           />
         ) : (
-          <button type="button" className="admin-card-title" onClick={() => select(r.id)} onDoubleClick={() => setRenaming(true)} aria-label={`Edit ${r.label}`}>
+          <button type="button" className="admin-card-title" onClick={() => edit(r.id)} onDoubleClick={() => setRenaming(true)} aria-label={`Edit ${r.label}`}>
             {r.label}
           </button>
         )}

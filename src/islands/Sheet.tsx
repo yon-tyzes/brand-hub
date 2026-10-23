@@ -9,10 +9,12 @@ interface Props {
   onClose: () => void;
   /** Focus returns here on close. */
   returnFocus?: HTMLElement | null;
+  /** Selector for the element to focus on open. Defaults to the heading. */
+  initialFocus?: string;
   children: ReactNode;
 }
 
-export function Sheet({ open, title, onClose, returnFocus, children }: Props) {
+export function Sheet({ open, title, onClose, returnFocus, initialFocus, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
 
@@ -21,7 +23,8 @@ export function Sheet({ open, title, onClose, returnFocus, children }: Props) {
     if (!d) return;
     if (open && !d.open) {
       d.showModal();
-      heading.current?.focus();
+      const first = initialFocus ? d.querySelector<HTMLElement>(initialFocus) : null;
+      (first ?? heading.current)?.focus();
     } else if (!open && d.open) d.close();
   }, [open]);
 
