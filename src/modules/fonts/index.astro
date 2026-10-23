@@ -1,6 +1,99 @@
 ---
-import PlaceholderPage from "../../components/PlaceholderPage.astro";
+// Fonts: family cards with an editable specimen, per-family zips (static and variable), and install steps.
+import { brand } from "virtual:brand-hub";
+import Accordion from "../../components/Accordion.astro";
+import Button from "../../components/Button.astro";
+import Layout from "../../components/Layout.astro";
+import RuleLinks from "../../components/RuleLinks.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import { assetsOfType, fontZips } from "../../lib/assets.ts";
+import { renderMarkdown } from "../../lib/markdown.ts";
 import { MODULES } from "../registry.ts";
+
+const fonts = assetsOfType("font");
+const ZIP_LABEL = { static: "Download static fonts (ZIP)", variable: "Download variable font (ZIP)" } as const;
+const install = [
+  { id: "install-windows", title: "Windows" },
+  { id: "install-mac", title: "Mac" },
+  { id: "install-office", title: "Microsoft Office" },
+];
 ---
 
-<PlaceholderPage title={MODULES["fonts"].label} />
+<Layout title={MODULES.fonts.label}>
+  <div class="frame page-head">
+    <h1>{MODULES.fonts.label}</h1>
+  </div>
+
+  <section class="section frame stack-lg" aria-label="Font families">
+    {
+      fonts.map((f) => (
+        <article class="card" id={f.id} aria-labelledby={`${f.id}-title`}>
+          <div class="section-head" style="margin-bottom: 0">
+            <div>
+              <h2 class="h3" id={`${f.id}-title`}>{f.label}</h2>
+              <p class="caption">{[f.role, `License ${f.license}`, `Weights ${f.weights.join(", ")}`].join(" · ")}</p>
+              {f.help && <p class="small">{f.help}</p>}
+            </div>
+          </div>
+          <div class="specimen" style={`font-family: "${f.family}", var(--font-body)`}>
+            <div
+              class="specimen-editable"
+              contenteditable="plaintext-only"
+              role="textbox"
+              aria-label={`Specimen in ${f.family}. Type to try your own text.`}
+              spellcheck="false"
+            >
+              {brand.name}
+            </div>
+            <div class="specimen-weights">
+              {f.weights.map((w) => (
+                <p style={`font-weight:${w}`}>
+                  <span class="caption" style="font-family: var(--font-body); display: inline-block; min-width: 3.5em">{w}</span>
+                  Aa Bb Cc 0123456789
+                </p>
+              ))}
+            </div>
+          </div>
+          <div class="row">
+            {fontZips(f).map((z, i) => (
+              <Button variant={i === 0 ? "primary" : "secondary"} href={z.href} download icon="download">{ZIP_LABEL[z.kind]}</Button>
+            ))}
+          </div>
+          <div class="prose small" set:html={renderMarkdown(f.install)} />
+          <RuleLinks asset={f} />
+        </article>
+      ))
+    }
+  </section>
+
+  {
+    fonts.length > 0 && (
+      <section class="section frame sidebar" aria-labelledby="install">
+        <SectionHead title="Install fonts" id="install" intro="Steps for each system. Install the files from the zip, then restart open apps." />
+        <Accordion items={install}>
+          <Fragment slot="install-windows">
+            <ol>
+              <li>Download the zip and open it.</li>
+              <li>Select all font files, right-click, and choose Install. Choose Install for all users if you have admin rights.</li>
+              <li>Restart any app that was open.</li>
+            </ol>
+          </Fragment>
+          <Fragment slot="install-mac">
+            <ol>
+              <li>Download the zip. It opens into a folder.</li>
+              <li>Double-click each font file and choose Install Font. Font Book opens and adds it.</li>
+              <li>Restart any app that was open.</li>
+            </ol>
+          </Fragment>
+          <Fragment slot="install-office">
+            <ol>
+              <li>Install the fonts on your computer with the Windows or Mac steps.</li>
+              <li>Quit and reopen Word, PowerPoint, Excel, and Outlook.</li>
+              <li>To send a file to someone without the fonts on Windows, choose File, Options, Save, then Embed fonts in the file.</li>
+            </ol>
+          </Fragment>
+        </Accordion>
+      </section>
+    )
+  }
+</Layout>
