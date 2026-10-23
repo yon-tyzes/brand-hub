@@ -35,3 +35,9 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Install browser for end-to-end tests
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end (axe in both themes, widths, keyboard flow, JS budget)
+        run: pnpm test:e2e
