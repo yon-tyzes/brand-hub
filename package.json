@@ -13,7 +13,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "schemas": "node scripts/build-schemas.ts"
+    "schemas": "node scripts/build-schemas.ts",
+    "validate": "node scripts/validate-brands.ts"
   },
   "dependencies": {
     "vite": "^8.3.5",

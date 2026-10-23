@@ -1,0 +1,15 @@
+{
+  "json.schemas": [
+    { "fileMatch": ["brands/*/brand.json"], "url": "./schemas/brand.schema.json" },
+    {
+      "fileMatch": [
+        "brands/*/assets.json", "brands/*/logos.json", "brands/*/colors.json", "brands/*/fonts.json",
+        "brands/*/icons.json", "brands/*/templates.json", "brands/*/photos.json",
+        "brands/*/boilerplate.json", "brands/*/documents.json", "brands/*/signature.json"
+      ],
+      "url": "./schemas/assets.schema.json"
+    },
+    { "fileMatch": ["brands/*/rules.json"], "url": "./schemas/rules.schema.json" },
+    { "fileMatch": ["brands/*/changelog.json"], "url": "./schemas/changelog.schema.json" }
+  ]
+}

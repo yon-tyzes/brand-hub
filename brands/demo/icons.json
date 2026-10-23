@@ -1,0 +1,87 @@
+[
+  {
+    "id": "icon-search",
+    "type": "icon",
+    "label": "Search",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "keywords": [
+      "search"
+    ],
+    "order": 1,
+    "svgPath": "files/icons/search.svg",
+    "group": "Interface",
+    "pinned": true,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-download",
+    "type": "icon",
+    "label": "Download",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "keywords": [
+      "download"
+    ],
+    "order": 2,
+    "svgPath": "files/icons/download.svg",
+    "group": "Interface",
+    "pinned": true,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-copy",
+    "type": "icon",
+    "label": "Copy",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "keywords": [
+      "copy"
+    ],
+    "order": 3,
+    "svgPath": "files/icons/copy.svg",
+    "group": "Interface",
+    "pinned": true,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-check",
+    "type": "icon",
+    "label": "Check",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "keywords": [
+      "check"
+    ],
+    "order": 4,
+    "svgPath": "files/icons/check.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-arrow-right",
+    "type": "icon",
+    "label": "Arrow right",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "keywords": [
+      "arrow right"
+    ],
+    "order": 5,
+    "svgPath": "files/icons/arrow-right.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  }
+]

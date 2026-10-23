@@ -1,0 +1,37 @@
+[
+  {
+    "id": "comet-green",
+    "type": "color",
+    "label": "Comet Green",
+    "help": "Primary actions and the logo. One use per screen.",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": ["one-green-action"],
+    "keywords": ["primary", "green"],
+    "order": 1,
+    "hex": "#1E5B4A",
+    "rgb": [30, 91, 74],
+    "cmyk": [67, 0, 19, 64],
+    "role": "primary",
+    "pairings": [{ "fg": "kiln-white", "bg": "comet-green", "use": "text" }]
+  },
+  {
+    "id": "kiln-white",
+    "type": "color",
+    "label": "Kiln White",
+    "help": "Page background and text on Comet Green.",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": ["one-green-action"],
+    "keywords": ["background", "white"],
+    "order": 2,
+    "hex": "#F7F6F2",
+    "rgb": [247, 246, 242],
+    "role": "background",
+    "pairings": [{ "fg": "comet-green", "bg": "kiln-white", "use": "text" }]
+  }
+]
