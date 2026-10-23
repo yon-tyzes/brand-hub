@@ -282,6 +282,29 @@
       ],
       "additionalProperties": false
     },
+    "naming": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "logo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "icon": {
+          "type": "string",
+          "minLength": 1
+        },
+        "template": {
+          "type": "string",
+          "minLength": 1
+        },
+        "font": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "topTasks": {
       "default": [],
       "type": "array",

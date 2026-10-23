@@ -44,6 +44,19 @@ export const brand = z.strictObject({
   description: z.string().min(1).optional(),
   contact: z.strictObject({ email: z.email().optional(), url: z.url().optional() }).optional(),
   tokens: brandTokens,
+  /**
+   * File name patterns for uploads, by asset type, e.g. "{brand}-logo-{lockup}-{colorway}.{ext}".
+   * Tokens: {brand} {id} {label} {lockup} {colorway} {width} {family} {group} {category} {original} {ext}.
+   * Omitted types use the engine defaults (src/serializer/naming.ts).
+   */
+  naming: z
+    .strictObject({
+      logo: z.string().min(1).optional(),
+      icon: z.string().min(1).optional(),
+      template: z.string().min(1).optional(),
+      font: z.string().min(1).optional(),
+    })
+    .default({}),
   /** Asset ids shown as top tasks on the home page, in order. */
   topTasks: z.array(id).default([]),
   /** Per-module settings, keyed by module id. */
