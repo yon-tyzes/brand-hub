@@ -6,6 +6,7 @@ import { filePaths } from "../../content/file-paths.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
 import { contrastRatio } from "../../theme/color.ts";
 import { MIN_RATIO } from "../../theme/contrast.ts";
+import { SHELL_COLORS } from "../../theme/shell.ts";
 import { extension } from "../editor/files.ts";
 import { ingest } from "../editor/ingest.ts";
 import { EDITOR_MODULES } from "../editor/modules.ts";
@@ -219,14 +220,12 @@ const verdict = (ratio: number) =>
   ratio >= MIN_RATIO.text ? "Readable as text" : ratio >= MIN_RATIO["large-text"] ? "Large text only" : "Not readable as text";
 
 function ColorField({ def, record, error, id, described }: Sub & { record: ColorAsset; described: string }) {
-  const { apply, state } = useEditor();
+  const { apply } = useEditor();
   const [text, setText] = useState(record.hex);
   const valid = HEX.test(text);
-  const tokens = state.base.brand.tokens;
   const backgrounds = [
-    { label: "Page background", hex: tokens.color.bg },
-    { label: "Card background", hex: tokens.color.surface },
-    ...(tokens.dark ? [{ label: "Dark page background", hex: tokens.dark.bg }] : []),
+    { label: "Page background", hex: SHELL_COLORS.bg.light },
+    { label: "Dark page background", hex: SHELL_COLORS.bg.dark },
   ];
   return (
     <Shell def={def} error={valid ? error : "Enter a 6-digit hex like #1E5B4A."} id={id}>

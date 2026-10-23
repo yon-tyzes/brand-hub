@@ -1,4 +1,4 @@
-// Validates a brand's data: schemas, unique ids, references between records, file paths, and contrast.
+// Validates a brand's data: schemas, unique ids, references between records, file paths, and pairing contrast.
 // Pure: reads through a BrandSource, so the build (files on disk) and the serializer (files in memory)
 // apply the same rules. No Node imports.
 import type { z } from "zod";
@@ -6,7 +6,7 @@ import {
   asset as assetSchema, brand as brandSchema, changelogEntry, ruleAsset,
   type AnyRecord, type Asset, type AssetType, type Brand, type ChangelogEntry, type ColorAsset, type RuleAsset,
 } from "../../schemas/index.ts";
-import { checkPairingContrast, checkTokenContrast, formatContrastFailure } from "../theme/contrast.ts";
+import { checkPairingContrast, formatContrastFailure } from "../theme/contrast.ts";
 import { filePaths } from "./file-paths.ts";
 
 /** Optional per-module split files and the asset type each may hold. assets.json may hold any type. */
@@ -193,10 +193,7 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
     }
   }
 
-  // 5. Contrast: theme tokens and declared color pairings.
-  if (brand) {
-    for (const f of checkTokenContrast(brand.tokens)) problems.push({ file: src.label("brand.json"), problem: `contrast ${formatContrastFailure(f)}`, code: "contrast" });
-  }
+  // 5. Contrast: declared color pairings. The shell's own tokens are checked by the unit tests.
   const colors = records.map((r) => r.record).filter((r): r is ColorAsset => r.type === "color");
   for (const f of checkPairingContrast(colors)) {
     problems.push({ file: src.label(records.find((r) => r.record.id === f.owner)?.file ?? "assets.json"), id: f.owner, problem: `contrast ${formatContrastFailure(f)}`, code: "contrast", field: "pairings" });

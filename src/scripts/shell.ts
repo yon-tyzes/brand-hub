@@ -15,8 +15,11 @@ function setTheme(dark: boolean) {
     // Storage blocked: the choice lasts for this page only.
   }
 }
+// No stored choice: the system setting decides (the stylesheet follows prefers-color-scheme).
+const chosen = document.documentElement.dataset.theme;
+const isDark = chosen ? chosen === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
 for (const s of themeSwitches) {
-  s.setAttribute("aria-checked", String(document.documentElement.dataset.theme === "dark"));
+  s.setAttribute("aria-checked", String(isDark));
   s.addEventListener("click", () => setTheme(s.getAttribute("aria-checked") !== "true"));
 }
 

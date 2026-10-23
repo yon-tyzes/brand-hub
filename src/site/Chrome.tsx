@@ -5,7 +5,6 @@ import { Icon, IconTile, ThemeSwitch, useSite } from "./ui.tsx";
 
 export function Header({ path }: { path: string }) {
   const site = useSite();
-  const hasDark = !!site.brand.tokens.dark;
   const assetModules = site.modules.filter((m) => ASSET_MODULES.includes(m.id));
   const otherModules = site.modules.filter((m) => !ASSET_MODULES.includes(m.id));
   const current = (route: string) => (path === route || path.startsWith(`${route}/`) ? ("page" as const) : undefined);
@@ -37,7 +36,7 @@ export function Header({ path }: { path: string }) {
             <span className="header-search-label">Search</span>
             <kbd className="kbd" aria-hidden="true">Ctrl K</kbd>
           </button>
-          {hasDark && <span className="theme-desktop"><ThemeSwitch /></span>}
+          <span className="theme-desktop"><ThemeSwitch /></span>
           <button className="btn btn-secondary btn-sm btn-icon menu-button" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu" data-mobile-menu-trigger="">
             <Icon name="menu" />
           </button>
@@ -80,12 +79,10 @@ export function Header({ path }: { path: string }) {
               </li>
             ))}
           </ul>
-          {hasDark && (
-            <div className="theme-row">
-              <span>Theme</span>
-              <ThemeSwitch />
-            </div>
-          )}
+          <div className="theme-row">
+            <span>Theme</span>
+            <ThemeSwitch />
+          </div>
         </nav>
       </div>
     </header>

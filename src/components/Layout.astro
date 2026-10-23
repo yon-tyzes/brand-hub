@@ -16,7 +16,6 @@ const { title, description = brand.description, noindex = !config.indexing } = A
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const pageTitle = path === "/" ? brand.name : `${title} | ${brand.shortName}`;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-const hasDark = !!brand.tokens.dark;
 ---
 
 <!doctype html>
@@ -33,15 +32,12 @@ const hasDark = !!brand.tokens.dark;
     <meta property="og:title" content={pageTitle} />
     {description && <meta property="og:description" content={description} />}
     {canonical && <meta property="og:url" content={canonical} />}
-    {
-      hasDark && (
-        <script is:inline>
-          try {
-            if (localStorage.getItem("bh-theme") === "dark") document.documentElement.dataset.theme = "dark";
-          } catch (e) {}
-        </script>
-      )
-    }
+    <script is:inline>
+      try {
+        var t = localStorage.getItem("bh-theme");
+        if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
     <style is:inline set:html={themeCss}></style>
     {fontCss && <style is:inline set:html={fontCss}></style>}
   </head>

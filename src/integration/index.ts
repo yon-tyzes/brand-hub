@@ -145,7 +145,7 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
           modules: hub.modules.map((id) => MODULES[id]),
           brand: content.brand,
           content: { assets: content.assets, rules: content.rules, pending: content.pending, changelog: content.changelog },
-          themeCss: buildThemeCss(content.brand.tokens),
+          themeCss: buildThemeCss(),
           fontCss: fontFaceCss(fonts, fileUrl),
         };
         const adapters = { content: adapterModule(adapter, "content", root), auth: adapterModule(auth, "auth", root), mode: adapter };
