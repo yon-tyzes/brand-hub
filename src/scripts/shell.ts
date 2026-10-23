@@ -1,6 +1,6 @@
 // Site shell behavior, loaded on every page: theme toggle, frosted top bar, toasts, copy buttons, and the
 // search shortcut. The search dialog and its index load on first use.
-import { copyText } from "./client.ts";
+import { copyText, toast, type ToastDetail } from "./client.ts";
 
 const THEME_KEY = "bh-theme";
 
@@ -37,25 +37,42 @@ if (bar) {
 // ---------- Toasts ----------
 const region = document.querySelector<HTMLElement>("[data-toast-region]");
 let hideTimer: number | undefined;
-function showToast(message: string) {
+// One polite live region (Layout.astro). A toast names what happened and stays 3 seconds.
+function showToast({ message, value }: ToastDetail) {
   if (!region) return;
   window.clearTimeout(hideTimer);
   const el = document.createElement("div");
   el.className = "toast";
-  el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>';
-  el.append(document.createTextNode(message));
+  el.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>';
+  const text = document.createElement("span");
+  const at = value ? message.indexOf(value) : -1;
+  if (at >= 0) {
+    const mono = Object.assign(document.createElement("span"), { className: "toast-value", textContent: value! });
+    text.append(message.slice(0, at), mono, message.slice(at + value!.length));
+  } else text.textContent = message;
+  el.append(text);
   region.replaceChildren(el);
-  const schedule = () => (hideTimer = window.setTimeout(() => el.remove(), 4000));
+  const schedule = () => (hideTimer = window.setTimeout(() => el.remove(), 3000));
   el.addEventListener("mouseenter", () => window.clearTimeout(hideTimer));
   el.addEventListener("mouseleave", schedule);
   schedule();
 }
-window.addEventListener("bh:toast", (e) => showToast((e as CustomEvent<string>).detail));
+window.addEventListener("bh:toast", (e) => showToast((e as CustomEvent<ToastDetail>).detail));
 
 // ---------- Copy buttons ----------
 document.addEventListener("click", (e) => {
   const btn = (e.target as Element).closest<HTMLElement>("[data-copy]");
-  if (btn) copyText(btn.dataset.copy ?? "", btn.dataset.copyMessage ?? `${btn.dataset.copy ?? ""} copied.`);
+  if (!btn) return;
+  const value = btn.dataset.copy ?? "";
+  copyText(value, btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`);
+});
+
+// ---------- Download confirmations: "logo-horizontal.png downloaded" ----------
+document.addEventListener("click", (e) => {
+  const a = (e.target as Element).closest<HTMLAnchorElement>("a[download]");
+  if (!a) return;
+  const file = a.getAttribute("download") || decodeURIComponent(new URL(a.href, location.href).pathname.split("/").pop() ?? "");
+  if (file) toast(`${file} downloaded`, file);
 });
 
 // ---------- Search ----------
