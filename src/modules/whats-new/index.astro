@@ -1,6 +1,54 @@
 ---
-import PlaceholderPage from "../../components/PlaceholderPage.astro";
+// What's new: published changes from changelog.json, then pending items as the In progress list.
+import { content } from "virtual:brand-hub";
+import ChangelogEntry from "../../components/ChangelogEntry.astro";
+import Layout from "../../components/Layout.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import { assetHref, findAsset, formatDate, sortedChangelog, TYPE_LABEL } from "../../lib/assets.ts";
 import { MODULES } from "../registry.ts";
+
+const entries = sortedChangelog();
+const pending = content.pending;
+const CHANGE_TAG = { added: "Added", updated: "Updated", retired: "Retired" } as const;
 ---
 
-<PlaceholderPage title={MODULES["whats-new"].label} />
+<Layout title={MODULES["whats-new"].label}>
+  <div class="frame page-head">
+    <h1>{MODULES["whats-new"].label}</h1>
+  </div>
+
+  {
+    entries.length > 0 && (
+      <section class="section frame" aria-labelledby="changes">
+        <SectionHead title="Changes" id="changes" />
+        <ul class="changelog" role="list">
+          {entries.map((e) => {
+            const a = findAsset(e.assetId);
+            return (
+              <ChangelogEntry
+                date={e.date}
+                dateLabel={formatDate(e.date)}
+                tag={CHANGE_TAG[e.change]}
+                title={e.summary}
+                detail={`${TYPE_LABEL[e.assetType]} · ${e.author}`}
+                href={a && e.change !== "retired" ? assetHref(a) : undefined}
+                muted={e.change === "retired"}
+              />
+            );
+          })}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    pending.length > 0 && (
+      <section class="section frame" aria-labelledby="in-progress">
+        <SectionHead title="In progress" id="in-progress" />
+        <ul class="changelog" role="list">
+          {pending.map((p) => <ChangelogEntry tag="In progress" title={p.label} detail={TYPE_LABEL[p.type]} muted />)}
+        </ul>
+      </section>
+    )
+  }
+</Layout>
