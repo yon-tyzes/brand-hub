@@ -1,7 +1,8 @@
 // Site top bar and footer (docs/DESIGN_SYSTEM.md, TopTabs). Theme, search, and the frosted bar are wired by
 // src/scripts/shell.ts.
 import type { CSSProperties } from "react";
-import { formatDate, logoFile } from "./data.ts";
+import { MODULES } from "../modules/registry.ts";
+import { logoFile } from "./data.ts";
 import { currentTab, navTabs, sidebarFor } from "./nav.ts";
 import { uiIconSvg } from "../lib/ui-icons.ts";
 import { Icon, ThemeToggle, useSite } from "./ui.tsx";
@@ -90,46 +91,24 @@ export function Sidebar({ path }: { path: string }) {
   );
 }
 
+/** Links to the change log and the brand contact. The engine version never appears on public pages. */
 export function Footer() {
   const site = useSite();
   const contact = site.brand.contact;
-  const lastPublish = site.sortedChangelog()[0]?.date;
-  const contactHost = contact?.url ? new URL(contact.url).host : undefined;
+  const links = [
+    ...(site.isEnabled("changes") ? [{ href: `${MODULES.changes.route}/`, label: MODULES.changes.label }] : []),
+    ...(contact?.email ? [{ href: `mailto:${contact.email}`, label: contact.email }] : []),
+    ...(contact?.url ? [{ href: contact.url, label: new URL(contact.url).host }] : []),
+  ];
   return (
     <footer className="site-footer">
-      <div className="frame">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <strong>{site.brand.name}</strong>
-            {site.brand.description && <p className="small">{site.brand.description}</p>}
-          </div>
-          <div className="footer-cols">
-            <section className="footer-col" aria-labelledby="footer-modules">
-              <h2 id="footer-modules">Brand assets</h2>
-              <ul role="list">
-                <li><a href="/">Home</a></li>
-                {site.modules.map((m) => <li key={m.id}><a href={m.route}>{m.label}</a></li>)}
-              </ul>
-            </section>
-            {(contact?.email || contact?.url) && (
-              <section className="footer-col" aria-labelledby="footer-contact">
-                <h2 id="footer-contact">Brand contact</h2>
-                <ul role="list">
-                  {contact.email && <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>}
-                  {contact.url && <li><a href={contact.url}>{contactHost}</a></li>}
-                </ul>
-              </section>
-            )}
-          </div>
-        </div>
-        <div className="footer-bottom caption">
-          <span>Brand Hub {site.engineVersion}</span>
-          {lastPublish && (
-            <span>
-              Last update <time dateTime={lastPublish}>{formatDate(lastPublish)}</time>
-            </span>
-          )}
-        </div>
+      <div className="frame footer-row">
+        <span className="small">{site.brand.name}</span>
+        {links.length > 0 && (
+          <ul className="footer-links" role="list" aria-label="Site and contact">
+            {links.map((l) => <li key={l.href}><a href={l.href}>{l.label}</a></li>)}
+          </ul>
+        )}
       </div>
     </footer>
   );

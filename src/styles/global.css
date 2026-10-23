@@ -492,20 +492,14 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
 
 /* ---------- Footer ---------- */
 
-.site-footer { border-top: 1px solid var(--color-border); padding-top: var(--space-7); padding-bottom: var(--space-7); margin-top: var(--space-7); }
-@media (min-width: 768px) { .site-footer { padding-top: var(--space-8); } }
-.footer-top { display: grid; gap: var(--space-6); }
-@media (min-width: 992px) { .footer-top { grid-template-columns: 4fr 8fr; gap: var(--space-5); } }
-.footer-brand { display: grid; gap: var(--space-2); align-content: start; max-width: 40ch; }
-.footer-brand strong { font-family: var(--font-display); font-weight: var(--weight-semibold); }
-.footer-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-5); }
-@media (min-width: 992px) { .footer-cols { grid-template-columns: repeat(3, minmax(160px, 1fr)); } }
-.footer-col { display: grid; gap: var(--space-3); align-content: start; }
-.footer-col h2 { font-family: var(--font-body); font-size: var(--step--1); font-weight: var(--weight-semibold); line-height: var(--leading-ui); letter-spacing: 0; }
-.footer-col ul { display: grid; gap: var(--space-1); }
-.footer-col a { display: inline-flex; align-items: center; min-height: 32px; color: var(--color-muted); text-decoration: none; font-size: var(--step--1); overflow-wrap: anywhere; }
-.footer-col a:hover { color: var(--color-text); text-decoration: underline; }
-.footer-bottom { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid var(--color-border); }
+.site-footer { border-top: 1px solid var(--border); padding-block: var(--space-5); margin-top: var(--space-7); }
+.footer-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-5); }
+.site-footer .footer-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); }
+.footer-links a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-size: var(--small-size); color: var(--text-secondary); overflow-wrap: anywhere;
+}
+.footer-links a:hover { color: var(--text); }
 
 /* ---------- Toast ---------- */
 
