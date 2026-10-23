@@ -1,0 +1,28 @@
+# Public demo deployment of the engine with the fictional demo brand.
+# hub.config.ts uses the `demo` adapter for builds: the editor at /admin keeps changes in memory and needs no
+# server functions or credentials.
+
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  BRAND_HUB_INDEXING = "true"
+
+# Deploy previews and branch deploys stay out of search engines.
+[context.deploy-preview.environment]
+  BRAND_HUB_INDEXING = "false"
+
+[context.branch-deploy.environment]
+  BRAND_HUB_INDEXING = "false"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
