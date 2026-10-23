@@ -151,7 +151,7 @@ export function FontsPage() {
     <>
       <PageHead title={MODULES.fonts.label} />
       <section className="section frame stack-lg" aria-label="Font families">
-        {fonts.map((f) => (
+        {fonts.map((f, fi) => (
           <article className="card" id={f.id} key={f.id} aria-labelledby={`${f.id}-title`}>
             <div className="section-head" style={{ marginBottom: 0 }}>
               <div>
@@ -175,7 +175,7 @@ export function FontsPage() {
             </div>
             <div className="row">
               {fontZips(f).map((z, i) => (
-                <Button key={z.kind} variant={i === 0 ? "primary" : "secondary"} href={z.href} download icon="download">{ZIP_LABEL[z.kind]}</Button>
+                <Button key={z.kind} variant={fi === 0 && i === 0 ? "primary" : "secondary"} href={z.href} download icon="download">{ZIP_LABEL[z.kind]}</Button>
               ))}
             </div>
             <div className="prose small" dangerouslySetInnerHTML={{ __html: renderMarkdown(f.install) }} />
@@ -274,7 +274,7 @@ export function IconsPage() {
 
 const PROVIDER = { dropbox: "Dropbox", drive: "Google Drive", sharepoint: "SharePoint", url: "Web link" } as const;
 const access = (s: PhotoSourceAsset) =>
-  s.access === "open" ? "Public folder: anyone with the link can open it." : `Sign-in required.${s.accessGroup ? ` ${s.accessGroup} can open it.` : ""}`;
+  s.access === "open" ? "Open to anyone: no sign-in needed." : `Sign-in required.${s.accessGroup ? ` ${s.accessGroup} can open it.` : ""}`;
 
 export function PhotosPage() {
   const site = useSite();

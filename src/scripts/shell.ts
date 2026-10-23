@@ -92,7 +92,7 @@ window.addEventListener("bh:toast", (e) => showToast((e as CustomEvent<string>).
 // ---------- Copy buttons ----------
 document.addEventListener("click", (e) => {
   const btn = (e.target as Element).closest<HTMLElement>("[data-copy]");
-  if (btn) copyText(btn.dataset.copy ?? "", btn.dataset.copyMessage ?? "Copied.");
+  if (btn) copyText(btn.dataset.copy ?? "", btn.dataset.copyMessage ?? `${btn.dataset.copy ?? ""} copied.`);
 });
 
 // ---------- Search ----------

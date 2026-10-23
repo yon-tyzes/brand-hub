@@ -115,7 +115,7 @@ export function Accordion({ items }: { items: { id: string; title: string; body:
 export function ChangelogEntry({ date, dateLabel, tag, title, detail, href, muted }: { date?: string; dateLabel?: string; tag: string; title: string; detail?: string; href?: string; muted?: boolean }) {
   return (
     <li className="changelog-entry">
-      {date ? <time className="caption" dateTime={date}>{dateLabel ?? date}</time> : <span className="caption" />}
+      {date ? <time className="caption" dateTime={date}>{dateLabel ?? date}</time> : <span className="caption changelog-nodate" />}
       <div className="changelog-main">
         <span className={muted ? "tag tag-muted" : "tag"}>{tag}</span>
         <span className="changelog-title">{href ? <a href={href}>{title}</a> : title}</span>

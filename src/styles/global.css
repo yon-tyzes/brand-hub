@@ -308,7 +308,9 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
   position: relative;
 }
 .changelog-entry time { grid-column: 1 / -1; }
+.changelog-nodate { display: none; }
 @media (min-width: 768px) {
+  .changelog-nodate { display: block; }
   .changelog-entry { grid-template-columns: 96px 1fr auto; }
   .changelog-entry time { grid-column: auto; }
 }
