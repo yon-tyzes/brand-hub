@@ -1,6 +1,8 @@
 /* Base styles and shared component classes. Every value comes from a token (src/theme/tokens.ts).
    Layout, type roles, and component specs: docs/DESIGN_SYSTEM.md. React islands use the same classes. */
 
+@import "../theme/fonts/fonts.css";
+
 /* ---------- Reset and base ---------- */
 
 *, *::before, *::after { box-sizing: border-box; }

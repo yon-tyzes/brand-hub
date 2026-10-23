@@ -1,6 +1,17 @@
 # Third-party licenses
 
-The engine code is MIT licensed (see `LICENSE`). The demo brand in `brands/demo/` includes these third-party files. Instances that copy the demo brand keep these licenses with the files.
+The engine code is MIT licensed (see `LICENSE`). The engine ships its interface fonts, and the demo brand in `brands/demo/` includes third-party files. Instances that copy the demo brand keep these licenses with the files.
+
+## Interface fonts
+
+| Files | Project | License | Notice |
+|---|---|---|---|
+| `src/theme/fonts/mona-sans/` | [Mona Sans](https://github.com/github/mona-sans) | SIL Open Font License 1.1 | `src/theme/fonts/mona-sans/OFL.txt` |
+| `src/theme/fonts/martian-mono/` | [Martian Mono](https://github.com/evilmartians/mono) | SIL Open Font License 1.1 | `src/theme/fonts/martian-mono/OFL.txt` |
+
+The interface font files are the Latin subsets published by Fontsource (`@fontsource-variable/mona-sans` 5.3.0, variable weight axis, and `@fontsource/martian-mono` 5.3.0, weight 400), unchanged.
+
+## Demo brand
 
 | Files | Project | License | Notice |
 |---|---|---|---|

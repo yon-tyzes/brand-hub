@@ -1,0 +1,18 @@
+/* Interface fonts, self-hosted (docs/DESIGN_SYSTEM.md, section 3). Latin subsets from Fontsource.
+   Mona Sans for all interface text; Martian Mono only for values people copy. Licenses: OFL.txt in each folder. */
+
+@font-face {
+  font-family: "Mona Sans";
+  src: url("./mona-sans/mona-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Martian Mono";
+  src: url("./martian-mono/martian-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
