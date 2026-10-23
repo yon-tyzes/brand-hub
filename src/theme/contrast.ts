@@ -17,6 +17,8 @@ export interface ContrastFailure {
   bgValue: string;
   ratio: number;
   min: number;
+  /** Color asset that declares the pairing (pairing checks only). */
+  owner?: string;
 }
 
 /** Token pairs the components render (docs/DESIGN_SYSTEM.md). fg, bg, use. */
@@ -61,7 +63,7 @@ export function checkPairingContrast(colors: ColorAsset[]): ContrastFailure[] {
       if (!fg || !bg) continue;
       const ratio = contrastRatio(fg.hex, bg.hex);
       const min = MIN_RATIO[p.use];
-      if (ratio < min) out.push({ scope: `color assets (${c.id})`, fg: p.fg, bg: p.bg, fgValue: fg.hex, bgValue: bg.hex, ratio, min });
+      if (ratio < min) out.push({ scope: `color assets (${c.id})`, fg: p.fg, bg: p.bg, fgValue: fg.hex, bgValue: bg.hex, ratio, min, owner: c.id });
     }
   }
   return out;
