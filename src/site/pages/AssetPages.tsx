@@ -184,7 +184,7 @@ export function FontsPage() {
         ))}
       </section>
       {fonts.length > 0 && (
-        <section className="section frame sidebar" aria-labelledby="install">
+        <section className="section frame aside-layout" aria-labelledby="install">
           <SectionHead title="Install fonts" id="install" intro="Steps for each system. Install the files from the zip, then restart open apps." />
           <Accordion
             items={[

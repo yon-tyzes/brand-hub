@@ -28,9 +28,9 @@ export function Header({ path }: { path: string }) {
           ))}
         </nav>
         <div className="topbar-tools">
-          <button className="search-trigger" type="button" data-search-open="" aria-label="Search">
+          <button className="search-trigger" type="button" data-search-open="">
             <Icon name="search" size={16} />
-            <span className="search-trigger-label" aria-hidden="true">Search</span>
+            <span className="search-trigger-label">Search</span>
             {modK && (
               <span className="search-trigger-keys" aria-hidden="true">
                 <kbd className="kbd-mac">⌘K</kbd>

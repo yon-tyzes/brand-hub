@@ -122,8 +122,8 @@ h4, .h4 { font-size: var(--step-2); line-height: var(--leading-snug); letter-spa
 @media (min-width: 480px) { .swatches { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 992px) { .swatches { grid-template-columns: repeat(3, 1fr); } }
 .icon-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--space-2); }
-.sidebar { display: grid; gap: var(--space-6); }
-@media (min-width: 992px) { .sidebar { grid-template-columns: 4fr 8fr; gap: var(--space-7); align-items: start; } }
+.aside-layout { display: grid; gap: var(--space-6); }
+@media (min-width: 992px) { .aside-layout { grid-template-columns: 4fr 8fr; gap: var(--space-7); align-items: start; } }
 
 .cells-2 { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--color-border); border-left: 1px solid var(--color-border); }
 @media (min-width: 480px) { .cells-2 { grid-template-columns: repeat(2, 1fr); } }
@@ -408,7 +408,9 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
   .topbar-tools { gap: 0; }
   .search-trigger { width: 44px; height: 44px; padding: 0; justify-content: center; background: transparent; border-color: transparent; color: var(--text); }
   .search-trigger svg { width: 20px; height: 20px; }
-  .search-trigger-label, .search-trigger-keys { display: none; }
+  .search-trigger-keys { display: none; }
+  /* Icon only on phones; the word still names the button. */
+  .search-trigger-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .theme-toggle { width: 44px; height: 44px; border: 0; }
 
   .tabs-segmented {
@@ -436,7 +438,8 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
 /* ---------- Shell: sidebar beside the content column (DESIGN_SYSTEM.md, Sidebar) ---------- */
 
 .shell { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr); }
-.shell-main { min-width: 0; display: flex; flex-direction: column; }
+.shell-main, .sidebar { min-width: 0; }
+.shell-main { display: flex; flex-direction: column; }
 .shell-main > main { flex: 1; }
 
 /* Below 992px the sidebar is a horizontally scrolling chip row; the current item is filled. */
