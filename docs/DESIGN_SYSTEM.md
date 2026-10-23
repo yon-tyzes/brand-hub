@@ -1,468 +1,385 @@
 # Design system
 
-This document defines the layout, type, spacing, shape, components, and motion of the Brand Hub engine. Components read every visual value from CSS custom properties. A brand changes values in `brand.json` (see `ENGINE_SPEC.md`, section 9). It never changes components or the structure described here.
+This document defines the shell of the Brand Hub engine for release 0.2: color, type, spacing, radius, layout, components, frosted glass, the hero gradient, motion, states, iconography, and copy. The shell is identical for every brand. Its tokens live in `src/theme/` and brands cannot override them. `ENGINE_SPEC.md`, section 10, describes how the engine reads the few values it takes from brand data.
 
 Conventions:
 
 - Sizes are given in px for reading. Ship them as `rem` (16px base).
 - Media queries are mobile first (`min-width`).
-- "Derived" tokens are computed by the token pipeline from brand tokens with `color-mix()`. A brand may override any of them.
+- Token names in this document match the CSS custom properties: `bg` is `var(--bg)`, `radius-lg` is `var(--radius-lg)`.
 
-## Tokens at a glance
+## 1. Shell and brand
 
-| Group | Tokens | Source |
-|---|---|---|
-| Color | `--color-bg`, `--color-surface`, `--color-text`, `--color-muted`, `--color-primary`, `--color-link`, `--color-border` | brand |
-| Color, derived | `--color-surface-2`, `--color-border-strong`, `--color-on-primary`, `--color-primary-hover`, `--color-focus`, `--color-scrim` | pipeline |
-| Font | `--font-display`, `--font-body` | brand |
-| Font, engine | `--font-mono` | engine (system stack) |
-| Type | `--step--2` to `--step-7`, `--leading-*`, `--tracking-*`, `--weight-*` | engine, ratio from this doc |
-| Space | `--space-1` to `--space-9` | brand (`space` array) |
-| Radius | `--radius-sm`, `--radius-md`, `--radius-lg`, `--radius-control` | brand (`radius`), `control` defaults to pill |
-| Shadow | `--shadow-sm`, `--shadow-lg` | pipeline, from `--color-text` |
-| Motion | `--duration-fast`, `--duration-base`, `--ease-out`, `--ease-in-out` | engine |
-| Layout | `--content-max`, `--gutter`, `--header-h`, `--header-offset` | engine |
-| Preview | `--preview-light`, `--preview-dark` | pipeline, from light `bg` and `text`; the same in both themes |
+The engine owns the interface. The brand shows up only as content.
 
-Derived color defaults:
-
-```css
---color-surface-2:     color-mix(in oklab, var(--color-surface), var(--color-text) 4%);
---color-border-strong: color-mix(in oklab, var(--color-border), var(--color-text) 25%);
---color-primary-hover: color-mix(in oklab, var(--color-primary), var(--color-surface) 14%);
---color-on-primary:    var(--color-surface);
---color-focus:         var(--color-link);
---color-scrim:         color-mix(in oklab, var(--color-text) 45%, transparent);
---font-mono:           ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-```
-
-The pipeline checks contrast at build time and fails when `--color-on-primary` on `--color-primary` is below 4.5:1, `--color-muted` on `--color-bg` or `--color-surface` is below 4.5:1, or `--color-focus` against `--color-bg` is below 3:1. The checks run for light and dark tokens.
-
-## 1. Layout
-
-### Breakpoints
-
-| Name | Min width | Changes at this width |
-|---|---|---|
-| base | 0 | One column. Gutter 16. Menu button. |
-| `sm` | 480 | Type ratio steps up. Two-column card grids. |
-| `md` | 768 | Gutter 24. Three-column card grids. Section heads go side by side. Section padding steps up. |
-| `lg` | 992 | Inline navigation replaces the menu button. Gutter 64. Sidebar and split layouts go side by side. Footer goes to four columns. |
-
-Above `lg` the layout only grows until the content frame reaches its maximum. Nothing else changes.
-
-### Container
-
-```
-| gutter |            content frame (max 1200)            | gutter |
-```
-
-- `--content-max: 1200px`. The frame is centered with `margin-inline: auto`.
-- `--gutter`: 16 (base), 24 (`md`), 64 (`lg`). It is applied as `padding-inline` on the page wrapper, so the frame never touches the viewport edge.
-- Full-bleed elements (header bar, footer border) span the viewport. Their content still aligns to the frame.
-- Reading width for long text (guide pages, install steps, FAQ answers): `max-width: 68ch`.
-
-### Grid
-
-A 12-column grid inside the content frame. Column gap is `--space-5` (24) from `md`, `--space-4` (16) below. Named layouts:
-
-| Layout | base | `sm` | `md` | `lg` | Used for |
-|---|---|---|---|---|---|
-| `cards-3` | 1 | 1 | 3 | 3 | Module cards on home, rule cards |
-| `cards-4` | 1 | 2 | 3 | 4 | Template cards, logo cards, font family cards |
-| `swatches` | 2 | 3 | 4 | 6 | Color swatches |
-| `icons` | `auto-fill, minmax(88px, 1fr)` at every width | | | | Icon library |
-| `split` | stack | stack | stack | 5 / 7 | Text beside a preview (logo helper, signature generator) |
-| `sidebar` | stack | stack | stack | 4 / 8 | Intro beside a list (FAQ, install help, rules index) |
-| `cells-2` | 1 | 2 | 2 | 2 | Do and don't rule grids. Shared 1px borders, no gap. |
-
-Card grids stack vertically on small screens. They never become horizontal scroll strips, because a strip hides assets behind a gesture.
-
-### Section rhythm
-
-| Spacing | base | `md` | `lg` |
-|---|---|---|---|
-| Section padding (block) | 48 (`--space-7`) | 64 (`--space-8`) | 96 (`--space-9`) |
-| Section head to content | 32 (`--space-6`) | 32 | 48 (`--space-7`) |
-| Between blocks in a section | 24 (`--space-5`) | 32 | 32 |
-| Page top, below the header | `--header-h` + `--header-offset` + 32 | same | same + 16 |
-
-Sections are separated by space alone. No alternating background bands and no inverted (dark in light) sections.
-
-**Section head:** an `h2` plus at most one secondary or text button. It stacks below `md` with a 16 gap. From `md` the heading sits left and the action right, aligned to the heading's last baseline, with a 40 gap. An optional one-line intro in `--color-muted` sits under the heading. Nothing sits above the heading.
-
-## 2. Type scale
-
-Two families, both brand tokens: `--font-display` for headings and `--font-body` for everything else. `--font-mono` is an engine stack for values people copy (HEX, RGB, file names, keyboard shortcuts) and for code. It is never used for labels or decoration.
-
-### Ratio
-
-Sizes follow `16 x ratio^step`. The ratio grows with the viewport, so headings scale while body sizes stay put.
-
-| Viewport | Ratio |
+| Owned by the engine | Comes from brand data |
 |---|---|
-| base (0 to 479) | 1.125 |
-| `sm`, `md` (480 to 991) | 1.15 |
-| `lg` (992 and up) | 1.2 |
-
-Steps -2 to 0 are fixed. They do not shrink on small screens.
-
-| Step | base | `sm`/`md` | `lg` |
-|---|---|---|---|
-| `--step-7` | 36 | 43 | 57 |
-| `--step-6` | 32 | 37 | 48 |
-| `--step-5` | 29 | 32 | 40 |
-| `--step-4` | 26 | 28 | 33 |
-| `--step-3` | 23 | 24 | 28 |
-| `--step-2` | 20 | 21 | 23 |
-| `--step-1` | 18 | 18 | 19 |
-| `--step-0` | 16 | 16 | 16 |
-| `--step--1` | 14 | 14 | 14 |
-| `--step--2` | 12 | 12 | 12 |
-
-The token pipeline writes the computed `rem` values per breakpoint, rounded to two decimals. Components never call `pow()` themselves.
-
-### Roles
-
-| Role | Element | Step | Family | Weight | Line height | Tracking | Color |
-|---|---|---|---|---|---|---|---|
-| Home title | `h1` on `/` | 7 | display | `--weight-display` | 1.05 | -0.03em | text |
-| Page title | `h1` | 6 | display | `--weight-display` | 1.08 | -0.025em | text |
-| Section heading | `h2` | 5 | display | `--weight-display` | 1.12 | -0.025em | text |
-| Subsection | `h3` | 3 | display | `--weight-display` | 1.2 | -0.015em | text |
-| Minor heading | `h4` | 2 | body | 500 | 1.3 | -0.01em | text |
-| Card title | `h3` in card | 0 | body | 500 | 1.5 | 0 | text |
-| Lead | `p.lead` | 1 | body | 400 | 1.55 | 0 | muted |
-| Body | `p`, `li` | 0 | body | 400 | 1.55 | 0 | text |
-| Small | help text, card body, meta | -1 | body | 400 | 1.55 | 0 | muted |
-| Caption | dates, file sizes, version | -2 | body | 500 | 1.4 | 0.01em | muted |
-| Button | `.btn` | 0 | body | 500 | 1.5 | 0 | per variant |
-| Button, small | `.btn-sm` | -1 | body | 500 | 1.5 | 0 | per variant |
-| Nav link | header link | -1 | body | 500 | 1.5 | 0 | text |
-| Mobile menu link | menu row | 1 | body | 500 | 1.4 | 0 | text |
-| Tab | tab button | -1 | body | 500 | 1.4 | 0 | muted, active text |
-| Pill | filter | -1 | body | 500 | 1.4 | 0 | text |
-| Tag | changelog tag | -2 | body | 600 | 1.3 | 0.02em | text |
-| Value | HEX, RGB, file name | -1 or 0 | mono | 400 | 1.5 | 0 | text |
-| Footer heading | column `h2` | -1 | body | 600 | 1.4 | 0 | text |
-| Footer link | column link | -1 | body | 400 | 1.5 | 0 | muted, hover text |
-
-- `--weight-display` defaults to 500. A brand whose display face is heavy may set 400. Body weights are 400, 500, 600 only.
-- Text is sentence case everywhere. `text-transform: uppercase` is not used on any role.
-- Use `font-variant-numeric: tabular-nums` on values, dates, sizes and table cells.
-- Headings use `text-wrap: balance`. Body uses `text-wrap: pretty`.
-
-## 3. Spacing scale
-
-The scale is the brand's `space` array, exposed as `--space-1` to `--space-9`. Engine defaults:
-
-| Token | px | Typical use |
-|---|---|---|
-| `--space-1` | 4 | Title to description inside a row, icon to label in a tag |
-| `--space-2` | 8 | Gap between pills, between buttons in a group, card stack gap |
-| `--space-3` | 12 | Icon tile to text, menu row padding, input padding block |
-| `--space-4` | 16 | Card padding below `sm`, grid gap below `md`, gutter at base |
-| `--space-5` | 24 | Card padding, grid gap from `md`, gutter at `md` |
-| `--space-6` | 32 | Panel padding, section head to content below `lg` |
-| `--space-7` | 48 | Section padding at base, section head to content at `lg` |
-| `--space-8` | 64 | Section padding at `md`, gutter at `lg` |
-| `--space-9` | 96 | Section padding at `lg` |
+| Page background, surfaces, text, borders, and control colors | Logos and their files |
+| Focus ring, success, and danger colors | Colors and their values (HEX, RGB, CMYK, PMS) |
+| Interface fonts: Mona Sans and Martian Mono | Brand fonts, shown as specimens on `/fonts` |
+| Spacing, radius, shadows, motion, and layout | Icons, photos, templates, and rules |
+| Frosted glass surfaces | The hue of the home hero gradient (`tokens.color.primary`, or `hero.tint`) |
+| Navigation labels: Library, Brand guide, Create | The brand name and mark in the top bar |
 
 Rules:
 
-- Components use only scale tokens. One exception is the border width (1px) and focus ring (2px).
-- Vertical rhythm comes from `gap` on flex and grid parents, not from margins on children.
-- Hit areas grow with padding, never with margins.
+- Build every shell element from shell tokens. Never read a brand's colors or fonts into a control, a surface, or the navigation.
+- The one place brand color appears inside a shell control is the color dot on a chip that names that color.
+- Brand fonts appear only on the Fonts page, in specimens, the type tester, and previews. A variable brand font may respond to the cursor there.
 
-## 4. Shape
+## 2. Color
 
-### Radius
+Light is the default theme. The site follows the system setting, and the theme toggle in the top bar overrides it.
 
-| Token | Default | Used for |
+How to use the roles:
+
+- Set every page on `bg`. Use `surface-subtle` for the sidebar, hover rows, and the wells that hold asset previews. Use `surface-raised` for cards, dialogs, and toasts.
+- Set text in `text`, supporting copy in `text-secondary`, and dates, sizes, and hints in `text-muted`. All three pass 4.5:1 on every surface in both themes.
+- Draw hairlines with `border`. Give every control boundary `border-control` (3:1 or better) so inputs and secondary buttons stay visible without a fill.
+- Use `fill-primary` with `on-primary` for one primary action per view. It is ink, never brand color.
+- `focus` is the only saturated color the shell owns. It draws the 2px focus ring, offset 2px, on every interactive element.
+- `success` and `danger` always travel with an icon and a word.
+
+### Light
+
+| Token | Value | Usage |
 |---|---|---|
-| `--radius-sm` | 6 | Tabs, tags, inline code, checkbox |
-| `--radius-md` | 10 | Icon tiles, inputs, menu rows, toasts, table container |
-| `--radius-lg` | 16 | Cards, dropdown panel, mobile menu, dialog, sheet corners |
-| `--radius-control` | 999 | Buttons, pills, theme switch, FAQ toggle |
+| `bg` | `#ffffff` | Page background behind everything. Never tinted with brand color. |
+| `surface-subtle` | `#f5f6f8` | Sidebar, search field at rest, hover rows, and wells that hold previews. |
+| `surface-raised` | `#ffffff` | Cards, popovers, the search dialog, and toasts. Matches `bg` and relies on `border`. |
+| `border` | `#e6e8ec` | Default 1px hairline: card edges, dividers, the header's bottom rule. Never the only boundary of a control. |
+| `border-strong` | `#cdd1d8` | Card border on hover and selected states, table rules that need more weight. |
+| `border-control` | `#7f858f` | Boundary of inputs, secondary buttons, and chips. 3:1 on `bg`, `surface-subtle`, and `surface-raised`. |
+| `text` | `#0b0d10` | Headings, body copy, labels, and values. |
+| `text-secondary` | `#4e545e` | Supporting copy, card descriptions, inactive nav items. 7:1 or better on every surface. |
+| `text-muted` | `#6a707b` | Captions, file sizes, dates, and input hints. 4.6:1 or better on every surface. |
+| `fill-primary` | `#0b0d10` | The one primary button per view. |
+| `fill-primary-hover` | `#2a2e35` | Hover and pressed state of `fill-primary`. |
+| `on-primary` | `#ffffff` | Text and icons on `fill-primary`. |
+| `focus` | `#2f6bff` | Focus ring. 4.5:1 on `bg`. |
+| `success` | `#1a7f52` | Copied and downloaded confirmations, with the check icon and a word. |
+| `danger` | `#c93a3a` | Editor errors and failed downloads, with a word. |
+| `scrim` | `rgba(10, 11, 13, 0.45)` | Backdrop behind the search dialog and the mobile menu. |
+| `glass-fill` | `rgba(255, 255, 255, 0.6)` | Frosted fill for the hero search field and chips. Never below 55%, so text holds 4.5:1 over the darkest point of any tuned mesh. |
+| `glass-fill-strong` | `rgba(255, 255, 255, 0.72)` | Frosted fill for the scrolled top bar, the mobile tab bar, the search dialog, and toasts. |
+| `glass-border` | `rgba(255, 255, 255, 0.7)` | Edge of a frosted surface. Paired with `border` on the top bar's bottom edge. |
+| `glass-highlight` | `rgba(255, 255, 255, 0.75)` | 1px inset top line on frosted surfaces, drawn as an inset box shadow. |
 
-Nested radii: an element inside a padded container uses the container radius minus the padding, with a floor of `--radius-sm`.
+### Dark
 
-### Borders
-
-- Width 1px, style solid, color `--color-border`. Hover and selected states use `--color-border-strong`.
-- Separation between list items is a top border on each item after the first. No standalone divider elements.
-- Grids of cells (`cells-2`) share borders. Each cell draws its right and bottom border, and the grid draws top and left.
-
-### Shadows
-
-Only layers that float above the page get a shadow. Cards, tiles and buttons do not.
-
-```css
---shadow-sm: 0 1px 3px color-mix(in oklab, var(--color-text) 8%, transparent);
---shadow-lg: 0 16px 40px color-mix(in oklab, var(--color-text) 8%, transparent);
-```
-
-| Layer | Shadow |
-|---|---|
-| Theme switch knob, active tab | `--shadow-sm` |
-| Dropdown panel, mobile menu, toast, search dialog, sheet | `--shadow-lg` |
-
-In the dark theme shadows stay as defined. The border carries the edge.
-
-### Surfaces
-
-| Surface | Fill | Border |
+| Token | Value | Usage |
 |---|---|---|
-| Page | `--color-bg` | none |
-| Card, panel, dialog, sheet, menu | `--color-surface` | `--color-border` |
-| Preview area inside a card, icon tile, hover fill, switch track | `--color-surface-2` | none or `--color-border` |
+| `bg` | `#0a0b0d` | Page background behind everything. |
+| `surface-subtle` | `#111317` | Sidebar, search field at rest, hover rows, and preview wells. |
+| `surface-raised` | `#16181d` | Cards, popovers, the search dialog, and toasts. Steps up from `bg`. |
+| `border` | `#23262d` | Default 1px hairline. Never the only boundary of a control. |
+| `border-strong` | `#343841` | Card border on hover and selected states. |
+| `border-control` | `#5f6570` | Boundary of inputs, secondary buttons, and chips. 3:1 on every surface. |
+| `text` | `#f2f3f5` | Headings, body copy, labels, and values. |
+| `text-secondary` | `#a6acb6` | Supporting copy, card descriptions, inactive nav items. 7.8:1 or better on every surface. |
+| `text-muted` | `#8a909b` | Captions, file sizes, dates, and input hints. 4.6:1 or better on every surface. |
+| `fill-primary` | `#f2f3f5` | The one primary button per view. |
+| `fill-primary-hover` | `#d9dce1` | Hover and pressed state of `fill-primary`. |
+| `on-primary` | `#0b0d10` | Text and icons on `fill-primary`. |
+| `focus` | `#7aa2ff` | Focus ring. 7.9:1 on `bg`. |
+| `success` | `#4cc38a` | Copied and downloaded confirmations, with the check icon and a word. |
+| `danger` | `#f07070` | Editor errors and failed downloads, with a word. |
+| `scrim` | `rgba(0, 0, 0, 0.6)` | Backdrop behind the search dialog and the mobile menu. |
+| `glass-fill` | `rgba(22, 24, 29, 0.6)` | Frosted fill for the hero search field and chips. |
+| `glass-fill-strong` | `rgba(22, 24, 29, 0.75)` | Frosted fill for the scrolled top bar, the mobile tab bar, the search dialog, and toasts. |
+| `glass-border` | `rgba(255, 255, 255, 0.08)` | Edge of a frosted surface. |
+| `glass-highlight` | `rgba(255, 255, 255, 0.06)` | 1px inset top line on frosted surfaces. |
 
-No transparency, blur, or gradient fills on any surface.
+## 3. Type
 
-## 5. Components
+The interface uses two families, both self-hosted under the SIL Open Font License:
 
-Every interactive component meets these rules. They are not repeated per component:
+| Family | Token | Stack | Use |
+|---|---|---|---|
+| Mona Sans | `font-sans` | `"Mona Sans", system-ui, sans-serif` | All interface text. |
+| Martian Mono | `font-mono` | `"Martian Mono", ui-monospace, Menlo, monospace` | Only values people copy: HEX, RGB, CMYK, PMS, and file names. |
 
-- **Focus:** `outline: 2px solid var(--color-focus); outline-offset: 2px` on `:focus-visible`. It is the same on every control, in both themes. Controls never set `outline: none` without this replacement.
-- **Target size:** at least 24x24 CSS px. Buttons and rows are 40 or taller.
-- **Keyboard:** everything reachable with Tab and operable with Enter or Space. Composite widgets (tabs, menus) also use arrow keys as noted.
-- **Disabled:** `opacity: 0.5`, `cursor: not-allowed`, and `aria-disabled="true"` when the control must stay focusable.
+### Styles
 
-### Header
+| Style | Family | Size | Line height | Weight | Tracking | Usage |
+|---|---|---|---|---|---|---|
+| `display-xl` | sans | 56px | 1.02 | 600 | -0.03em | Home hero title from 992px. One per page. |
+| `display` | sans | 40px | 1.05 | 600 | -0.03em | Home hero title below 992px, and Brand guide chapter openers. |
+| `h1` | sans | 32px | 1.1 | 600 | -0.025em | Page title on every Library, Brand guide, and Create page. |
+| `h2` | sans | 24px | 1.2 | 600 | -0.02em | Section heads within a page. |
+| `h3` | sans | 18px | 1.3 | 600 | -0.01em | Subsections and rule titles in the Brand guide. |
+| `body-lg` | sans | 18px | 1.55 | 400 | 0 | Page intros. One paragraph at most. |
+| `body` | sans | 16px | 1.55 | 400 | 0 | Default copy. 16px minimum so it reads on a phone outdoors. |
+| `small` | sans | 14px | 1.5 | 400 | 0 | Card descriptions, help text, and download format labels. |
+| `label` | sans | 14px | 1.4 | 500 | 0 | Buttons, nav items, chips, and card titles. |
+| `caption` | sans | 12px | 1.4 | 500 | 0.01em | Dates, counts, and keyboard hints. Never for anything a person must act on. |
+| `value` | mono | 13px | 1.5 | 400 | 0 | HEX, RGB, CMYK, PMS, and file names people copy. Never for labels or decoration. |
+| `value-sm` | mono | 11px | 1.5 | 400 | 0 | Secondary values under a swatch or file card. |
 
-- Sticky at the top with an offset (`--header-offset`: 12 below `lg`, 16 from `lg`). It is a bar inside the gutter, `--header-h: 56px`. It holds `--color-surface`, a 1px border, `--radius-control` and no shadow.
-- Contents, left to right:
-  - Brand mark (links to `/`).
-  - At `lg` and up, a Modules button that opens the module menu (asset modules), then plain links for the other modules (Guide, What's new). Asset modules sit in the menu so the bar fits at 992px with any module set.
-  - Search button (icon plus `Ctrl K` hint from `lg`).
-  - Theme toggle.
-- Below `lg`: brand mark, search button, menu button. The theme toggle moves into the mobile menu.
-- Nav links: step -1, weight 500, `--color-text`. The current page has `aria-current="page"` and a 2px underline in `--color-text` offset 6px. On hover the color changes to `--color-link`. Vertical padding gives each link a 40px hit area.
-- `scroll-padding-top` on `html` equals `--header-h` + `--header-offset` + 16 so anchored headings are not hidden.
+Rules:
 
-### Dropdown menu (module menu)
+- Headings use weight 600 with the negative tracking set in their style. Text uses 400 and 500 only.
+- Nothing sits directly above a heading. A heading stands on its own.
 
-- Trigger: a `button` with `aria-expanded` and `aria-controls`, and a chevron that rotates 180 degrees when open. It opens on click and on Enter, Space, or Down arrow. Hover alone does not open it.
-- Panel:
-  - Placed 8px below the header and aligned to the content frame, with the frame's width at `lg` and up.
-  - Padding `--space-6`, `--radius-lg`, 1px border, `--shadow-lg`, `--color-surface`.
-- Layout: two column groups with a gap of `--space-6`.
-  - **Module rows** (left, wider): icon tile (40), label (step 0, 500), and a one-line help text (step -1, muted). Each row has padding `--space-3`, `--radius-md`, and a gap of `--space-3`. Hover and focus fill the row with `--color-surface-2`.
-  - **Quick links** (right): plain links, step -1, with a row gap of `--space-3`.
-- A group may have a heading (step -1, weight 600, `--color-text`) when there is more than one group. It is a real heading for the list, not a label above another heading.
-- Close on Escape (focus returns to the trigger), on outside click, and when focus leaves the panel. The arrow keys move between rows.
-- No promotional or "featured" card in the panel.
+## 4. Spacing
 
-### Mobile menu
+Space on the 4px scale.
 
-- Below `lg`, the menu button (40x40, `--radius-control`, `aria-expanded`) opens a panel. The panel drops from the header, keeping the header's horizontal inset. Its max height is `100dvh` minus the header, and it scrolls internally.
-- Panel: `--color-surface`, 1px border, `--radius-lg`, `--shadow-lg`, padding `--space-5` inline and `--space-3` block.
-- Rows: step 1, weight 500, at least 54px tall, with a top border between rows. Links show a trailing arrow. Groups (such as a module group) expand inline with a plus that turns into a minus, using a `button` with `aria-expanded`.
-- Below the rows: a theme row ("Theme" label left, switch right).
-- The page behind does not scroll while the menu is open. Escape closes it and returns focus to the menu button.
+| Token | Value | Usage |
+|---|---|---|
+| `space-1` | 4px | Icon to label gap inside chips. |
+| `space-2` | 8px | Icon to label in buttons, gap between chips. |
+| `space-3` | 12px | Card gap between preview and text. |
+| `space-4` | 16px | Card padding, phone gutter, grid gap below 768px. |
+| `space-5` | 24px | Grid gap from 768px, tablet gutter. |
+| `space-6` | 32px | Section head to content. |
+| `space-7` | 48px | Between sections on phones, sidebar to content. |
+| `space-8` | 64px | Between sections on desktop, desktop gutter. |
+| `space-9` | 96px | Hero block padding on desktop. |
 
-### Theme toggle
+Separate sections with space alone: `space-7` on phones, `space-8` on desktop. No alternating background bands.
 
-- Switch: track 64x34, padding 3, `--color-surface-2`, `--radius-control`. Knob 28x28 with `--color-surface`, 1px border, `--shadow-sm`. Sun and moon glyphs sit at 16px inside the track. The knob slides with `transform` over `--duration-base`.
-- Markup: `button` with `role="switch"`, `aria-checked`, and an accessible name of "Dark theme".
-- Sets `data-theme="dark"` on `html`. The choice is stored in `localStorage` and applied by a small inline script in `head` before first paint. When no choice is stored, the site uses light (spec section 6).
-- Dark tokens come from the brand. When a brand has no dark tokens, the toggle is not rendered.
+## 5. Radius, borders, and depth
 
-### Buttons
+| Token | Value | Usage |
+|---|---|---|
+| `radius-sm` | 6px | Keyboard hints, small swatch dots, tags. |
+| `radius-md` | 10px | Buttons, inputs, the search field, sidebar items, toasts. |
+| `radius-lg` | 14px | Cards, preview wells, the search dialog. |
+| `radius-pill` | 999px | Chips only. |
 
-| Variant | Fill | Text | Border | Hover |
-|---|---|---|---|---|
-| Primary | `--color-primary` | `--color-on-primary` | same as fill | fill `--color-primary-hover` |
-| Secondary | `--color-surface` | `--color-text` | `--color-border` | fill `--color-surface-2`, border `--color-border-strong` |
-| Text | none | `--color-text` | none | text `--color-link`, underline |
+- Cards use a `border` hairline and `radius-lg`. Cards have no resting shadow.
+- `shadow-popover` is for the search dialog, menus, and toasts only.
 
-- Sizes: default 48 tall with padding 12 block and 20 inline at step 0. Small is 40 tall with padding 8 and 14 at step -1. The radius is `--radius-control`.
-- Icon plus label gap: `--space-2`. Icons are 16 (small) or 20 (default) and use `currentColor`.
-- Full width below `sm` when a button stands alone in a section. Button groups use a gap of `--space-2` and wrap.
-- One primary button per view. Labels say what happens ("Download SVG", "Copy hex").
-- Text button with an arrow (for "All icons" style links) adds a trailing arrow glyph. The arrow does not move on hover.
+| Token | Light | Dark |
+|---|---|---|
+| `shadow-popover` | `0 1px 2px rgba(11, 13, 16, 0.06), 0 12px 32px rgba(11, 13, 16, 0.10)` | `0 1px 2px rgba(0, 0, 0, 0.5), 0 12px 32px rgba(0, 0, 0, 0.55)` |
 
-### Card
+## 6. Layout
 
-- `--color-surface`, 1px `--color-border`, `--radius-lg`, padding `--space-5` (`--space-4` below `sm`). Internal stack gap is `--space-2`.
-- Anatomy, top to bottom:
-  - **Preview area** (optional): `--color-surface-2`, radius `--radius-lg` minus padding, fixed aspect ratio per module (logos 3:2, templates 4:3, fonts 2:1). It shows the real asset.
-  - **Title:** step 0, weight 500.
-  - **Description:** step -1, muted, two lines max with `line-clamp`.
-  - **Footer row** (optional): caption meta left, small actions right.
-- Linked card: the title link's `::after` covers the card, so the whole card is clickable while only the title is announced. The focus ring goes around the card (`:has(:focus-visible)`). On hover the border becomes `--color-border-strong`, with no lift and no shadow.
-- Inner actions (download buttons) sit above the cover link (`position: relative; z-index: 1`).
+| Token | Value | Usage |
+|---|---|---|
+| `header-h` | 56px | Height of the top bar: brand name and mark, top tabs, search, theme toggle. |
+| `sidebar-w` | 248px | Sidebar width from 992px. |
+| `content-max` | 1200px | Width of the content column beside the sidebar. |
+| `reading-max` | 68ch | Maximum line length for Brand guide prose. |
 
-### Icon tile
+The page has three parts on every route, the home page included:
 
-- 40x40, `--radius-md`, `--color-surface-2`, 1px `--color-border`, with a centered 20px icon in `--color-text`. The dense variant is 32x32 with a 16px icon.
-- Used in module rows, module cards, search results, and feature lists (icon tile, then title and one line of text, with a gap of `--space-3`).
-- Icons only. No numbers, letters, emoji, or decorative marks.
+- **Top bar.** Sticky, `header-h` tall. Holds the brand name and mark, the three tabs, the search trigger, and the theme toggle.
+- **Sidebar.** `sidebar-w` wide, on `surface-subtle`, with a `border` on its right edge. It lists the categories of the current tab.
+- **Content column.** Runs to `content-max`, `space-7` from the sidebar.
 
-### Tabs (copy-format tabs)
+### Breakpoints
 
-- Segmented control: the list has a `--color-surface-2` track, padding 4, and `--radius-md`. Each tab is 32 tall with padding 6 and 12, `--radius-sm`, at step -1, weight 500, `--color-muted`.
-- The selected tab gets `--color-surface` fill, `--color-text`, and `--shadow-sm`. Hover on an unselected tab changes its text to `--color-text`.
-- ARIA tabs pattern: `role="tablist"`, `tab`, `tabpanel`. Left and Right arrows move the selection, and Home and End jump. Selection follows focus.
-- The panel shows the value in `--font-mono` with a copy button. Format order is SVG, PNG, HEX, RGB. Formats an asset does not have are left out, not disabled.
-- The selected format is remembered per viewer for the session.
+| Range | Gutter | Navigation | Hero title |
+|---|---|---|---|
+| Below 768px | `space-4` | Tabs become a segmented control under the top bar. The sidebar becomes a horizontally scrolling chip row. The mobile tab bar is frosted. | `display` |
+| 768px to 991px | `space-5` | Tabs in the top bar. The sidebar is still a chip row under the tabs. | `display` |
+| 992px and up | `space-8` | Tabs in the top bar. Sidebar at `sidebar-w`. | `display-xl` |
 
-### Pill filters
+- Card grids stack on small screens. They never become horizontal scroll strips. The phone category chip row is the only exception.
+- Grid gap is `space-4` below 768px and `space-5` from 768px.
+- The home hero sits inside the content column and stays about 320px tall, so the "Quick downloads" row shows above the fold on a laptop.
 
-- Filter group: `role="group"` with an accessible name, pills wrap with a gap of `--space-2`.
-- Pill: a `button` with `aria-pressed`, 40 tall, padding 8 and 14, `--radius-control`, at step -1, weight 500.
-  - Unpressed: `--color-surface` fill, `--color-border`, `--color-text`. Hover changes the border to `--color-border-strong`.
-  - Pressed: `--color-text` fill and border, with `--color-bg` text, plus a 16px check icon before the label.
-- An optional count follows the label in muted (or `--color-bg` at 70% when pressed), with tabular figures.
-- "All" is the first pill and clears the others. The result count updates in a polite live region.
+## 7. Components
 
-### Changelog entry
+Each component lives in `src/components/` and reads only shell tokens.
 
-A row in a list, not a boxed card, so many entries scan quickly.
+### AssetCard
 
-- Grid: date column (96px at `md` and up, stacked above the rest below `md`), then the main column, then a trailing arrow when the entry links to an asset. Each row has padding `--space-5` block and `--space-3` inline, with a top border after the first row.
-- Date: caption role, `<time datetime>`.
-- Main column: tag(s), then the title (step 0, weight 500), then an optional detail line (step -1, muted). Gap `--space-1`.
-- Tag: `Added`, `Updated`, or `Retired`. Each is 22 tall with padding 0 and 8, `--radius-sm`, and a 1px border, at step -2, weight 600. All three use `--color-text` on `--color-surface`. `Retired` uses `--color-muted` text. Meaning is carried by the word, not by color.
-- Hover on a linked row fills `--color-surface-2`.
-- The "In progress" list on What's new uses the same row without the arrow. It carries the plain-text status "In progress" in the tag position.
+An asset card shows the real asset and lets someone take it without opening a detail page. It takes the rendered asset, a title, one line on where the asset is used, and its download formats.
 
-### FAQ accordion
+- The well is `surface-subtle`, 150px tall, and renders the actual file. Never an icon standing in for it.
+- Title in `label`. Use line in `small` and `text-secondary`. File size in `value-sm`.
+- Actions are always visible. Hover only adds a 2px lift and `border-strong`. Touch and keyboard users see the same actions.
+- No type label above the title. The sidebar and page title already say what it is.
 
-- Native `details` and `summary`, so the fonts and signature pages ship no JS for it.
-- Item: top border after the first, padding `--space-5` block.
-- Summary: question at step 1, weight 500, on the left. The toggle on the right is 40x40, `--radius-control`, 1px border, with a plus icon. The vertical bar rotates 90 degrees on open over `--duration-base`, making a minus. Hover changes the question color to `--color-link`. The default marker is hidden.
-- Answer: step 0, `--color-text`, max 68ch, with padding-top `--space-3`. Install steps inside use an ordered list.
-- Layout: `sidebar`, with an intro (heading, one line, one text button) left and items right at `lg`. Stacked below.
-- The open and close height changes are not animated.
+### Button
 
-### Footer columns
+Buttons run an action on the asset in front of the person: download, copy, open. A button takes a verb-first label of one to three words and an optional leading icon.
 
-- A full-bleed top border, padding-top `--space-8` (`--space-7` below `md`), padding-bottom `--space-7`.
-- Top row: a brand column (mark, plus the brand's one-line description from `brand.json` if present), then link columns.
-  - Columns go 2 up below `lg` and 4 up at `lg`, with a 160px minimum width, a column gap of `--space-5`, and a row gap of `--space-6`.
-  - From `lg`, the brand column takes 4 of 12 grid columns and the link columns take 8.
-- Column: an `h2` (footer heading role), then a list of links with a row gap of `--space-1`. Each link has at least a 32px hit area.
-- Columns: module links, brand contact (from `brand.json`), and resources (What's new, guide).
-- Bottom row (top border, padding-top `--space-5`): engine version and last publish date in the caption role. No credit lines.
+- Primary: `fill-primary` with `on-primary`, one per view. It is ink, never the brand's color, so it reads the same for every brand.
+- Secondary: `bg` with a `border-control` boundary, for every other action.
+- Ghost: for low-weight links such as "View rules".
+- Name downloads by use when the format is not obvious: "For Word and PowerPoint" with "PNG" in `small` beside it.
+- Height 40px, 32px for the small size. Radius `radius-md`. Hover and press change color over `duration-fast`.
+- Never disabled. Keep it active and explain on use.
+
+### Chip
+
+Chips are quick picks under the hero search and filters above a grid. A chip takes a short label, an optional icon or color dot, and `aria-pressed` when it filters.
+
+- Pill shape (`radius-pill`), 32px tall, `border-control` boundary on `bg`.
+- Hero quick picks are frosted (`glass-fill`). Filter chips above grids stay solid.
+- A selected filter chip uses `fill-primary` and `on-primary`.
+- A color dot uses the brand color it names.
+- Labels say what someone came for ("Logo for slides"), not the asset's internal name.
+
+### ColorSwatch
+
+A swatch shows one brand color and every value someone might need, each copyable with one click. It takes the color, its name, and its values.
+
+- The color block shows the brand's real value. This is brand content, not shell.
+- Each value row is labeled by use: Web (HEX), RGB, Print (CMYK), and Sign (PMS). Values in `value`, labels in `caption`.
+- Clicking a row copies its value and shows a toast naming the color and value: "Comet Green #1E5B4A copied".
+
+### Cover
+
+The title card for this design system: the engine's name in a large 600 weight over `bg`, one line of supporting copy in `text-secondary`, and a block arrangement built from shell tokens (`text`, `surface-subtle`, `focus`, `border-strong`) on `space-6` gaps with `radius-lg` corners and a dot grid at `space-4` pitch. It is documentation art. It never appears on a brand's site.
+
+### Hero
+
+The home hero puts search first: the brand's name, a large search field, and four quick picks, over a slow grain mesh tuned from the brand's colors. It takes the brand name, the brand's primary color (or a `hero.tint` override), four quick-pick assets, and real asset names for the search hint.
+
+- It sits inside the content column beside the sidebar, about 320px tall.
+- Title in `display-xl` from 992px and `display` below, on two lines: "<Brand>" then "brand files". Nothing above it.
+- The search field is the hero size of SearchField. Its hint types out real asset names from the brand's data and stops under reduced motion.
+- Quick picks are chips naming what people come for: "Logo for slides", the primary color, "Font files", the most used template.
+- The search field and chips are frosted (section 8), and solid under reduced transparency.
+- The mesh follows the hero gradient rules in section 9.
+- On phones the title drops to two short lines, the search goes full width, and the chips wrap to two rows.
+
+### SearchField
+
+Search is the main action on the home page and one keystroke away everywhere else. The field takes hint text that shows a real query and the platform's shortcut.
+
+- Hero size: 52px tall, up to 480px wide, `bg` with a `border-control` boundary, `body` text. Frosted (`glass-fill`) in the home hero, solid everywhere else.
+- Header trigger: 36px, `surface-subtle`, opens the search dialog. Shows ⌘K on Mac and Ctrl K elsewhere. The engine detects the platform and never shows both.
+- The hint cycles through real asset names from the brand's data (Try "horizontal logo") and stops cycling under reduced motion.
+- Results open in a frosted dialog (`glass-fill-strong`, `shadow-popover`) over `scrim`, full screen below 768px.
+
+### Sidebar
+
+The sidebar lists the categories of the current top tab and shows on every page, the home page included. It takes items with a label, an icon from the engine set, an optional count, and the current page.
+
+- Width `sidebar-w`, `surface-subtle` ground, `border` on the right edge.
+- Item: 36px tall, `label` style, `text-secondary`. Current item: `bg` with an inset `border` ring and `text`.
+- The first Library item is "All files", which is the home page and is current on `/`. It uses the `home` icon, a house outline on the same 24px grid.
+- Counts in `caption` and `text-muted`. Links that leave the hub, such as Photos, have no count.
+- Below 992px the sidebar becomes a horizontally scrolling chip row under the top tabs.
 
 ### Toast
 
-- A single region, `role="status"` with `aria-live="polite"`, fixed at the bottom center below `md` and the bottom right from `md`, with a 16px inset.
-- Toast: `--color-surface`, 1px border, `--radius-md`, `--shadow-lg`, padding 12 and 16, max width 360. It holds a 20px check icon and a message at step -1.
-- The message names the thing copied: "Navy hex #0F3D6B copied."
-- One toast at a time. A new one replaces the old. It auto-hides after 4 seconds, and the timer pauses while the toast is hovered or focused. It enters with an opacity fade and 4px rise over `--duration-fast`.
+A toast confirms a copy or a download by naming exactly what happened. It takes the asset name and the value or file.
 
-### Search dialog
+- Frosted: `glass-fill-strong`, `glass-border`, `shadow-popover`, `radius-md`. The check icon uses `success`. The words carry the meaning.
+- Text pattern: "<name> <value> copied" or "<file> downloaded".
+- Enters over `duration-base` with `ease-out`, stays 3 seconds, and uses `role="status"`.
 
-- Native `dialog` opened with `showModal()` from the header button, Ctrl or Cmd plus K, or `/`. The backdrop is solid `--color-scrim`, with no blur.
-- From `md`: width `min(640px, 100% - 2 * var(--gutter))`, top 12vh, `--radius-lg`, 1px border, `--shadow-lg`, `--color-surface`. Below `md`: full screen, radius 0.
-- Input row: 56 tall, a 20px search icon, input text at step 1, with Esc hint keys on the right. The bottom border separates it from the results.
-- Results: grouped by module, with group headings (step -1, weight 600) and padding `--space-3`.
-  - Each result row is 48 or taller, with a dense icon tile (32), then a label and help line, then inline actions (small secondary buttons such as "Copy hex" and "Download SVG").
-  - The active row has `--color-surface-2` fill.
-- Keys: Down from the input moves focus to the first result. Up and Down move focus between results (each result's main button is a real button, so inline actions stay reachable with Tab). Enter in the input runs the first result's primary action; Enter on a result runs its primary action. Esc closes, and focus returns to the opener.
-- Keys typed after the shortcut but before the dialog loads become the starting query.
-- Empty state: one line naming the query, and no suggestions invented to fill space.
+### TopTabs
 
-### Sheet (side panel)
+The top bar holds the brand name, three intent tabs, search, and the theme toggle. It takes the current section. Each tab switches the sidebar's contents.
 
-- Used for icon detail, template rules, and the admin inspector. Native `dialog`, modal on the public site.
-- From `md`: anchored right, full height, width `min(480px, 100%)`, `--color-surface`, a 1px left border, and `--shadow-lg`. The top-left and bottom-left corners use `--radius-lg` when inset by `--space-2`. Below `md`: full screen.
-- Header: 64 tall, padding `--space-5` inline, with the title (step 2, `h2`) and a 40x40 close button (secondary, icon only, labeled "Close"). Bottom border.
-- Body scrolls on its own with padding `--space-5`. An optional sticky footer holds actions, with a top border.
-- Enters with translateX(16px) to 0 plus a fade over `--duration-base`. Focus moves to the title on open and returns to the opener on close.
+- Library: get a file or a value. Brand guide: learn how to use the brand. Create: make something with your own details on it.
+- The engine fixes the labels. No other tabs and no request button.
+- Active tab: `text` with a 2px `text` underline on the header's bottom rule. Inactive: `text-secondary`.
+- Sticky. At rest it is `bg`. Once the page scrolls it turns frosted (`glass-fill-strong`) with a `border` bottom edge, over `duration-base`.
+- Height `header-h`. Below 768px the tabs become a segmented control under the bar.
 
-### Data table
+## 8. Frosted glass
 
-- Used for color values, font weights and styles, and the admin item list.
-- Container: 1px border and `--radius-md`. It scrolls horizontally inside the container (`overflow-x: auto`, `tabindex="0"`, labeled) when wider than the frame, and the page never scrolls sideways.
-- Header row: `--color-surface-2`, step -1, weight 600, `--color-muted`, `th scope="col"`, padding 12 and 16.
-- Body rows: at least 48 tall, padding 12 and 16, step -1, with a top border between rows. Values use `--font-mono`, numbers use tabular figures and are right aligned.
-- The first column is sticky on horizontal scroll below `md`.
-- Row actions sit in the last column as small text or secondary buttons. No zebra stripes.
+Glass appears only where something sits or moves behind it. It is used in exactly four places:
 
-## 6. Motion
+| Surface | Fill |
+|---|---|
+| The hero search field and quick-pick chips, over the mesh | `glass-fill` |
+| The top bar, once the page has scrolled (plain `bg` at rest) | `glass-fill-strong` |
+| The search dialog and toasts, with `shadow-popover` | `glass-fill-strong` |
+| The mobile tab bar | `glass-fill-strong` |
 
-Motion responds to input only. Nothing animates on load or on scroll, except a loading indicator.
-
-| Token | Value | Use |
-|---|---|---|
-| `--duration-fast` | 120ms | Color, fill, and border changes on hover and press. Toast enter. |
-| `--duration-base` | 200ms | Panels opening, theme knob, FAQ icon, sheet, chevrons |
-| `--ease-out` | `cubic-bezier(0.215, 0.61, 0.355, 1)` | Anything entering or opening |
-| `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` | Movement between two resting states (knob, tab indicator) |
-
-- No duration exceeds 200ms.
-- Transition named properties only (`color`, `background-color`, `border-color`, `opacity`, `transform`). Never `all`.
-- Dropdown and mobile menu open with opacity 0 to 1 and translateY(-4px) to 0 over `--duration-base` `--ease-out`. They close at `--duration-fast` with no movement.
-- Exits are faster than entrances.
-- No parallax, scroll-linked effects, reveal-on-scroll, looping animation, or animated counters.
-
-Reduced motion:
+Every frosted surface is built the same way:
 
 ```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
-}
+background: var(--glass-fill); /* or --glass-fill-strong */
+backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+border: 1px solid var(--glass-border);
+box-shadow: inset 0 1px 0 var(--glass-highlight);
 ```
 
-With `reduce`, panels and sheets appear in place and only color and opacity state changes remain visible as instant swaps. Loading indicators switch to a static "Loading" label.
-
-## 7. Pattern mapping
-
-| Reference pattern | Keep | Hub use |
+| Token | Value | Usage |
 |---|---|---|
-| Header, dropdown menu, theme toggle | Yes | Main nav, module menu, light/dark. Header becomes a sticky bar. The menu opens on click, not hover. The theme choice is remembered. |
-| Mega menu featured release card | No | What's new lives in the footer and on home. |
-| Mobile menu as a card under the header | Yes | Mobile menu with expandable module group and theme row |
-| Hero with two CTAs | Structure only | Home: heading, search field, top tasks. No illustration. Search is the one primary action. |
-| Hero product panels, orb | No | |
-| Product cards with icon tiles | Yes | Module cards and template cards. Bordered cards with a radius replace the shared-border cells. |
-| Feature rows (icon tile, title, one line) | Yes | Install steps, "where things live" on the start page |
-| Section head with one action on the right | Yes | Section heading plus one action ("Download all logos") |
-| Split layout (copy beside visual) | Yes | Logo helper and signature generator beside their previews |
-| Security cells (two-column shared-border grid) | Yes | Do and don't rule grids on guide pages |
-| Code tabs (language switch) | Yes | Copy-format tabs: SVG / PNG / HEX / RGB, rebuilt as ARIA tabs with keyboard support |
-| Integration pills | Yes | Filter pills on icons and templates, as `aria-pressed` toggles without color dots |
-| Changelog cards with tags | Yes | What's new entries, tags: Added, Updated, Retired. Kept as rows. Cover-image article cards dropped. |
-| FAQ | Yes | Install help on fonts and signature pages. Native `details`, icon motion cut to 200ms. |
-| Footer columns | Yes | Module links, brand contact, version |
-| Footer newsletter form, oversized wordmark | No | |
-| Pricing tiers | No | |
-| Stats row | No | |
-| Customer logo strip | No | |
-| Customer story cards | No | |
-| Small labels above headings | No | Headings stand alone. Uppercase menu group labels become sentence-case headings. |
-| Two-tone headings (accent second line) | No | One color per heading |
-| Dark bands inside the light page | No | One theme per page, chosen by the viewer |
-| Frame rules on the content edges | No | Space alone separates sections |
-| Horizontal scroll strips on mobile | No | Card grids stack |
-| Scroll-triggered reveals, looping animations | No | Motion only on input |
-| Orb, glowing pixel-mosaic art, voice widget, decorative product UI | No | Real asset previews are the imagery |
-| Announcement pill ("New") | No | What's new link in footer and home |
+| `glass-blur` | 14px | Backdrop blur radius for every frosted surface. Never raise it: blur cost grows with radius. |
+| `glass-saturate` | 1.4 | Backdrop saturation boost so the brand tint behind frosted surfaces stays visible. |
 
-## 8. Banned list
+- Never put glass on cards, the sidebar, grids, or anything with nothing behind it.
+- Never brighten the hero mesh to make glass more visible.
+- No refractive glass effects. Safari and Firefox cannot render them, so most phones would never see them.
+- Fall back to solid `surface-raised` under `@supports not (backdrop-filter: blur(1px))` and under `prefers-reduced-transparency: reduce`.
 
-From `STANDARDS.md`, as it applies to the components above:
+## 9. Hero gradient
 
-- Glows, orbs, aurora or mesh gradients, and blurred color blobs behind content. This covers the header, hero, cards, and dialog backdrops.
-- Glassmorphism and frosted panels. The header, menus, dialog, sheet, and toast use solid `--color-surface`, and the scrim is solid.
-- Gradient text in any heading or button.
-- Decorative sparkle or star icons, including in icon tiles and empty states.
-- Pill-shaped "New" badges above the hero heading, and promo cards in menus.
-- Headline labels above headings. Section heads start with the heading.
-- Animated counters and stat rows without real data.
-- Logo walls of customers who do not exist.
-- Floating 3D shapes, isometric blobs, and generic abstract illustrations. Card previews show real assets only.
-- Fake product UI used as decoration.
-- Parallax and scroll-jacking, including reveal-on-scroll.
-- Motion longer than 200ms, or motion that runs without user input (except a loading state).
-- Emoji in UI text, including toasts and empty states.
-- Hard-coded hex in components. Every color, font, radius, and spacing value comes from a token.
-- More than one accent role per screen. `--color-primary` marks the one primary action. Links use `--color-link`. Everything else is neutral.
+The home hero carries the only gradient in the engine: a grain mesh built from the brand's colors. It is a React island in `src/hero/`.
+
+### Tuning steps
+
+The engine tunes the brand's colors instead of using them raw:
+
+1. Take the brand's primary color (`tokens.color.primary` in `brand.json`) and keep only its hue. If its OKLCH chroma is under 0.03, use the most saturated color in the palette instead.
+2. Build three tones in OKLCH: at that hue, at the hue plus about 35 degrees, and at the hue minus about 28 degrees. Lock lightness between 0.88 and 0.94 and keep chroma between 0.035 and 0.07.
+3. A brand with no color above chroma 0.03 (black, white, grey) gets a cool neutral instead.
+4. In dark theme, mix each tone about 80% toward `bg` so the mesh stays a tint, not a glow.
+5. `hero.tint` in `brand.json` overrides the tuning with up to three exact colors. Use it only when a client asks for a specific look.
+
+Never default to a blue and purple gradient. Every hub would look the same.
+
+### Placement and rendering
+
+- The mesh stays inside the content column, top right. It fades out under the hero text and toward the bottom, so the title, search, and chips always sit on near-`bg` ground. The sidebar never carries the gradient.
+- Film grain at about 5% keeps it from reading as a stock gradient.
+- It drifts slowly: a full cycle takes well over a minute.
+- It renders one still frame under reduced motion, when WebGL is missing, and when the tab is hidden or the hero is offscreen.
+- It loads after the page renders and never blocks search.
+
+### Contour preset
+
+`hero.preset: "contour"` swaps the mesh for a field of hairline contours drawn in `text`, with one brand-colored line in five. Use it for brands whose palette is very loud or nearly monochrome.
+
+## 10. Motion
+
+| Token | Value | Usage |
+|---|---|---|
+| `duration-fast` | 120ms | Hover, press, focus, and color changes. |
+| `duration-base` | 200ms | Dialog open, toast in, card lift, copy check swap. |
+| `duration-slow` | 320ms | Filter reflow and page content crossfade. Nothing in the interface runs longer. |
+| `ease-out` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | Everything entering or settling. No bounce, no overshoot. |
+| `ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` | Things that move between two resting places, such as the filter reflow. |
+
+- Cards lift 2px and move to `border-strong` on hover.
+- Copy buttons swap their icon for a check, then show a toast.
+- Filtered grids move items to their new positions instead of jumping.
+- No fade-up sections on scroll, no parallax, no glows, no blur-in headings.
+- Under `prefers-reduced-motion`, transitions are instant and the hero holds still.
+
+## 11. States
+
+| State | Treatment |
+|---|---|
+| Hover | `surface-subtle` behind ghost and secondary controls. `fill-primary-hover` on primary. |
+| Focus | The `focus` ring, 2px with a 2px offset, on every interactive element. Always visible on keyboard focus. |
+| Selected | Sidebar: `bg` with an inset `border` ring. Filter chips: `fill-primary`. |
+| Disabled | Not used. Keep the control active and explain on use. |
+
+Empty, loading, and error states follow the copy rules in section 13: say what is missing or what went wrong, and name the thing.
+
+## 12. Iconography
+
+- Shell icons come from the engine's own set in `src/lib/ui-icons.ts`: a 24px grid, round caps and joins, drawn in `currentColor`.
+- Render at 16px or 18px with a 1.75px stroke, and at 20px in the search field.
+- Shell icons are always one color, inherited from the text beside them.
+- Brand icons are content. They live in the brand's data and show in the brand's colors on the Icons page.
+- No emoji anywhere in the shell.
+
+## 13. Copy
+
+People open the hub to get something, learn a rule, or make something. Every label answers one of those jobs in plain words.
+
+- Sentence case everywhere: "Download PNG", "Brand guide".
+- Name things by use, not by format or internal type. Write "For Word and PowerPoint" with "PNG" beside it, not "Raster export". Color rows read Web, RGB, Print, and Sign.
+- The navigation vocabulary is fixed: Library, Brand guide, Create. The home row is "Quick downloads". The engine version never appears on public pages.
+- Nothing above a heading. No small labels over section titles, no type tags above card titles.
+- No em dashes. No exclamation marks in system copy. No "successfully", "please", "simply", or "easy".
+- Confirmations name the thing: "Comet Green #1E5B4A copied", "logo-horizontal.png downloaded".
+- Search hints show a real query from the brand's own data: Try "horizontal logo".
+- The home hero title is "<Brand> brand files". Search and quick picks carry the rest. No subline.
+- The home page is the Library's first sidebar item, "All files". No landing page sits in front of the library.
