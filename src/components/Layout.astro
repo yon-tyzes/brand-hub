@@ -1,0 +1,60 @@
+---
+// Page shell: head metadata, theme, header, main, footer, toast region.
+import "../styles/global.css";
+import { brand, config, fontCss, themeCss } from "virtual:brand-hub";
+import Footer from "./Footer.astro";
+import Header from "./Header.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Admin pages pass true. Otherwise follows `indexing` in hub.config.ts. */
+  noindex?: boolean;
+}
+
+const { title, description = brand.description, noindex = !config.indexing } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const pageTitle = path === "/" ? brand.name : `${title} | ${brand.shortName}`;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const hasDark = !!brand.tokens.dark;
+---
+
+<!doctype html>
+<html lang="en" data-search-shortcuts={config.search.shortcut.join(" ")}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={brand.name} />
+    <meta property="og:title" content={pageTitle} />
+    {description && <meta property="og:description" content={description} />}
+    {canonical && <meta property="og:url" content={canonical} />}
+    {
+      hasDark && (
+        <script is:inline>
+          try {
+            if (localStorage.getItem("bh-theme") === "dark") document.documentElement.dataset.theme = "dark";
+          } catch (e) {}
+        </script>
+      )
+    }
+    <style is:inline set:html={themeCss}></style>
+    {fontCss && <style is:inline set:html={fontCss}></style>}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header path={path} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <div class="toast-region" role="status" aria-live="polite" data-toast-region></div>
+    <script>
+      import "../scripts/shell.ts";
+    </script>
+  </body>
+</html>
