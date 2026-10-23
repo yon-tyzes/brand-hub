@@ -39,7 +39,7 @@ export default defineHub({
 
 Both fields default to `"local"`. A build that still uses `local` logs a warning, because the built editor cannot load or save with it.
 
-Until the package ships an `exports` map, import the types by path: `@yon-tyzes/brand-hub/src/adapters/types.ts`.
+Import the types and error classes from `@yon-tyzes/brand-hub/adapters`.
 
 ## The interfaces
 
@@ -166,7 +166,7 @@ Merge `drafts` into `main`, preferably as a fast-forward. If `main` moved since 
 The adapter modules are small. They wrap `fetch` and translate responses into what the editor expects:
 
 ```ts
-import { AdapterError, ConflictError, type ContentAdapter } from "@yon-tyzes/brand-hub/src/adapters/types.ts";
+import { AdapterError, ConflictError, type ContentAdapter } from "@yon-tyzes/brand-hub/adapters";
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api/brand/${path}`, { credentials: "same-origin", ...init });
