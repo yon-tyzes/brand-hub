@@ -5,10 +5,11 @@ import { MODULES } from "../modules/registry.ts";
 import { Footer, Header, Sidebar } from "./Chrome.tsx";
 import type { Site } from "./data.ts";
 import { ColorsPage, FontsPage, IconsPage, LogosPage, PhotosPage, TemplatesPage } from "./pages/AssetPages.tsx";
-import { GuidePage, HomePage, PlaceholderPage, RulePage, WhatsNewPage } from "./pages/OtherPages.tsx";
+import { ChangesPage, ChapterPage, GuidePage, HomePage, PlaceholderPage } from "./pages/OtherPages.tsx";
+import { chapterHref, guideChapters } from "./nav.ts";
 import { SiteContext } from "./ui.tsx";
 
-export type PageId = "home" | ModuleId | `rule:${string}`;
+export type PageId = "home" | ModuleId | `chapter:${string}`;
 
 const BODIES: Partial<Record<ModuleId | "home", () => ReactNode>> = {
   home: HomePage,
@@ -18,32 +19,32 @@ const BODIES: Partial<Record<ModuleId | "home", () => ReactNode>> = {
   icons: IconsPage,
   photos: PhotosPage,
   templates: TemplatesPage,
-  "whats-new": WhatsNewPage,
+  changes: ChangesPage,
   guide: GuidePage,
 };
 
 /** Path a page lives at on the site. */
 export function pagePath(page: PageId): string {
   if (page === "home") return "/";
-  if (page.startsWith("rule:")) return `/guide/${page.slice(5)}`;
+  if (page.startsWith("chapter:")) return chapterHref(page.slice(8));
   return MODULES[page as ModuleId].route;
 }
 
-/** Pages a site has, in menu order: home, each enabled module, and each rule page when the guide is on. */
+/** Pages a site has, in menu order: home, each enabled module, and each chapter when the guide is on. */
 export function pageList(site: Site): { id: PageId; label: string }[] {
   return [
     { id: "home", label: "Home" },
     ...site.modules.map((m) => ({ id: m.id as PageId, label: m.label })),
-    ...(site.isEnabled("guide") ? site.rules.map((r) => ({ id: `rule:${r.id}` as PageId, label: `Guide: ${r.title}` })) : []),
+    ...(site.isEnabled("guide") ? guideChapters(site).map((c) => ({ id: `chapter:${c.id}` as PageId, label: `Brand guide: ${c.title}` })) : []),
   ];
 }
 
 
 export function PageBody({ site, page }: { site: Site; page: PageId }) {
   let body: ReactNode;
-  if (page.startsWith("rule:")) {
-    const rule = site.findRule(page.slice(5));
-    body = rule ? <RulePage rule={rule} /> : <PlaceholderPage title="Guide" />;
+  if (page.startsWith("chapter:")) {
+    const chapter = site.brand.guide.chapters.find((c) => c.id === page.slice(8));
+    body = chapter ? <ChapterPage chapter={chapter} /> : <PlaceholderPage title={MODULES.guide.label} />;
   } else {
     const B = BODIES[page as ModuleId | "home"];
     body = B ? <B /> : <PlaceholderPage title={MODULES[page as ModuleId]?.label ?? "Page"} />;

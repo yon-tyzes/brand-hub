@@ -1,0 +1,10 @@
+---
+import Layout from "../../components/Layout.astro";
+import { site } from "../../lib/site-server.ts";
+import { PageBody } from "../../site/Page.tsx";
+import { MODULES } from "../registry.ts";
+---
+
+<Layout title={MODULES["changes"].label}>
+  <PageBody site={site} page="changes" />
+</Layout>

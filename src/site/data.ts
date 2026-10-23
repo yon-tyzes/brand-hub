@@ -86,7 +86,7 @@ export function createSite(input: SiteInput) {
   const modules: ModuleDef[] = input.config.modules.map((id) => MODULES[id]);
 
   const assetHref = (a: Asset | RuleAsset): string | undefined => {
-    if (a.type === "rule") return isEnabled("guide") ? `/guide/${a.id}` : undefined;
+    if (a.type === "rule") return isEnabled("guide") ? `${MODULES.guide.route}/${a.chapter}/#${a.id}` : undefined;
     const mod = MODULE_FOR_TYPE[a.type];
     return mod && isEnabled(mod) ? `${MODULES[mod].route}#${a.id}` : undefined;
   };

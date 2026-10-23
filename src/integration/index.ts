@@ -1,16 +1,19 @@
 // Astro integration. Loads hub.config.ts, validates the brand folder, injects one route per enabled
-// module (plus / and, when enabled, /admin), and exposes config, content and theme CSS to pages
+// module (plus /, the guide chapters, redirects from 0.1 routes, and, when enabled, /admin), writes
+// dist/_redirects, and exposes config, content and theme CSS to pages
 // through the `virtual:brand-hub` module.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import { runnerImport, type Plugin } from "vite";
-import { hubConfig, type HubConfig, type HubConfigInput } from "../../schemas/hub-config.ts";
+import { hubConfig, MODULE_ALIASES, type HubConfig, type HubConfigInput } from "../../schemas/hub-config.ts";
 import { formatWarning, loadBrand, type BrandContent } from "../content/load.ts";
 import type { FontAsset } from "../../schemas/asset.ts";
 import { fileUrl } from "../lib/paths.ts";
 import { MODULES, type ModuleDef } from "../modules/registry.ts";
+import { createSite } from "../site/data.ts";
+import { netlifyRedirects, redirectsFor, type Redirect } from "../site/redirects.ts";
 import { fontFaceCss } from "../theme/fonts.ts";
 import { buildThemeCss } from "../theme/tokens.ts";
 
@@ -24,8 +27,11 @@ export class HubConfigError extends Error {
   override name = "HubConfigError";
 }
 
-/** Validates an inline config, or loads and validates hub.config.ts from the project root. */
-export async function resolveHubConfig(root: string, inline?: HubConfigInput): Promise<HubConfig> {
+/**
+ * Validates an inline config, or loads and validates hub.config.ts from the project root. 0.1 module ids are
+ * read as their 0.2 id and reported through `warn`.
+ */
+export async function resolveHubConfig(root: string, inline?: HubConfigInput, warn: (message: string) => void = () => {}): Promise<HubConfig> {
   let input: unknown = inline;
   let source = "brandHub() options";
   if (input === undefined) {
@@ -34,6 +40,10 @@ export async function resolveHubConfig(root: string, inline?: HubConfigInput): P
     if (!existsSync(path)) throw new HubConfigError(`hub.config.ts not found in ${root}. Create it or pass a config to brandHub().`);
     const { module } = await runnerImport<{ default?: unknown }>(path, { root, configFile: false, logLevel: "error" });
     input = module.default;
+  }
+  const modules = (input as { modules?: unknown } | undefined)?.modules;
+  for (const m of Array.isArray(modules) ? modules : []) {
+    if (typeof m === "string" && MODULE_ALIASES[m]) warn(`${source}: module "${m}" is now "${MODULE_ALIASES[m]}". Rename it in modules.`);
   }
   const result = hubConfig.safeParse(input);
   if (!result.success) {
@@ -70,7 +80,9 @@ export function routesFor(hub: HubConfig, command: Command = "build"): { pattern
     page("/search-index.json", new URL("search-index.json.ts", routesDir)),
   ];
   for (const id of hub.modules) routes.push(page(MODULES[id].route, new URL(`${id}/index.astro`, modulesDir)));
-  if (hub.modules.includes("guide")) routes.push(page("/guide/[id]", new URL("guide/rule.astro", modulesDir)));
+  if (hub.modules.includes("guide")) routes.push(page("/guide/[chapter]", new URL("guide/chapter.astro", modulesDir)));
+  // Moved 0.1 routes (src/site/redirects.ts). Last, so every real page wins over it.
+  routes.push(page("/[...legacy]", new URL("redirect.astro", routesDir)));
   if (hub.admin.enabled) {
     const adapter = adapterFor(hub.admin.adapter, command);
     routes.push(page("/admin", new URL("../admin/index.astro", import.meta.url)));
@@ -118,12 +130,13 @@ function virtualModule(data: VirtualData, adapters: { content: string; auth: str
 }
 
 export function brandHub(config?: HubConfigInput): AstroIntegration {
+  let redirects: Redirect[] = [];
   return {
     name: "@yon-tyzes/brand-hub",
     hooks: {
       "astro:config:setup": async ({ config: astroConfig, command, injectRoute, updateConfig, addWatchFile, logger }) => {
         const root = fileURLToPath(astroConfig.root);
-        const hub = await resolveHubConfig(root, config);
+        const hub = await resolveHubConfig(root, config, (m) => logger.warn(m));
         if (!config) addWatchFile(join(root, "hub.config.ts"));
 
         const brandDir = join(root, "brands", hub.brand);
@@ -151,6 +164,13 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
         };
         const adapters = { content: adapterModule(adapter, "content", root), auth: adapterModule(auth, "auth", root), mode: adapter };
         updateConfig({ vite: { plugins: [virtualModule(data, adapters)] } });
+        redirects = redirectsFor(
+          createSite({ ...data.content, brand: content.brand, config: hub, engineVersion: ENGINE_VERSION, urlFor: fileUrl, svgFor: () => undefined }),
+        );
+      },
+      // Netlify serves these as real 301s; other hosts use the redirect pages.
+      "astro:build:done": ({ dir }) => {
+        if (redirects.length) writeFileSync(new URL("_redirects", dir), netlifyRedirects(redirects));
       },
     },
   };

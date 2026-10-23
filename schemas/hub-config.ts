@@ -3,10 +3,16 @@ import { z } from "zod";
 import { ID_PATTERN } from "./asset.ts";
 
 export const MODULE_IDS = [
-  "start", "logos", "colors", "fonts", "icons", "photos",
-  "templates", "signature", "boilerplate", "guide", "whats-new",
+  "logos", "colors", "fonts", "icons", "photos", "templates", "office",
+  "boilerplate", "guide", "start", "signature", "changes",
 ] as const;
 export type ModuleId = (typeof MODULE_IDS)[number];
+
+/** 0.1 module ids still accepted, and the id each one reads as (spec section 4). */
+export const MODULE_ALIASES: Record<string, ModuleId> = { "whats-new": "changes" };
+
+/** Replaces alias ids with their 0.2 id, so a 0.1 config still loads. */
+const withAliases = (v: unknown) => (Array.isArray(v) ? v.map((m) => (typeof m === "string" && m in MODULE_ALIASES ? MODULE_ALIASES[m] : m)) : v);
 
 /** A built-in adapter name or a module path, for both commands or separately for `astro dev` and `astro build`. */
 const adapterSpec = z.string().min(1);
@@ -16,7 +22,7 @@ export const hubConfig = z.strictObject({
   /** Folder name under brands/. */
   brand: z.string().regex(ID_PATTERN, "must be a kebab-case folder name"),
   modules: z
-    .array(z.enum(MODULE_IDS))
+    .preprocess(withAliases, z.array(z.enum(MODULE_IDS)))
     .refine((m) => new Set(m).size === m.length, { message: "lists a module more than once" })
     .default([...MODULE_IDS]),
   search: z.strictObject({ shortcut: z.array(z.string().min(1)).default(["mod+k", "/"]) }).default({ shortcut: ["mod+k", "/"] }),

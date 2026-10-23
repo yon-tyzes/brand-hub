@@ -43,8 +43,9 @@ The repo runs as its own instance. `hub.config.ts` selects `brands/demo`, a fict
 ```
 hub.config.ts ──► integration ──► loader (schemas + integrity + contrast) ──► virtual:brand-hub ──► pages
                        │
-                       └──► one injected route per enabled module, plus /, /guide/<id>, /admin,
-                            /files/* (brand files), /downloads/*.zip, and /search-index.json
+                       └──► one injected route per enabled module, plus /, /guide/<chapter>, /admin,
+                            /files/* (brand files), /downloads/*.zip, /search-index.json, and a
+                            redirect page (and a dist/_redirects line) for each moved 0.1 route
 ```
 
 | Path | What it does |

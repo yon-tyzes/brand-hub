@@ -20,18 +20,20 @@ async function runSetup(root: string, inline?: Parameters<typeof brandHub>[0]) {
 
 /** Routes injected whatever the config: brand files, zips, and the search index. */
 const ALWAYS = ["/files/[...path]", "/downloads/[name]", "/search-index.json"];
+/** Redirect pages for moved 0.1 routes, injected last. */
+const LEGACY = "/[...legacy]";
 
 describe("brandHub integration", () => {
   it("loads hub.config.ts and injects routes for enabled modules only", async () => {
     const { root } = demoCopy();
     write(root, "hub.config.ts", 'export default { brand: "demo", modules: ["logos", "colors"] };\n');
-    expect(await runSetup(root)).toEqual(["/", ...ALWAYS, "/logos", "/colors"]);
+    expect(await runSetup(root)).toEqual(["/", ...ALWAYS, "/logos", "/colors", LEGACY]);
   });
 
   it("injects /admin only when admin is enabled", () => {
     const hub = (admin: boolean) => ({ brand: "demo", modules: ["icons" as const], admin: { enabled: admin } });
-    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", "/admin", "/admin/preview"]);
-    expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons"]);
+    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", LEGACY, "/admin", "/admin/preview"]);
+    expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", LEGACY]);
   });
 
   it("builds the record snapshot only for the demo adapter, and the disk endpoint only under astro dev", () => {
@@ -45,9 +47,22 @@ describe("brandHub integration", () => {
     expect(routesFor(hub("local"), "dev").find((r) => r.pattern.startsWith("/admin/api"))?.prerender).toBe(false);
   });
 
-  it("injects rule pages only when the guide module is on", () => {
+  it("injects chapter pages only when the guide module is on", () => {
     const patterns = routesFor(hubConfigOf({ brand: "demo", modules: ["guide"], admin: { enabled: false } })).map((r) => r.pattern);
-    expect(patterns).toEqual(["/", ...ALWAYS, "/guide", "/guide/[id]"]);
+    expect(patterns).toEqual(["/", ...ALWAYS, "/guide", "/guide/[chapter]", LEGACY]);
+  });
+
+  it("puts each module at its 0.2 route", () => {
+    const patterns = routesFor(hubConfigOf({ brand: "demo", modules: ["start", "signature", "boilerplate", "office", "changes"] })).map((r) => r.pattern);
+    expect(patterns).toEqual(["/", ...ALWAYS, "/guide/new-to-the-team", "/create/signature", "/descriptions", "/office", "/changes", LEGACY]);
+  });
+
+  it("reads the 0.1 module id whats-new as changes, with a warning", async () => {
+    const { root } = demoCopy();
+    const warn = vi.fn();
+    const hub = await resolveHubConfig(root, { brand: "demo", modules: ["logos", "whats-new"] }, warn);
+    expect(hub.modules).toEqual(["logos", "changes"]);
+    expect(warn).toHaveBeenCalledWith('brandHub() options: module "whats-new" is now "changes". Rename it in modules.');
   });
 
   it("fails the build when demo data has a broken reference", async () => {

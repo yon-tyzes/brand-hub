@@ -1,6 +1,8 @@
 // Page bodies for home, What's new, the guide, and modules not built yet.
 import { MODULES } from "../../modules/registry.ts";
 import type { RuleAsset } from "../../../schemas/asset.ts";
+import type { GuideChapter } from "../../../schemas/brand.ts";
+import { chapterHref, guideChapters } from "../nav.ts";
 import { formatDate, TYPE_LABEL } from "../data.ts";
 import { Button, Card, ChangelogEntry, Icon, IconTile, RuleBody, SectionHead, useSite } from "../ui.tsx";
 
@@ -13,7 +15,7 @@ export function HomePage() {
     .map((id) => site.findAsset(id))
     .filter((a) => !!a && site.assetHref(a) && !(a.type === "template" && !site.templateLinks(a).length))
     .map((asset) => ({ asset: asset!, first: site.actionsFor(asset!)[0] }));
-  const recent = site.isEnabled("whats-new") ? site.sortedChangelog().slice(0, 3) : [];
+  const recent = site.isEnabled("changes") ? site.sortedChangelog().slice(0, 3) : [];
   return (
     <>
       <div className="frame page-head">
@@ -67,7 +69,7 @@ export function HomePage() {
 
       {recent.length > 0 && (
         <section className="section frame" aria-labelledby="recent">
-          <SectionHead title="Recent changes" id="recent" action={<Button variant="text" href={MODULES["whats-new"].route} iconEnd="arrow-right">All changes</Button>} />
+          <SectionHead title="Recent changes" id="recent" action={<Button variant="text" href={MODULES.changes.route} iconEnd="arrow-right">All changes</Button>} />
           <ul className="changelog" role="list">
             {recent.map((e) => {
               const a = site.findAsset(e.assetId);
@@ -82,13 +84,13 @@ export function HomePage() {
   );
 }
 
-export function WhatsNewPage() {
+export function ChangesPage() {
   const site = useSite();
   const entries = site.sortedChangelog();
   return (
     <>
       <div className="frame page-head">
-        <h1>{MODULES["whats-new"].label}</h1>
+        <h1>{MODULES.changes.label}</h1>
       </div>
       {entries.length > 0 && (
         <section className="section frame" aria-labelledby="changes">
@@ -126,48 +128,63 @@ export function WhatsNewPage() {
 
 export function GuidePage() {
   const site = useSite();
+  const chapters = guideChapters(site);
+  const count = (id: string) => site.rules.filter((r) => r.chapter === id).length;
   return (
     <>
       <div className="frame page-head">
         <h1>{MODULES.guide.label}</h1>
       </div>
-      <section className="section frame" aria-label="Rules">
+      <section className="section frame" aria-label="Chapters">
         <div className="grid cards-3">
-          {site.rules.map((r) => <Card key={r.id} headingLevel={2} title={r.title} description={r.label} href={`/guide/${r.id}`} id={r.id} />)}
+          {chapters.map((c) => (
+            <Card key={c.id} headingLevel={2} title={c.title} description={`${count(c.id)} ${count(c.id) === 1 ? "rule" : "rules"}`} href={chapterHref(c.id)} id={c.id} />
+          ))}
         </div>
       </section>
     </>
   );
 }
 
-export function RulePage({ rule }: { rule: RuleAsset }) {
+/** A Brand guide chapter: each of its rules with do and don't, and the assets it applies to. */
+export function ChapterPage({ chapter }: { chapter: GuideChapter }) {
+  const site = useSite();
+  const rules = site.rules.filter((r) => r.chapter === chapter.id);
+  return (
+    <>
+      <div className="frame page-head">
+        <h1>{chapter.title}</h1>
+      </div>
+      <div className="frame section stack-lg">
+        {rules.map((rule) => <ChapterRule key={rule.id} rule={rule} />)}
+      </div>
+    </>
+  );
+}
+
+function ChapterRule({ rule }: { rule: RuleAsset }) {
   const site = useSite();
   const applies = rule.appliesTo
     .map((id) => site.findAsset(id))
     .filter((a) => !!a)
     .map((a) => ({ id: a.id, label: a.label, type: TYPE_LABEL[a.type], href: site.assetHref(a) }));
   return (
-    <>
-      <div className="frame page-head">
-        <Button variant="text" href="/guide" size="sm">Guide</Button>
-        <h1>{rule.title}</h1>
-      </div>
-      <div className="frame section stack-lg">
-        <RuleBody rule={rule} level={2} />
-        {applies.length > 0 && (
-          <section className="stack" aria-labelledby="applies">
-            <h2 className="h4" id="applies">Applies to</h2>
-            <ul className="stack" role="list">
-              {applies.map((a) => (
-                <li key={a.id}>
-                  {a.href ? <a href={a.href}>{a.label}</a> : a.label} <span className="small">{a.type}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </div>
-    </>
+    <section className="stack-lg" id={rule.id} aria-labelledby={`${rule.id}-title`}>
+      <h2 id={`${rule.id}-title`}>{rule.title}</h2>
+      <RuleBody rule={rule} level={3} />
+      {applies.length > 0 && (
+        <div className="stack">
+          <h3 className="h4">Applies to</h3>
+          <ul className="stack" role="list">
+            {applies.map((a) => (
+              <li key={a.id}>
+                {a.href ? <a href={a.href}>{a.label}</a> : a.label} <span className="small">{a.type}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
   );
 }
 

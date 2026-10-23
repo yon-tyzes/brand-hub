@@ -1,0 +1,30 @@
+---
+// A static redirect page for each moved 0.1 route (src/site/redirects.ts): an immediate refresh, a canonical
+// link to the new page, and a plain link for browsers that ignore the refresh.
+import type { GetStaticPaths } from "astro";
+import { brand } from "virtual:brand-hub";
+import { site } from "../lib/site-server.ts";
+import { redirectsFor } from "../site/redirects.ts";
+
+export const getStaticPaths = (() => redirectsFor(site).map((r) => ({ params: { legacy: r.from.slice(1) }, props: { to: r.to } }))) satisfies GetStaticPaths;
+
+const { to } = Astro.props as { to: string };
+const canonical = Astro.site ? new URL(to, Astro.site).href : to;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{`Moved | ${brand.shortName}`}</title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0; url=${to}`} />
+    <link rel="canonical" href={canonical} />
+  </head>
+  <body>
+    <main>
+      <p>This page moved to <a href={to}>{to}</a>.</p>
+    </main>
+  </body>
+</html>

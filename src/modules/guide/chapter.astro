@@ -1,0 +1,17 @@
+---
+// One Brand guide chapter: its rules, in order.
+import type { GetStaticPaths } from "astro";
+import Layout from "../../components/Layout.astro";
+import { site } from "../../lib/site-server.ts";
+import { guideChapters } from "../../site/nav.ts";
+import { PageBody } from "../../site/Page.tsx";
+import type { GuideChapter } from "../../../schemas/brand.ts";
+
+export const getStaticPaths = (() => guideChapters(site).map((chapter) => ({ params: { chapter: chapter.id }, props: { chapter } }))) satisfies GetStaticPaths;
+
+const { chapter } = Astro.props as { chapter: GuideChapter };
+---
+
+<Layout title={chapter.title}>
+  <PageBody site={site} page={`chapter:${chapter.id}`} />
+</Layout>
