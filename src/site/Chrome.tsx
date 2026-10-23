@@ -1,91 +1,44 @@
-// Site header and footer (docs/DESIGN_SYSTEM.md). Menus, theme, and search are wired by src/scripts/shell.ts.
-import { ASSET_MODULES } from "../modules/registry.ts";
+// Site top bar and footer (docs/DESIGN_SYSTEM.md, TopTabs). Theme, search, and the frosted bar are wired by
+// src/scripts/shell.ts.
 import { formatDate, logoFile } from "./data.ts";
-import { Icon, IconTile, ThemeSwitch, useSite } from "./ui.tsx";
+import { currentTab, navTabs } from "./nav.ts";
+import { Icon, ThemeToggle, useSite } from "./ui.tsx";
 
 export function Header({ path }: { path: string }) {
   const site = useSite();
-  const assetModules = site.modules.filter((m) => ASSET_MODULES.includes(m.id));
-  const otherModules = site.modules.filter((m) => !ASSET_MODULES.includes(m.id));
-  const current = (route: string) => (path === route || path.startsWith(`${route}/`) ? ("page" as const) : undefined);
+  const tabs = navTabs(site);
+  const active = currentTab(site, path);
   const mark = site.assetsOfType("logo").find((l) => l.lockup.toLowerCase() === "mark" && l.background === "light");
   const markFile = mark && (logoFile(mark, "svg") ?? logoFile(mark, "png"));
+  const modK = site.config.search.shortcut.some((s) => s.toLowerCase() === "mod+k");
 
   return (
-    <header className="site-header" data-menu-root="">
-      <div className="header-bar">
-        <a className="brand-link" href="/" aria-current={path === "/" ? "page" : undefined}>
-          {markFile && <img src={site.urlFor(markFile.path)} alt="" width={28} height={28} />}
+    <>
+      <header className="topbar" data-topbar="">
+        <a className="topbar-brand" href="/">
+          {markFile && <img src={site.urlFor(markFile.path)} alt="" width={26} height={26} />}
           <span>{site.brand.shortName}</span>
         </a>
-
-        <nav className="header-nav" aria-label="Main">
-          {assetModules.length > 0 && (
-            <button className="nav-link" type="button" aria-expanded="false" aria-controls="module-menu" data-menu-trigger="">
-              Modules <Icon name="chevron-down" size={16} />
-            </button>
-          )}
-          {otherModules.map((m) => (
-            <a key={m.id} className="nav-link" href={m.route} aria-current={current(m.route)}>{m.label}</a>
+        <nav className="topbar-tabs" aria-label="Main">
+          {tabs.map((t) => (
+            <a key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined}>{t.label}</a>
           ))}
         </nav>
-
-        <div className="header-tools">
-          <button className="btn btn-secondary btn-sm btn-icon header-search" type="button" data-search-open="">
-            <Icon name="search" />
-            <span className="header-search-label">Search</span>
-            <kbd className="kbd" aria-hidden="true">Ctrl K</kbd>
-          </button>
-          <span className="theme-desktop"><ThemeSwitch /></span>
-          <button className="btn btn-secondary btn-sm btn-icon menu-button" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu" data-mobile-menu-trigger="">
-            <Icon name="menu" />
-          </button>
-        </div>
-
-        {assetModules.length > 0 && (
-          <div className="menu-panel" id="module-menu" hidden>
-            <ul className="menu-rows" role="list">
-              {assetModules.map((m) => (
-                <li key={m.id}>
-                  <a className="menu-row" href={m.route} aria-current={current(m.route)}>
-                    <IconTile name={m.icon} />
-                    <span>
-                      <strong>{m.label}</strong>
-                      <small>{m.help}</small>
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            {otherModules.length > 0 && (
-              <div className="menu-links">
-                <h2>More</h2>
-                <ul className="stack" role="list">
-                  {otherModules.map((m) => <li key={m.id}><a href={m.route}>{m.label}</a></li>)}
-                </ul>
-              </div>
+        <div className="topbar-tools">
+          <button className="search-trigger" type="button" data-search-open="" aria-label="Search">
+            <Icon name="search" size={16} />
+            <span className="search-trigger-label" aria-hidden="true">Search</span>
+            {modK && (
+              <span className="search-trigger-keys" aria-hidden="true">
+                <kbd className="kbd-mac">⌘K</kbd>
+                <kbd className="kbd-other">Ctrl K</kbd>
+              </span>
             )}
-          </div>
-        )}
-
-        <nav className="mobile-menu" id="mobile-menu" aria-label="Main" hidden>
-          <ul role="list">
-            {site.modules.map((m) => (
-              <li key={m.id}>
-                <a href={m.route} aria-current={current(m.route)}>
-                  {m.label}
-                  <Icon name="arrow-right" />
-                </a>
-              </li>
-            ))}
-          </ul>
-          <div className="theme-row">
-            <span>Theme</span>
-            <ThemeSwitch />
-          </div>
-        </nav>
-      </div>
-    </header>
+          </button>
+          <ThemeToggle />
+        </div>
+      </header>
+    </>
   );
 }
 

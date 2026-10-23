@@ -210,9 +210,10 @@ export function Pills({ label, options, allCount }: { label: string; options: { 
   );
 }
 
-export const ThemeSwitch = () => (
-  <button className="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Dark theme" data-theme-switch="">
-    <span className="sun"><Icon name="sun" size={16} /></span>
-    <span className="moon"><Icon name="moon" size={16} /></span>
+/** Shows the theme it switches to: a moon in light, a sun in dark. src/scripts/shell.ts keeps the label current. */
+export const ThemeToggle = () => (
+  <button className="theme-toggle" type="button" aria-label="Switch to dark theme" data-theme-toggle="">
+    <span className="moon"><Icon name="moon" size={18} /></span>
+    <span className="sun"><Icon name="sun" size={18} /></span>
   </button>
 );

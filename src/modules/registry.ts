@@ -12,20 +12,24 @@ export interface ModuleDef {
   icon: string;
   /** Asset type whose items render on this module's page, if any. */
   assetType?: AssetType;
+  /** Top tab whose sidebar lists the module. Footer modules are linked from the footer only. */
+  tab: TabId;
 }
 
+export type TabId = "library" | "guide" | "create" | "footer";
+
 export const MODULES: Record<ModuleId, ModuleDef> = {
-  start: { id: "start", label: "Start", route: "/start", help: "First steps for new team members", icon: "flag" },
-  logos: { id: "logos", label: "Logos", route: "/logos", help: "Lockups and file downloads", icon: "logo", assetType: "logo" },
-  colors: { id: "colors", label: "Colors", route: "/colors", help: "Values in HEX, RGB, CMYK, and PMS", icon: "palette", assetType: "color" },
-  fonts: { id: "fonts", label: "Fonts", route: "/fonts", help: "Font files and install steps", icon: "type", assetType: "font" },
-  icons: { id: "icons", label: "Icons", route: "/icons", help: "Icon library with SVG and PNG export", icon: "grid", assetType: "icon" },
-  photos: { id: "photos", label: "Photos", route: "/photos", help: "Photo library and photo rules", icon: "image", assetType: "photo-source" },
-  templates: { id: "templates", label: "Templates", route: "/templates", help: "Ready-made files and their rules", icon: "layout", assetType: "template" },
-  signature: { id: "signature", label: "Signature", route: "/signature", help: "Email signature generator", icon: "pen" },
-  boilerplate: { id: "boilerplate", label: "Boilerplate", route: "/boilerplate", help: "Approved descriptions in three lengths", icon: "text" },
-  guide: { id: "guide", label: "Guide", route: "/guide", help: "Brand rules", icon: "book" },
-  "whats-new": { id: "whats-new", label: "What's new", route: "/whats-new", help: "Recent changes and work in progress", icon: "clock" },
+  start: { id: "start", label: "Start", route: "/start", help: "First steps for new team members", icon: "flag", tab: "guide" },
+  logos: { id: "logos", label: "Logos", route: "/logos", help: "Lockups and file downloads", icon: "logo", assetType: "logo", tab: "library" },
+  colors: { id: "colors", label: "Colors", route: "/colors", help: "Values in HEX, RGB, CMYK, and PMS", icon: "palette", assetType: "color", tab: "library" },
+  fonts: { id: "fonts", label: "Fonts", route: "/fonts", help: "Font files and install steps", icon: "type", assetType: "font", tab: "library" },
+  icons: { id: "icons", label: "Icons", route: "/icons", help: "Icon library with SVG and PNG export", icon: "grid", assetType: "icon", tab: "library" },
+  photos: { id: "photos", label: "Photos", route: "/photos", help: "Photo library and photo rules", icon: "image", assetType: "photo-source", tab: "library" },
+  templates: { id: "templates", label: "Templates", route: "/templates", help: "Ready-made files and their rules", icon: "layout", assetType: "template", tab: "library" },
+  signature: { id: "signature", label: "Signature", route: "/signature", help: "Email signature generator", icon: "pen", tab: "create" },
+  boilerplate: { id: "boilerplate", label: "Boilerplate", route: "/boilerplate", help: "Approved descriptions in three lengths", icon: "text", tab: "library" },
+  guide: { id: "guide", label: "Guide", route: "/guide", help: "Brand rules", icon: "book", tab: "guide" },
+  "whats-new": { id: "whats-new", label: "What's new", route: "/whats-new", help: "Recent changes and work in progress", icon: "clock", tab: "footer" },
 };
 
 /** Modules that list assets, in menu order. */

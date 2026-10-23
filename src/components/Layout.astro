@@ -33,10 +33,14 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
     {description && <meta property="og:description" content={description} />}
     {canonical && <meta property="og:url" content={canonical} />}
     <script is:inline>
+      // Before first paint: the stored theme, and the platform for the search shortcut label.
+      var d = document.documentElement;
       try {
         var t = localStorage.getItem("bh-theme");
-        if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
+        if (t === "dark" || t === "light") d.dataset.theme = t;
       } catch (e) {}
+      var p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "";
+      d.dataset.platform = /mac|iphone|ipad|ipod/i.test(p) ? "mac" : "other";
     </script>
     <style is:inline set:html={themeCss}></style>
     {fontCss && <style is:inline set:html={fontCss}></style>}

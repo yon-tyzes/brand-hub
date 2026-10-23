@@ -1,78 +1,38 @@
-// Site shell behavior, loaded on every page: theme switch, module menu, mobile menu, toasts, copy buttons,
-// and the search shortcut. The search dialog and its index load on first use.
+// Site shell behavior, loaded on every page: theme toggle, frosted top bar, toasts, copy buttons, and the
+// search shortcut. The search dialog and its index load on first use.
 import { copyText } from "./client.ts";
 
 const THEME_KEY = "bh-theme";
 
 // ---------- Theme ----------
-const themeSwitches = [...document.querySelectorAll<HTMLButtonElement>("[data-theme-switch]")];
+const root = document.documentElement;
+const systemDark = matchMedia("(prefers-color-scheme: dark)");
+// No stored choice: the system setting decides (the stylesheet follows prefers-color-scheme).
+const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : systemDark.matches);
+const toggles = [...document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")];
+function label() {
+  for (const t of toggles) t.setAttribute("aria-label", isDark() ? "Switch to light theme" : "Switch to dark theme");
+}
 function setTheme(dark: boolean) {
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
-  for (const s of themeSwitches) s.setAttribute("aria-checked", String(dark));
+  root.dataset.theme = dark ? "dark" : "light";
+  label();
   try {
     localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
   } catch {
     // Storage blocked: the choice lasts for this page only.
   }
 }
-// No stored choice: the system setting decides (the stylesheet follows prefers-color-scheme).
-const chosen = document.documentElement.dataset.theme;
-const isDark = chosen ? chosen === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-for (const s of themeSwitches) {
-  s.setAttribute("aria-checked", String(isDark));
-  s.addEventListener("click", () => setTheme(s.getAttribute("aria-checked") !== "true"));
+for (const t of toggles) t.addEventListener("click", () => setTheme(!isDark()));
+systemDark.addEventListener("change", label);
+label();
+
+// ---------- Top bar: frosted once the page scrolls under it ----------
+const bar = document.querySelector<HTMLElement>("[data-topbar]");
+if (bar) {
+  const update = () => bar.toggleAttribute("data-scrolled", window.scrollY > 0);
+  window.addEventListener("scroll", update, { passive: true });
+  update();
 }
-
-// ---------- Disclosure menus (module menu, mobile menu) ----------
-function disclosure(trigger: HTMLButtonElement, opts: { lockScroll?: boolean } = {}) {
-  const panel = document.getElementById(trigger.getAttribute("aria-controls") ?? "");
-  if (!panel) return;
-  const container = trigger.closest<HTMLElement>("[data-menu-root]") ?? panel.parentElement!;
-  const isOpen = () => trigger.getAttribute("aria-expanded") === "true";
-  const items = () => [...panel.querySelectorAll<HTMLElement>("a[href], button:not([disabled])")];
-
-  function set(open: boolean, returnFocus = false) {
-    trigger.setAttribute("aria-expanded", String(open));
-    panel!.hidden = !open;
-    if (opts.lockScroll) document.documentElement.classList.toggle("no-scroll", open);
-    if (!open && returnFocus) trigger.focus();
-  }
-
-  trigger.addEventListener("click", () => set(!isOpen()));
-  trigger.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowDown" && !opts.lockScroll) {
-      e.preventDefault();
-      set(true);
-      items()[0]?.focus();
-    }
-  });
-  panel.addEventListener("keydown", (e) => {
-    const list = items();
-    const i = list.indexOf(document.activeElement as HTMLElement);
-    if (e.key === "Escape") return set(false, true);
-    const next = { ArrowDown: i + 1, ArrowUp: i - 1, Home: 0, End: list.length - 1 }[e.key];
-    if (next === undefined || i < 0) return;
-    e.preventDefault();
-    list[(next + list.length) % list.length]?.focus();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && isOpen() && container.contains(document.activeElement)) set(false, true);
-  });
-  document.addEventListener("click", (e) => {
-    if (isOpen() && !container.contains(e.target as Node)) set(false);
-  });
-  container.addEventListener("focusout", (e) => {
-    if (isOpen() && e.relatedTarget && !container.contains(e.relatedTarget as Node)) set(false);
-  });
-  panel.addEventListener("click", (e) => {
-    if ((e.target as Element).closest("a[href]")) set(false);
-  });
-  // Leaving the breakpoint where the menu exists closes it.
-  window.matchMedia("(min-width: 992px)").addEventListener("change", () => set(false));
-}
-
-for (const t of document.querySelectorAll<HTMLButtonElement>("[data-menu-trigger]")) disclosure(t);
-for (const t of document.querySelectorAll<HTMLButtonElement>("[data-mobile-menu-trigger]")) disclosure(t, { lockScroll: true });
 
 // ---------- Toasts ----------
 const region = document.querySelector<HTMLElement>("[data-toast-region]");
