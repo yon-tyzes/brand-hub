@@ -1,4 +1,4 @@
-// Top bar: change count (opens the list), Undo, Redo, Preview, and Save draft and Publish (not set up yet).
+// Top bar: change count (opens the list), Undo, Redo, Preview, History, a saving note, Save draft, and Publish.
 import type { RecordChange } from "../editor/changeset.ts";
 import { useEditor } from "./context.tsx";
 import { Icon } from "./Menu.tsx";

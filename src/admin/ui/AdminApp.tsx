@@ -164,10 +164,7 @@ export default function AdminApp() {
   // Warn before leaving with unsaved changes.
   useEffect(() => {
     if (!changes.length) return;
-    const guard = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-    };
+    const guard = (e: BeforeUnloadEvent) => e.preventDefault();
     window.addEventListener("beforeunload", guard);
     return () => window.removeEventListener("beforeunload", guard);
   }, [changes.length > 0]);
