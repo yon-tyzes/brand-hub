@@ -13,7 +13,9 @@
     ],
     "type": "template",
     "category": "Print",
-    "url": "/demo-template/#letterhead",
+    "formats": {
+      "pdf": "files/templates/letterhead.pdf"
+    },
     "thumbnail": "files/templates/letterhead.svg",
     "rules": [
       "logo-clear-space"
@@ -33,7 +35,9 @@
     ],
     "type": "template",
     "category": "Slides",
-    "url": "/demo-template/#slide-deck",
+    "formats": {
+      "pdf": "files/templates/slide-deck.pdf"
+    },
     "thumbnail": "files/templates/slide-deck.svg",
     "rules": [
       "logo-clear-space"
@@ -53,7 +57,9 @@
     ],
     "type": "template",
     "category": "Social",
-    "url": "/demo-template/#social-post",
+    "formats": {
+      "pdf": "files/templates/social-post.pdf"
+    },
     "thumbnail": "files/templates/social-post.svg",
     "rules": [
       "logo-clear-space"

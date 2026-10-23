@@ -5,5 +5,5 @@ export const fileUrl = (path: string) => "/" + path.split("/").map(encodeURIComp
 
 export const fileName = (path: string) => path.split("/").pop() ?? path;
 
-/** True for a full web address, false for a page on the same site ("/demo-template/"). */
+/** True for a full web address, false for a page on the same site ("/templates/"). */
 export const isExternal = (url: string) => /^[a-z][a-z0-9+.-]*:/i.test(url);

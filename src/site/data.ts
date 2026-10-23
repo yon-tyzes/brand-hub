@@ -116,7 +116,7 @@ export function createSite(input: SiteInput) {
     },
     /** Newest first. */
     sortedChangelog: (): ChangelogEntry[] => [...input.changelog].sort((a, b) => b.date.localeCompare(a.date)),
-    /** Inline actions for an asset, default first. Shared by search results and home top tasks. */
+    /** Inline actions for an asset, default first. Shared by search results and the home Quick downloads. */
     actionsFor: (a: Asset): SearchAction[] => {
       const href = assetHref(a);
       const view = (label = "View"): SearchAction[] => (href ? [{ kind: "open", label, href }] : []);

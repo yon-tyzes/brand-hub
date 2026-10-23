@@ -9,45 +9,8 @@
   },
   "tokens": {
     "color": {
-      "bg": "#F7F6F2",
-      "surface": "#FFFFFF",
-      "text": "#1C2430",
-      "muted": "#59616C",
-      "primary": "#1E5B4A",
-      "link": "#1C5E8C",
-      "border": "#DEDBD3"
-    },
-    "dark": {
-      "bg": "#111518",
-      "surface": "#181D21",
-      "text": "#ECEEF0",
-      "muted": "#A2AAB3",
-      "primary": "#86CDB3",
-      "link": "#8EC3EA",
-      "border": "#2B3238"
-    },
-    "font": {
-      "display": "Fraunces",
-      "body": "Inter",
-      "displayWeight": 500
-    },
-    "radius": {
-      "sm": 6,
-      "md": 10,
-      "lg": 16,
-      "control": 999
-    },
-    "space": [
-      4,
-      8,
-      12,
-      16,
-      24,
-      32,
-      48,
-      64,
-      96
-    ]
+      "primary": "#1E5B4A"
+    }
   },
   "guide": {
     "chapters": [
@@ -85,7 +48,7 @@
       }
     ]
   },
-  "topTasks": [
+  "quickDownloads": [
     "logo-horizontal",
     "comet-green",
     "fraunces",

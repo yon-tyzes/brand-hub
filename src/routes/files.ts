@@ -10,6 +10,8 @@ const TYPES: Record<string, string> = {
   ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
   ".gif": "image/gif", ".pdf": "application/pdf", ".woff2": "font/woff2", ".woff": "font/woff", ".ttf": "font/ttf",
   ".otf": "font/otf", ".txt": "text/plain; charset=utf-8", ".zip": "application/zip", ".eps": "application/postscript",
+  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 };
 
 function walk(dir: string, out: string[] = []): string[] {

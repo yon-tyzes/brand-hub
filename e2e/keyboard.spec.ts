@@ -62,11 +62,10 @@ test("keyboard only: search, recolor and copy an icon, download a logo, open a t
   await page.keyboard.press("Enter");
   expect((await download).suggestedFilename()).toBe("pocket-comet-horizontal-full-color.svg");
 
-  // Open a template in a new tab.
+  // Download a template. The demo templates offer a PDF only.
   await page.goto("/templates/");
-  await tabTo(page, /^Open template: Letterhead/);
-  // Demo templates open a page on the same site that says they are demo entries.
+  await tabTo(page, /^PDF: Letterhead$/);
+  const pdf = page.waitForEvent("download");
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/demo-template\/#letterhead$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("This is a demo template entry");
+  expect((await pdf).suggestedFilename()).toBe("letterhead.pdf");
 });

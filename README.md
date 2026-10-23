@@ -169,7 +169,7 @@ Preview renders the public pages from the draft in a panel marked "Preview, not 
 
 ## Demo deployment
 
-`netlify.toml` builds the public demo: `pnpm build` into `dist/`, with the `demo` adapter so the editor needs no server. Production deploys set `BRAND_HUB_INDEXING=true`, which turns on `indexing` in `hub.config.ts`; deploy previews and branch deploys stay `noindex`. Netlify's `URL` variable becomes Astro's `site`, which adds canonical links. `public/demo-template/` is the page the demo's template entries open.
+`netlify.toml` builds the public demo: `pnpm build` into `dist/`, with the `demo` adapter so the editor needs no server. Production deploys set `BRAND_HUB_INDEXING=true`, which turns on `indexing` in `hub.config.ts`; deploy previews and branch deploys stay `noindex`. Netlify's `URL` variable becomes Astro's `site`, which adds canonical links. The demo's template PDFs are printed by `node scripts/build-demo-templates.ts`.
 
 ## JavaScript on pages
 
