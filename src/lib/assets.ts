@@ -44,10 +44,7 @@ export function rulesFor(a: Asset): RuleAsset[] {
   return [...new Set(ids)].map((id) => ruleById.get(id)).filter((r): r is RuleAsset => !!r);
 }
 
-export const TYPE_LABEL: Record<AssetType, string> = {
-  logo: "Logo", color: "Color", font: "Font", icon: "Icon", template: "Template", "photo-source": "Photo library",
-  boilerplate: "Boilerplate", document: "Document", rule: "Rule", "signature-layout": "Signature layout",
-};
+export { TYPE_LABEL } from "./labels.ts";
 
 const dateFormat = new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 export const formatDate = (iso: string) => dateFormat.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso));
