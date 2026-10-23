@@ -1,6 +1,94 @@
 ---
-import PlaceholderPage from "../../components/PlaceholderPage.astro";
+// Icons: pinned icons first, then the library by group, with group pills and a filter field.
+// Selecting an icon opens the detail sheet (React island).
+import { brand } from "virtual:brand-hub";
+import Layout from "../../components/Layout.astro";
+import Pills from "../../components/Pills.astro";
+import IconDetail from "../../islands/icons/IconDetail.tsx";
+import { assetHref, assetsOfType, fileName, findAsset, iconMarkup, rulesFor } from "../../lib/assets.ts";
 import { MODULES } from "../registry.ts";
+
+const icons = assetsOfType("icon");
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const groups = [...new Set(icons.map((i) => i.group))];
+const pinned = icons.filter((i) => i.pinned);
+const colors = (brand.modules.icons?.colors ?? [])
+  .map((id) => findAsset(id))
+  .filter((c) => c?.type === "color")
+  .map((c) => ({ id: c!.id, label: c!.label, hex: (c as { hex: string }).hex }));
+const data = icons.map((i) => ({
+  id: i.id,
+  label: i.label,
+  group: i.group,
+  svg: iconMarkup(i),
+  fileBase: fileName(i.svgPath).replace(/\.svg$/, ""),
+  rules: rulesFor(i).map((r) => ({ label: r.label, href: assetHref(r) })),
+}));
+const text = (i: (typeof icons)[number]) => [i.label, i.group, ...(i.keywords ?? [])].join(" ").toLowerCase();
 ---
 
-<PlaceholderPage title={MODULES["icons"].label} />
+<Layout title={MODULES.icons.label}>
+  <div class="frame page-head">
+    <h1>{MODULES.icons.label}</h1>
+  </div>
+  <div class="frame section stack-lg" data-filter-root>
+    <div class="stack-lg">
+      <div style="max-width: 420px">
+        <label class="small" for="icon-filter" style="display: block; margin-bottom: var(--space-2)">Filter icons by name</label>
+        <input class="field" id="icon-filter" type="search" autocomplete="off" data-filter-search />
+      </div>
+      <Pills label="Icon groups" options={groups.map((g) => ({ value: slug(g), label: g, count: icons.filter((i) => i.group === g).length }))} allCount={icons.length} />
+      <p class="small" role="status" data-filter-status data-noun="icons">{icons.length} icons shown</p>
+    </div>
+
+    {
+      pinned.length > 0 && (
+        <section class="stack" aria-labelledby="pinned" data-filter-group>
+          <h2 class="h3" id="pinned">Pinned</h2>
+          <ul class="grid icon-grid" role="list">
+            {pinned.map((i) => (
+              <li data-filter-item data-values={slug(i.group)} data-text={text(i)}>
+                <button class="icon-button" type="button" data-icon-id={i.id} style="width: 100%">
+                  <Fragment set:html={iconMarkup(i)} />
+                  {i.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      groups.map((g) => (
+        <section class="stack" aria-labelledby={`group-${slug(g)}`} data-filter-group>
+          <h2 class="h3" id={`group-${slug(g)}`}>{g}</h2>
+          <ul class="grid icon-grid" role="list">
+            {icons
+              .filter((i) => i.group === g)
+              .map((i) => (
+                <li id={i.id} data-filter-item data-values={slug(i.group)} data-text={text(i)}>
+                  <button class="icon-button" type="button" data-icon-id={i.id} style="width: 100%">
+                    <Fragment set:html={iconMarkup(i)} />
+                    {i.label}
+                  </button>
+                </li>
+              ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+  <IconDetail client:load icons={data} colors={colors} />
+</Layout>
+
+<script>
+  // The detail island may hydrate after a click. It reads window.bhIconRequest when it mounts.
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLElement>("[data-icon-id]");
+    if (!btn) return;
+    const detail = { id: btn.dataset.iconId, opener: btn };
+    (window as { bhIconRequest?: typeof detail }).bhIconRequest = detail;
+    window.dispatchEvent(new CustomEvent("bh:icon-open", { detail }));
+  });
+</script>
