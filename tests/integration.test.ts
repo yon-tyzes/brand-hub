@@ -29,7 +29,7 @@ describe("brandHub integration", () => {
 
   it("injects /admin only when admin is enabled", () => {
     const hub = (admin: boolean) => ({ brand: "demo", modules: ["icons" as const], admin: { enabled: admin } });
-    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", "/admin"]);
+    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", "/admin", "/admin/data.json"]);
     expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons"]);
   });
 

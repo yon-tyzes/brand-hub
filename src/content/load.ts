@@ -8,6 +8,7 @@ import {
   type AnyRecord, type Asset, type AssetType, type Brand, type ChangelogEntry, type ColorAsset, type RuleAsset,
 } from "../../schemas/index.ts";
 import { checkPairingContrast, checkTokenContrast, formatContrastFailure } from "../theme/contrast.ts";
+import { filePaths } from "./file-paths.ts";
 
 /** Optional per-module split files and the asset type each may hold. assets.json may hold any type. */
 export const SPLIT_FILES: Record<string, AssetType> = {
@@ -49,6 +50,8 @@ export interface BrandContent {
   pending: AnyRecord[];
   /** Every record in every status, for the editor. */
   all: AnyRecord[];
+  /** File each record was read from (brand.json-relative name, e.g. "icons.json"), by id. */
+  sources: Record<string, string>;
   changelog: ChangelogEntry[];
 }
 
@@ -56,25 +59,6 @@ const rel = (p: string) => relative(process.cwd(), p) || ".";
 
 const byOrder = (a: AnyRecord, b: AnyRecord) =>
   (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) || a.label.localeCompare(b.label);
-
-/** File paths an asset points to, relative to the brand folder. */
-function filePaths(a: AnyRecord): { field: string; path: string }[] {
-  switch (a.type) {
-    case "logo":
-      return a.files.map((f, i) => ({ field: `files.${i}.path`, path: f.path }));
-    case "font":
-      return [
-        ...a.files.static.map((p, i) => ({ field: `files.static.${i}`, path: p })),
-        ...a.files.variable.map((p, i) => ({ field: `files.variable.${i}`, path: p })),
-      ];
-    case "icon":
-      return [{ field: "svgPath", path: a.svgPath }];
-    case "template":
-      return [{ field: "thumbnail", path: a.thumbnail }];
-    default:
-      return [];
-  }
-}
 
 export function loadBrand(brandDir: string): BrandContent {
   const problems: Problem[] = [];
@@ -225,6 +209,7 @@ export function loadBrand(brandDir: string): BrandContent {
     rules: all.filter((r): r is RuleAsset => r.type === "rule" && r.status === "locked"),
     pending: all.filter((r) => r.status === "pending"),
     all,
+    sources: Object.fromEntries(records.map((r) => [r.record.id, r.file])),
     changelog,
   };
 }

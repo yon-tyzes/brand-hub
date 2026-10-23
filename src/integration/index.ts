@@ -52,7 +52,10 @@ export function routesFor(hub: HubConfig): { pattern: string; entrypoint: URL }[
   ];
   for (const id of hub.modules) routes.push({ pattern: MODULES[id].route, entrypoint: new URL(`${id}/index.astro`, modulesDir) });
   if (hub.modules.includes("guide")) routes.push({ pattern: "/guide/[id]", entrypoint: new URL("guide/rule.astro", modulesDir) });
-  if (hub.admin.enabled) routes.push({ pattern: "/admin", entrypoint: new URL("../admin/index.astro", import.meta.url) });
+  if (hub.admin.enabled) {
+    routes.push({ pattern: "/admin", entrypoint: new URL("../admin/index.astro", import.meta.url) });
+    routes.push({ pattern: "/admin/data.json", entrypoint: new URL("admin-data.json.ts", routesDir) });
+  }
   return routes;
 }
 
