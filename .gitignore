@@ -15,3 +15,6 @@ research/
 # test output
 test-results/
 playwright-report/
+
+# local adapter test copy path
+e2e-local/.root
