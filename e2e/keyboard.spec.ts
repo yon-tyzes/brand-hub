@@ -1,4 +1,4 @@
-// Keyboard-only run: open search, find an icon, change its color, copy SVG, close; download a logo; open a template.
+// Keyboard-only run: open search, find an icon, change its color, download it; download a logo and a template.
 import { expect, test, type Page } from "@playwright/test";
 
 /** Presses Tab until the focused element's accessible label matches, and fails after 60 presses. */
@@ -20,47 +20,42 @@ async function tabTo(page: Page, name: RegExp) {
 
 test.use({ permissions: ["clipboard-read", "clipboard-write"] });
 
-test("keyboard only: search, recolor and copy an icon, download a logo, open a template", async ({ page, context }) => {
-  await context.route("https://example.com/**", (r) => r.fulfill({ contentType: "text/html", body: "<title>Template</title>" }));
-
+test("keyboard only: search, recolor and download an icon, download a logo and a template", async ({ page }) => {
   // Search for an icon and open it.
   await page.goto("/");
   await page.keyboard.press("/");
-  const search = page.getByRole("searchbox", { name: "Search assets and rules" });
+  const search = page.getByRole("dialog", { name: "Search the brand" }).getByRole("searchbox");
   await expect(search).toBeFocused();
   await page.keyboard.type("hot cup");
-  await expect(page.getByRole("button", { name: /^Hot cup/ })).toBeVisible();
+  const dialog = page.getByRole("dialog", { name: "Search the brand" });
+  await expect(dialog.getByRole("button", { name: /^Hot cup/ })).toBeVisible();
   await page.keyboard.press("ArrowDown");
   await expect(page.locator(":focus")).toContainText("Hot cup");
   await page.keyboard.press("Enter");
 
   await expect(page).toHaveURL(/\/icons\/?#icon-cup-hot$/);
-  const sheet = page.getByRole("dialog", { name: "Hot cup" });
-  await expect(sheet).toBeVisible();
+  const panel = page.getByRole("complementary", { name: "Selected icon" });
+  await expect(panel.getByRole("heading", { name: "Hot cup" })).toBeVisible();
 
   // Change the color with the arrow keys in the radio group.
   await tabTo(page, /^Ink$/);
   await page.keyboard.press("ArrowRight");
-  await expect(sheet.getByRole("radio", { name: "Comet Green" })).toBeChecked();
+  await expect(page.getByRole("radio", { name: "Comet Green" })).toHaveAttribute("aria-checked", "true");
+  await expect(panel).toContainText("Tea · Comet Green");
 
-  // Copy the recolored SVG.
-  await tabTo(page, /^Copy SVG$/);
+  // Download the recolored SVG and see it confirmed.
+  await tabTo(page, /^For print and slides/);
+  const svg = page.waitForEvent("download");
   await page.keyboard.press("Enter");
-  await expect(page.locator("[data-toast-region]")).toHaveText("Hot cup icon SVG in Comet Green copied.");
-  const clip = await page.evaluate(() => navigator.clipboard.readText());
-  expect(clip).toContain('fill="#1E5B4A"');
-  expect(clip).toMatch(/^<svg/);
+  expect((await svg).suggestedFilename()).toBe("cup-hot-comet-green.svg");
 
-  // Close returns focus to the icon that opened it.
-  await page.keyboard.press("Escape");
-  await expect(sheet).toBeHidden();
-
-  // Download a logo.
+  // Download a logo, named by use.
   await page.goto("/logos/");
-  await tabTo(page, /^Download SVG: Horizontal logo$/);
+  await tabTo(page, /^For print and web.*Horizontal logo$/);
   const download = page.waitForEvent("download");
   await page.keyboard.press("Enter");
   expect((await download).suggestedFilename()).toBe("pocket-comet-horizontal-full-color.svg");
+  await expect(page.locator("[data-toast-region]")).toHaveText("pocket-comet-horizontal-full-color.svg downloaded");
 
   // Download a template. The demo templates offer a PDF only.
   await page.goto("/templates/");

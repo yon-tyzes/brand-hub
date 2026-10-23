@@ -47,15 +47,10 @@ const settled = (page: import("@playwright/test").Page) =>
 
 test("open dialogs pass axe", async ({ page }) => {
   await page.goto("/icons/");
-  await page.getByRole("button", { name: "Hot cup" }).first().click();
-  await expect(page.getByRole("dialog", { name: "Hot cup" })).toBeVisible();
-  await settled(page);
-  expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).toEqual([]);
-  await page.keyboard.press("Escape");
-
   await page.keyboard.press("/");
-  await page.getByRole("searchbox", { name: "Search assets and rules" }).fill("green");
+  await page.getByRole("dialog", { name: "Search the brand" }).getByRole("searchbox").fill("green");
   await expect(page.getByRole("button", { name: /Comet Green/ }).first()).toBeVisible();
   await settled(page);
-  expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).toEqual([]);
+  const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+  expect(violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
 });

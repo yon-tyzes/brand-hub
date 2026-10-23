@@ -27,7 +27,7 @@ test("home page JS stays under 100 KB gzipped", async ({ page }) => {
   const initialFiles = Object.fromEntries(files);
 
   await page.keyboard.press("/");
-  await page.getByRole("searchbox", { name: "Search assets and rules" }).fill("green");
+  await page.getByRole("dialog", { name: "Search the brand" }).getByRole("searchbox").fill("green");
   await expect(page.getByRole("button", { name: /Comet Green/ }).first()).toBeVisible();
   await page.waitForLoadState("networkidle");
   const withSearch = total(files);

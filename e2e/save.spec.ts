@@ -93,7 +93,7 @@ test("preview draws public pages from the draft, marked as not live", async ({ p
   // Links inside the preview switch the preview page.
   await frame.getByRole("link", { name: "All files", exact: true }).first().click();
   await expect(panel.getByLabel("Page")).toHaveValue("home");
-  await expect(frame.getByRole("heading", { level: 1, name: "Pocket Comet Teapots" })).toBeVisible();
+  await expect(frame.getByRole("heading", { level: 1, name: /Pocket Comet\s*brand files/ })).toBeVisible();
 });
 
 test("an uploaded logo saves and keeps showing under its uploaded name", async ({ page }) => {
