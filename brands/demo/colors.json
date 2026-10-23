@@ -1,37 +1,144 @@
 [
   {
     "id": "comet-green",
-    "type": "color",
     "label": "Comet Green",
-    "help": "Primary actions and the logo. One use per screen.",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
-    "governedBy": ["one-green-action"],
-    "keywords": ["primary", "green"],
+    "help": "Primary actions and the logo mark. One use per screen.",
+    "governedBy": [
+      "one-green-action"
+    ],
     "order": 1,
+    "type": "color",
     "hex": "#1E5B4A",
-    "rgb": [30, 91, 74],
-    "cmyk": [67, 0, 19, 64],
+    "rgb": [
+      30,
+      91,
+      74
+    ],
     "role": "primary",
-    "pairings": [{ "fg": "kiln-white", "bg": "comet-green", "use": "text" }]
+    "cmyk": [
+      67,
+      0,
+      19,
+      64
+    ],
+    "pms": "PMS 7484 C",
+    "pairings": [
+      {
+        "fg": "kiln-white",
+        "bg": "comet-green",
+        "use": "text"
+      }
+    ]
+  },
+  {
+    "id": "ink",
+    "label": "Ink",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "Body text and headings.",
+    "governedBy": [
+      "one-green-action"
+    ],
+    "order": 2,
+    "type": "color",
+    "hex": "#1C2430",
+    "rgb": [
+      28,
+      36,
+      48
+    ],
+    "role": "text",
+    "cmyk": [
+      42,
+      25,
+      0,
+      81
+    ],
+    "pms": "PMS 433 C",
+    "pairings": [
+      {
+        "fg": "kiln-white",
+        "bg": "ink",
+        "use": "text"
+      }
+    ]
   },
   {
     "id": "kiln-white",
-    "type": "color",
     "label": "Kiln White",
-    "help": "Page background and text on Comet Green.",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
-    "governedBy": ["one-green-action"],
-    "keywords": ["background", "white"],
-    "order": 2,
+    "help": "Page background and text on dark colors.",
+    "governedBy": [
+      "one-green-action"
+    ],
+    "order": 3,
+    "type": "color",
     "hex": "#F7F6F2",
-    "rgb": [247, 246, 242],
+    "rgb": [
+      247,
+      246,
+      242
+    ],
     "role": "background",
-    "pairings": [{ "fg": "comet-green", "bg": "kiln-white", "use": "text" }]
+    "cmyk": [
+      0,
+      0,
+      2,
+      3
+    ],
+    "pairings": [
+      {
+        "fg": "ink",
+        "bg": "kiln-white",
+        "use": "text"
+      },
+      {
+        "fg": "comet-green",
+        "bg": "kiln-white",
+        "use": "text"
+      },
+      {
+        "fg": "copper",
+        "bg": "kiln-white",
+        "use": "text"
+      }
+    ]
+  },
+  {
+    "id": "copper",
+    "label": "Copper",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "The comet tail and small highlights. Never for buttons.",
+    "governedBy": [
+      "one-green-action"
+    ],
+    "order": 4,
+    "type": "color",
+    "hex": "#9A4A24",
+    "rgb": [
+      154,
+      74,
+      36
+    ],
+    "role": "accent",
+    "cmyk": [
+      0,
+      52,
+      77,
+      40
+    ],
+    "pairings": []
   }
 ]

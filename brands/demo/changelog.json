@@ -1,0 +1,50 @@
+[
+  {
+    "date": "2026-10-22",
+    "assetId": "template-social-post",
+    "assetType": "template",
+    "change": "added",
+    "summary": "Social post template added",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-21",
+    "assetId": "icon-teapot",
+    "assetType": "icon",
+    "change": "added",
+    "summary": "Teapot icon added to the Tea group",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-20",
+    "assetId": "logo-mark",
+    "assetType": "logo",
+    "change": "updated",
+    "summary": "Logo mark: PNG export now 512 pixels wide",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-18",
+    "assetId": "copper",
+    "assetType": "color",
+    "change": "updated",
+    "summary": "Copper: CMYK values corrected",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-15",
+    "assetId": "icon-star",
+    "assetType": "icon",
+    "change": "retired",
+    "summary": "Star icon retired",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-12",
+    "assetId": "inter",
+    "assetType": "font",
+    "change": "added",
+    "summary": "Inter added with static and variable files",
+    "author": "Demo Editor"
+  }
+]

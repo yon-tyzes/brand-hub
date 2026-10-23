@@ -3,7 +3,10 @@
   "name": "Pocket Comet Teapots",
   "shortName": "Pocket Comet",
   "description": "A fictional teapot maker used to demonstrate the Brand Hub engine.",
-  "contact": { "email": "brand@example.com", "url": "https://example.com" },
+  "contact": {
+    "email": "brand@example.com",
+    "url": "https://example.com"
+  },
   "tokens": {
     "color": {
       "bg": "#F7F6F2",
@@ -23,8 +26,42 @@
       "link": "#8EC3EA",
       "border": "#2B3238"
     },
-    "font": { "display": "Inter", "body": "Inter", "displayWeight": 500 },
-    "radius": { "sm": 6, "md": 10, "lg": 16, "control": 999 },
-    "space": [4, 8, 12, 16, 24, 32, 48, 64, 96]
+    "font": {
+      "display": "Inter",
+      "body": "Inter",
+      "displayWeight": 500
+    },
+    "radius": {
+      "sm": 6,
+      "md": 10,
+      "lg": 16,
+      "control": 999
+    },
+    "space": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      64,
+      96
+    ]
+  },
+  "topTasks": [
+    "logo-horizontal",
+    "comet-green",
+    "inter",
+    "template-letterhead"
+  ],
+  "modules": {
+    "icons": {
+      "colors": [
+        "ink",
+        "comet-green",
+        "copper"
+      ]
+    }
   }
 }

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "photo-library",
+    "label": "Photo library",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "Approved product and team photos.",
+    "governedBy": [
+      "photo-natural-light",
+      "headshot-standard"
+    ],
+    "type": "photo-source",
+    "provider": "drive",
+    "url": "https://example.com/photo-library",
+    "access": "sign-in",
+    "accessGroup": "Anyone with a Pocket Comet staff account",
+    "guidelines": [
+      "Credit the photographer named in the file name",
+      "Ask the brand team before using a photo in paid ads"
+    ]
+  }
+]

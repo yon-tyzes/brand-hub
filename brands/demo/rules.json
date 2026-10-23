@@ -1,16 +1,153 @@
 [
   {
     "id": "one-green-action",
-    "type": "rule",
     "label": "One green action per screen",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
+    "type": "rule",
     "title": "Use Comet Green for one action per screen",
-    "body": "Comet Green marks the single most important action on a screen. Everything else uses text and neutral colors.",
-    "do": ["Use Comet Green for the main button", "Set text on Comet Green in Kiln White"],
-    "dont": ["Color two buttons green on the same screen", "Use Comet Green for body text"],
-    "appliesTo": ["comet-green", "kiln-white"]
+    "body": "Comet Green marks the single most important action on a screen. Everything else uses Ink, Kiln White, and neutral grays.",
+    "do": [
+      "Use Comet Green for the main button",
+      "Set text on Comet Green in Kiln White"
+    ],
+    "dont": [
+      "Color two buttons green on the same screen",
+      "Use Comet Green for body text"
+    ],
+    "appliesTo": [
+      "comet-green",
+      "ink",
+      "kiln-white",
+      "copper"
+    ]
+  },
+  {
+    "id": "logo-clear-space",
+    "label": "Logo clear space",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "type": "rule",
+    "title": "Keep clear space around the logo",
+    "body": "Leave space on every side of the logo equal to the height of the comet head. Nothing else sits inside that space.\n\nUse the reversed logo on Ink or Comet Green. Use the full color logo on Kiln White or white.",
+    "do": [
+      "Use the file that matches the background",
+      "Scale the logo from the corner so it keeps its shape"
+    ],
+    "dont": [
+      "Stretch, rotate, or recolor the logo",
+      "Place the full color logo on a dark photo"
+    ],
+    "appliesTo": [
+      "logo-horizontal",
+      "logo-horizontal-reversed",
+      "logo-stacked",
+      "logo-mark"
+    ]
+  },
+  {
+    "id": "icon-stroke",
+    "label": "Icon style",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "type": "rule",
+    "title": "Draw icons on a 24px grid with a 2px stroke",
+    "body": "Icons use a 24 by 24 grid, a 2px stroke, and round caps and joins. Use one icon color per screen, taken from the icon colors on the Icons page.",
+    "do": [
+      "Use icons at 16, 24, 32, or 48px",
+      "Pair an icon with a text label in buttons"
+    ],
+    "dont": [
+      "Fill icons with a second color",
+      "Mix icon sets from other sources"
+    ],
+    "appliesTo": [
+      "icon-search",
+      "icon-download",
+      "icon-copy",
+      "icon-check",
+      "icon-arrow-right",
+      "icon-close",
+      "icon-menu",
+      "icon-plus",
+      "icon-teapot",
+      "icon-cup",
+      "icon-leaf",
+      "icon-flame"
+    ]
+  },
+  {
+    "id": "photo-natural-light",
+    "label": "Photo style",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "type": "rule",
+    "title": "Photograph in natural light",
+    "body": "Photos show real teapots in use, lit by daylight. Keep backgrounds plain and colors true to life.",
+    "do": [
+      "Shoot near a window",
+      "Keep steam and pouring in frame when it tells the story"
+    ],
+    "dont": [
+      "Add filters or color grading",
+      "Use stock photos of tea we do not make"
+    ],
+    "appliesTo": [
+      "photo-library"
+    ]
+  },
+  {
+    "id": "headshot-standard",
+    "label": "Headshot standard",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "type": "rule",
+    "title": "Take headshots against Kiln White",
+    "body": "Headshots are shoulders up, centered, against a plain Kiln White wall, in daylight. Export at 1200 by 1200 pixels.",
+    "do": [
+      "Face the camera with eyes level with the lens",
+      "Crop to a square"
+    ],
+    "dont": [
+      "Use a busy background",
+      "Use photos older than two years"
+    ],
+    "appliesTo": [
+      "photo-library"
+    ]
+  },
+  {
+    "id": "template-type",
+    "label": "Template text",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "type": "rule",
+    "title": "Keep template text in Inter",
+    "body": "Templates set all text in Inter. Change words and photos, not fonts, colors, or layout.",
+    "do": [
+      "Replace sample text with your own",
+      "Keep the logo where the template places it"
+    ],
+    "dont": [
+      "Change the font",
+      "Move the logo out of its clear space"
+    ],
+    "appliesTo": [
+      "template-letterhead",
+      "template-slide-deck",
+      "template-social-post"
+    ]
   }
 ]

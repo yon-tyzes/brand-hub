@@ -1,16 +1,20 @@
 [
   {
     "id": "icon-search",
-    "type": "icon",
     "label": "Search",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
     "keywords": [
-      "search"
+      "search",
+      "interface"
     ],
     "order": 1,
+    "type": "icon",
     "svgPath": "files/icons/search.svg",
     "group": "Interface",
     "pinned": true,
@@ -18,16 +22,20 @@
   },
   {
     "id": "icon-download",
-    "type": "icon",
     "label": "Download",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
     "keywords": [
-      "download"
+      "download",
+      "interface"
     ],
     "order": 2,
+    "type": "icon",
     "svgPath": "files/icons/download.svg",
     "group": "Interface",
     "pinned": true,
@@ -35,16 +43,20 @@
   },
   {
     "id": "icon-copy",
-    "type": "icon",
     "label": "Copy",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
     "keywords": [
-      "copy"
+      "copy",
+      "interface"
     ],
     "order": 3,
+    "type": "icon",
     "svgPath": "files/icons/copy.svg",
     "group": "Interface",
     "pinned": true,
@@ -52,35 +64,209 @@
   },
   {
     "id": "icon-check",
-    "type": "icon",
     "label": "Check",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
     "keywords": [
-      "check"
+      "check",
+      "interface"
     ],
     "order": 4,
+    "type": "icon",
     "svgPath": "files/icons/check.svg",
     "group": "Interface",
-    "pinned": false,
+    "pinned": true,
     "source": "Drawn for the demo brand"
   },
   {
     "id": "icon-arrow-right",
-    "type": "icon",
     "label": "Arrow right",
     "status": "locked",
     "version": "1.0",
     "updated": "2026-10-22",
     "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
     "keywords": [
-      "arrow right"
+      "arrow right",
+      "interface"
     ],
     "order": 5,
+    "type": "icon",
     "svgPath": "files/icons/arrow-right.svg",
     "group": "Interface",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-close",
+    "label": "Close",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "close",
+      "interface"
+    ],
+    "order": 6,
+    "type": "icon",
+    "svgPath": "files/icons/close.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-menu",
+    "label": "Menu",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "menu",
+      "interface"
+    ],
+    "order": 7,
+    "type": "icon",
+    "svgPath": "files/icons/menu.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-plus",
+    "label": "Plus",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "plus",
+      "interface"
+    ],
+    "order": 8,
+    "type": "icon",
+    "svgPath": "files/icons/plus.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-teapot",
+    "label": "Teapot",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "teapot",
+      "tea"
+    ],
+    "order": 9,
+    "type": "icon",
+    "svgPath": "files/icons/teapot.svg",
+    "group": "Tea",
+    "pinned": true,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-cup",
+    "label": "Cup",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "cup",
+      "tea"
+    ],
+    "order": 10,
+    "type": "icon",
+    "svgPath": "files/icons/cup.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-leaf",
+    "label": "Leaf",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "leaf",
+      "tea"
+    ],
+    "order": 11,
+    "type": "icon",
+    "svgPath": "files/icons/leaf.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-flame",
+    "label": "Flame",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [
+      "icon-stroke"
+    ],
+    "keywords": [
+      "flame",
+      "tea"
+    ],
+    "order": 12,
+    "type": "icon",
+    "svgPath": "files/icons/flame.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Drawn for the demo brand"
+  },
+  {
+    "id": "icon-kettle",
+    "label": "Kettle",
+    "status": "pending",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "governedBy": [],
+    "keywords": [
+      "kettle",
+      "tea"
+    ],
+    "order": 13,
+    "type": "icon",
+    "svgPath": "files/icons/kettle.svg",
+    "group": "Tea",
     "pinned": false,
     "source": "Drawn for the demo brand"
   }

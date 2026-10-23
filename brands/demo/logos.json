@@ -1,0 +1,130 @@
+[
+  {
+    "id": "logo-horizontal",
+    "label": "Horizontal logo",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "The default logo for headers, documents, and slides.",
+    "governedBy": [
+      "logo-clear-space"
+    ],
+    "order": 1,
+    "keywords": [
+      "logo",
+      "horizontal"
+    ],
+    "type": "logo",
+    "lockup": "Horizontal",
+    "colorway": "Full color",
+    "background": "light",
+    "files": [
+      {
+        "ext": "svg",
+        "path": "files/logos/pocket-comet-horizontal-full-color.svg"
+      },
+      {
+        "ext": "png",
+        "path": "files/logos/pocket-comet-horizontal-full-color.png",
+        "width": 1200
+      }
+    ]
+  },
+  {
+    "id": "logo-horizontal-reversed",
+    "label": "Horizontal logo, reversed",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "For Ink, Comet Green, and dark photos.",
+    "governedBy": [
+      "logo-clear-space"
+    ],
+    "order": 2,
+    "keywords": [
+      "logo",
+      "horizontal"
+    ],
+    "type": "logo",
+    "lockup": "Horizontal",
+    "colorway": "Reversed",
+    "background": "dark",
+    "files": [
+      {
+        "ext": "svg",
+        "path": "files/logos/pocket-comet-horizontal-reversed.svg"
+      },
+      {
+        "ext": "png",
+        "path": "files/logos/pocket-comet-horizontal-reversed.png",
+        "width": 1200
+      }
+    ]
+  },
+  {
+    "id": "logo-stacked",
+    "label": "Stacked logo",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "For square and narrow spaces.",
+    "governedBy": [
+      "logo-clear-space"
+    ],
+    "order": 3,
+    "keywords": [
+      "logo",
+      "stacked"
+    ],
+    "type": "logo",
+    "lockup": "Stacked",
+    "colorway": "Full color",
+    "background": "light",
+    "files": [
+      {
+        "ext": "svg",
+        "path": "files/logos/pocket-comet-stacked-full-color.svg"
+      },
+      {
+        "ext": "png",
+        "path": "files/logos/pocket-comet-stacked-full-color.png",
+        "width": 1200
+      }
+    ]
+  },
+  {
+    "id": "logo-mark",
+    "label": "Logo mark",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-22",
+    "audience": "public",
+    "help": "App icons, favicons, and small spaces under 120px wide.",
+    "governedBy": [
+      "logo-clear-space"
+    ],
+    "order": 4,
+    "keywords": [
+      "logo",
+      "mark"
+    ],
+    "type": "logo",
+    "lockup": "Mark",
+    "colorway": "Full color",
+    "background": "light",
+    "files": [
+      {
+        "ext": "svg",
+        "path": "files/logos/pocket-comet-mark-full-color.svg"
+      },
+      {
+        "ext": "png",
+        "path": "files/logos/pocket-comet-mark-full-color.png",
+        "width": 512
+      }
+    ]
+  }
+]
