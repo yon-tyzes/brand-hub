@@ -1,0 +1,18 @@
+#!/bin/sh
+# Rejects commit messages that carry tool or assistant attribution.
+# Install: copy to .githooks/commit-msg, chmod +x, git config core.hooksPath .githooks
+
+MSG_FILE="$1"
+
+if grep -Eiq '(co-authored-by:.*(claude|anthropic|copilot|cursor|openai|gpt))|(generated (with|by))|(claude\.(ai|com))|(noreply@anthropic\.com)' "$MSG_FILE"; then
+  echo "commit-msg: attribution line found. Remove it and commit again." >&2
+  exit 1
+fi
+
+# Em dash (U+2014) in commit messages
+if grep -q "$(printf '\342\200\224')" "$MSG_FILE"; then
+  echo "commit-msg: em dash found. Use a period, comma, or colon." >&2
+  exit 1
+fi
+
+exit 0
