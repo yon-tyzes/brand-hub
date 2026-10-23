@@ -15,6 +15,7 @@ import { MODULES, type ModuleDef } from "../modules/registry.ts";
 import { createSite } from "../site/data.ts";
 import { netlifyRedirects, redirectsFor, type Redirect } from "../site/redirects.ts";
 import { fontFaceCss } from "../theme/fonts.ts";
+import { heroCss, heroTones } from "../theme/hero-tint.ts";
 import { buildThemeCss } from "../theme/tokens.ts";
 
 export const VIRTUAL_ID = "virtual:brand-hub";
@@ -106,6 +107,8 @@ export interface VirtualData {
   brand: BrandContent["brand"];
   content: Pick<BrandContent, "assets" | "rules" | "pending" | "changelog">;
   themeCss: string;
+  /** --hero-1 to --hero-3, tuned from the brand's primary color (spec section 10). */
+  heroCss: string;
   /** @font-face rules for the brand's locked font assets. */
   fontCss: string;
 }
@@ -160,6 +163,13 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
           brand: content.brand,
           content: { assets: content.assets, rules: content.rules, pending: content.pending, changelog: content.changelog },
           themeCss: buildThemeCss(),
+          heroCss: heroCss(
+            heroTones({
+              primary: content.brand.tokens.color.primary,
+              palette: content.assets.flatMap((a) => (a.type === "color" ? [a.hex] : [])),
+              tint: content.brand.hero.tint,
+            }),
+          ),
           fontCss: fontFaceCss(fonts, fileUrl),
         };
         const adapters = { content: adapterModule(adapter, "content", root), auth: adapterModule(auth, "auth", root), mode: adapter };

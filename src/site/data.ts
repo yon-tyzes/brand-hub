@@ -1,6 +1,6 @@
 // Everything a public page needs, built from plain data. The build creates one from the brand folder
 // (src/lib/site-server.ts); the editor's preview creates one from the draft. No file system access here.
-import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat, AnyRecord } from "../../schemas/asset.ts";
+import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat } from "../../schemas/asset.ts";
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";

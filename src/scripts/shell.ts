@@ -61,9 +61,9 @@ document.addEventListener("click", (e) => {
 // ---------- Search ----------
 let searchModule: Promise<typeof import("../islands/search/mount.tsx")> | undefined;
 let searchReady = false;
-function openSearch(opener?: HTMLElement | null) {
+function openSearch(opener?: HTMLElement | null, initial = "") {
   // Until the dialog exists, keep what the person types and hand it over as the starting query.
-  let typed = "";
+  let typed = initial;
   const buffer = (e: KeyboardEvent) => {
     if (e.key.length !== 1 || e.metaKey || e.ctrlKey || e.altKey) return;
     e.preventDefault();
@@ -78,6 +78,14 @@ function openSearch(opener?: HTMLElement | null) {
   });
 }
 for (const b of document.querySelectorAll<HTMLElement>("[data-search-open]")) b.addEventListener("click", () => openSearch(b));
+
+// The home hero's field: what someone types there carries on in the search dialog.
+const heroSearch = document.querySelector<HTMLInputElement>("[data-hero-search]");
+heroSearch?.addEventListener("input", () => {
+  const typed = heroSearch.value;
+  heroSearch.value = "";
+  if (typed) openSearch(heroSearch, typed);
+});
 
 const shortcuts = (document.documentElement.dataset.searchShortcuts ?? "").split(" ").filter(Boolean);
 const typing = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));

@@ -1,7 +1,7 @@
 ---
 // Page shell: head metadata, theme, header, main, footer, toast region.
 import "../styles/global.css";
-import { brand, config, fontCss, themeCss } from "virtual:brand-hub";
+import { brand, config, fontCss, heroCss, themeCss } from "virtual:brand-hub";
 import { site } from "../lib/site-server.ts";
 import { SiteFooter, SiteHeader, SiteSidebar } from "../site/Page.tsx";
 
@@ -43,6 +43,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
       d.dataset.platform = /mac|iphone|ipad|ipod/i.test(p) ? "mac" : "other";
     </script>
     <style is:inline set:html={themeCss}></style>
+    <style is:inline set:html={heroCss}></style>
     {fontCss && <style is:inline set:html={fontCss}></style>}
   </head>
   <body>

@@ -68,3 +68,13 @@ export function heroTones(input: HeroTintInput): HeroTones {
   }
   return { light, dark: darkTones(light), source: from?.source ?? "neutral" };
 }
+
+/** --hero-1 to --hero-3 for the static hero gradient, light on :root and dark where the shell turns dark. */
+export function heroCss(tones: HeroTones): string {
+  const vars = (list: string[]) => [0, 1, 2].map((i) => `--hero-${i + 1}: ${list[i] ?? list[list.length - 1]};`).join(" ");
+  return [
+    `:root { ${vars(tones.light)} }`,
+    `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${vars(tones.dark)} } }`,
+    `:root[data-theme="dark"] { ${vars(tones.dark)} }`,
+  ].join("\n");
+}

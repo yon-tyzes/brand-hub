@@ -1,88 +1,12 @@
-// Page bodies for home, the change log, the Brand guide, and modules not built yet.
+// Page bodies for the change log, the Brand guide, and modules not built yet.
 import { MODULES } from "../../modules/registry.ts";
 import type { RuleAsset } from "../../../schemas/asset.ts";
 import type { GuideChapter } from "../../../schemas/brand.ts";
 import { chapterHref, guideChapters } from "../nav.ts";
 import { formatDate, TYPE_LABEL } from "../data.ts";
-import { Button, Card, ChangelogEntry, Icon, IconTile, RuleBody, SectionHead, useSite } from "../ui.tsx";
+import { Card, ChangelogEntry, RuleBody, useSite } from "../ui.tsx";
 
 const CHANGE_TAG = { added: "Added", updated: "Updated", retired: "Retired" } as const;
-const TASK_ICON: Partial<Record<string, string>> = { font: "type", template: "layout", logo: "logo", "photo-source": "image" };
-
-export function HomePage() {
-  const site = useSite();
-  const tasks = site.brand.quickDownloads
-    .map((id) => site.findAsset(id))
-    .filter((a) => !!a && site.assetHref(a) && !(a.type === "template" && !site.templateLinks(a).length))
-    .map((asset) => ({ asset: asset!, first: site.actionsFor(asset!)[0] }));
-  const recent = site.isEnabled("changes") ? site.sortedChangelog().slice(0, 3) : [];
-  return (
-    <>
-      <div className="frame page-head">
-        <h1 className="title-home">{site.brand.name}</h1>
-        {site.brand.description && <p className="lead">{site.brand.description}</p>}
-        <button className="search-field" type="button" data-search-open="">
-          <Icon name="search" />
-          <span>Search logos, colors, fonts, and icons</span>
-          <kbd className="kbd" aria-hidden="true">/</kbd>
-        </button>
-      </div>
-
-      {tasks.length > 0 && (
-        <section className="section frame" aria-labelledby="top-tasks">
-          <SectionHead title="Top tasks" id="top-tasks" />
-          <div className="grid cards-4">
-            {tasks.map(({ asset, first }) => (
-              <Card
-                key={asset.id}
-                title={asset.label}
-                description={asset.help}
-                href={site.assetHref(asset)}
-                meta={
-                  <>
-                    {asset.type === "color" ? (
-                      <span className="swatch-dot" style={{ background: asset.hex }} aria-hidden="true" />
-                    ) : (
-                      <IconTile name={TASK_ICON[asset.type] ?? "grid"} svg={asset.type === "icon" ? site.iconMarkup(asset) : undefined} />
-                    )}
-                    <span className="caption">{TYPE_LABEL[asset.type]}</span>
-                  </>
-                }
-                footer={
-                  first &&
-                  (first.kind === "copy" ? (
-                    <button className="btn btn-secondary btn-sm" type="button" data-copy={first.text} data-copy-message={first.message} aria-label={`${first.label}: ${asset.label}`}>
-                      <Icon name="copy" size={16} />
-                      {first.label}
-                    </button>
-                  ) : first.kind === "download" ? (
-                    <Button size="sm" href={first.href} download={first.filename} icon="download" aria-label={`${first.label}: ${asset.label}`}>{first.label}</Button>
-                  ) : (
-                    <Button size="sm" href={first.href} external={first.external} aria-label={first.external ? undefined : `${first.label}: ${asset.label}`}>{first.label}</Button>
-                  ))
-                }
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {recent.length > 0 && (
-        <section className="section frame" aria-labelledby="recent">
-          <SectionHead title="Recent changes" id="recent" action={<Button variant="text" href={MODULES.changes.route} iconEnd="arrow-right">All changes</Button>} />
-          <ul className="changelog" role="list">
-            {recent.map((e) => {
-              const a = site.findAsset(e.assetId);
-              return (
-                <ChangelogEntry key={`${e.date}-${e.assetId}-${e.summary}`} date={e.date} dateLabel={formatDate(e.date)} tag={CHANGE_TAG[e.change]} title={e.summary} href={a && e.change !== "retired" ? site.assetHref(a) : undefined} muted={e.change === "retired"} />
-              );
-            })}
-          </ul>
-        </section>
-      )}
-    </>
-  );
-}
 
 /** Published changes, newest first, one group per date. Pending items never show here. */
 export function ChangesPage() {

@@ -1,7 +1,7 @@
 ---
 // Preview frame for the editor: draws public pages from draft data sent by the editor. Never indexed.
 import "../styles/global.css";
-import { config, engineVersion, fontCss, themeCss } from "virtual:brand-hub";
+import { config, engineVersion, fontCss, heroCss, themeCss } from "virtual:brand-hub";
 import PreviewApp from "./preview/PreviewApp.tsx";
 
 const previewConfig = { modules: config.modules, indexing: config.indexing, search: config.search };
@@ -15,6 +15,7 @@ const previewConfig = { modules: config.modules, indexing: config.indexing, sear
     <meta name="robots" content="noindex" />
     <title>Preview</title>
     <style is:inline set:html={themeCss}></style>
+    <style is:inline set:html={heroCss}></style>
     {fontCss && <style is:inline set:html={fontCss}></style>}
   </head>
   <body>

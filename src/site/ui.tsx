@@ -66,9 +66,9 @@ export function Button({ variant = "secondary", size = "md", href, icon, iconEnd
 }
 
 /** A button or link that downloads a file, named by use with the format beside it. */
-export function DownloadButton({ d, variant = "secondary", size, short, assetLabel }: { d: Download; variant?: "primary" | "secondary"; size?: "md" | "sm"; short?: boolean; assetLabel: string }) {
+export function DownloadButton({ d, variant = "secondary", size, short, bare, assetLabel }: { d: Download; variant?: "primary" | "secondary"; size?: "md" | "sm"; short?: boolean; bare?: boolean; assetLabel: string }) {
   return (
-    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={d.format} aria-label={`${short ? d.short : d.label}, ${d.format}: ${assetLabel}`}>
+    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={bare ? undefined : d.format} aria-label={`${short ? d.short : d.label}, ${d.format}: ${assetLabel}`}>
       {short ? d.short : (
         <>
           <span className="label-long">{d.label}</span>
@@ -83,8 +83,8 @@ export function DownloadButton({ d, variant = "secondary", size, short, assetLab
  * Chips (DESIGN_SYSTEM.md, Chip): quick picks and filters. `pressed` makes it a filter toggle. `dot` is the brand
  * color the chip names, the one place brand color appears in a shell control.
  */
-export function Chip({ children, href, pressed, dot, icon, glass, download, className, ...rest }: {
-  children: ReactNode; href?: string; pressed?: boolean; dot?: string; icon?: string; glass?: boolean; download?: string; className?: string;
+export function Chip({ children, href, pressed, dot, icon, glass, download, external, className, ...rest }: {
+  children: ReactNode; href?: string; pressed?: boolean; dot?: string; icon?: string; glass?: boolean; download?: string; external?: boolean; className?: string;
 } & Record<`data-${string}`, string | undefined> & { "aria-label"?: string }) {
   const classes = ["chip", glass && "chip-glass", className].filter(Boolean).join(" ");
   const body = (
@@ -94,7 +94,7 @@ export function Chip({ children, href, pressed, dot, icon, glass, download, clas
       {children}
     </>
   );
-  if (href) return <a className={classes} href={href} download={download} {...rest}>{body}</a>;
+  if (href) return <a className={classes} href={href} download={download} {...(external ? { target: "_blank", rel: "noopener" } : {})} {...rest}>{body}</a>;
   return <button className={classes} type="button" aria-pressed={pressed === undefined ? undefined : pressed} {...rest}>{body}</button>;
 }
 
@@ -128,6 +128,7 @@ export function ColorRows({ color, rows, className }: { color: ColorAsset; rows:
         <li key={r.use} data-use={r.use.toLowerCase()}>
           <button className="value-row" type="button" data-copy={r.value} data-copy-name={color.label} aria-label={`Copy ${r.name} ${r.value}: ${color.label}`}>
             <span className="value-row-use">{r.use}</span>
+            <span className="value-row-icon"><Icon name="copy" size={16} /></span>
             <span className="value-row-value">{r.value}</span>
           </button>
         </li>

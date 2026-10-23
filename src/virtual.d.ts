@@ -9,6 +9,7 @@ declare module "virtual:brand-hub" {
   export const brand: BrandHubVirtualData["brand"];
   export const content: BrandHubVirtualData["content"];
   export const themeCss: BrandHubVirtualData["themeCss"];
+  export const heroCss: BrandHubVirtualData["heroCss"];
   export const fontCss: BrandHubVirtualData["fontCss"];
 }
 

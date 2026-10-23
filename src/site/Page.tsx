@@ -5,7 +5,8 @@ import { MODULES } from "../modules/registry.ts";
 import { Footer, Header, Sidebar } from "./Chrome.tsx";
 import type { Site } from "./data.ts";
 import { ColorsPage, FontsPage, IconsPage, LogosPage, PhotosPage, TemplatesPage } from "./pages/AssetPages.tsx";
-import { ChangesPage, ChapterPage, GuidePage, HomePage, PlaceholderPage } from "./pages/OtherPages.tsx";
+import { HomePage } from "./pages/HomePage.tsx";
+import { ChangesPage, ChapterPage, GuidePage, PlaceholderPage } from "./pages/OtherPages.tsx";
 import { chapterHref, guideChapters } from "./nav.ts";
 import { SiteContext } from "./ui.tsx";
 
