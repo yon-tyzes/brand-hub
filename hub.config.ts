@@ -2,8 +2,8 @@ import { defineHub } from "./src/index.ts";
 
 export default defineHub({
   brand: "demo",
-  modules: ["start", "logos", "colors", "fonts", "icons", "photos",
-            "templates", "signature", "boilerplate", "guide", "whats-new"],
+  // Start, signature, and boilerplate arrive in 0.3 and 0.4.
+  modules: ["logos", "colors", "fonts", "icons", "photos", "templates", "guide", "whats-new"],
   search: { shortcut: ["mod+k", "/"] },
   indexing: false,
   admin: { enabled: true },
