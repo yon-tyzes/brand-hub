@@ -23,6 +23,7 @@
     "setup-hooks": "node scripts/setup-hooks.mjs",
     "dev": "astro dev",
     "build": "astro build",
+    "check:dist": "astro build && node scripts/check-structure.mjs",
     "preview": "astro preview",
     "schemas": "node scripts/build-schemas.ts",
     "validate": "node scripts/validate-brands.ts",
