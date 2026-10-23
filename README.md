@@ -20,6 +20,7 @@ pnpm build        # static site in dist/
 pnpm check        # schemas, brand data, copy standards, types
 pnpm test         # unit tests (Vitest)
 pnpm test:e2e     # end-to-end tests against dist/ (run pnpm build first)
+pnpm test:local   # local adapter tests: astro dev on a temporary copy of the repo
 ```
 
 `pnpm test:e2e` runs axe on every route in light and dark, checks for horizontal scroll at 390, 768, and 1440 pixels, runs a keyboard-only task flow, and measures home page JavaScript against the 100 KB gzipped budget. It writes the size report to `test-results/js-size.json`. First run: `pnpm exec playwright install chromium`.
@@ -124,16 +125,17 @@ Known gap: the package currently ships TypeScript source and has no `exports` ma
 | `src/admin/ui/` | The app: top bar, section rail, card grid, inspector, dialogs. |
 | `src/admin/fields/` | Inspector fields per section: label, one line of help, and the control. Edit these to change what the editor asks for. |
 | `src/admin/editor/` | No UI: state and undo history, the change set, validation messages, SVG cleaning, upload handling, autosave. |
-| `src/adapters/` | `AuthAdapter` and `ContentAdapter` interfaces, and the `local` stubs. |
+| `src/adapters/` | `AuthAdapter` and `ContentAdapter` interfaces, and the built-in `local` and `demo` adapters. |
+| `src/serializer/` | Turns the draft into validated, stable brand files and changelog lines. No UI, no network. |
 
 How it works:
 
 - Every edit is a pure function on the draft, kept in an undo history (Ctrl or Cmd+Z, Shift to redo). Typing in one field merges into one undo step.
-- `toChangeSet()` turns the draft into the spec's `ChangeSet`: whole data files for each touched file, uploaded files, files nothing points to any more, and one summary line per change. Paths are provisional until the serializer lands.
+- `toChangeSet()` turns the draft into the spec's `ChangeSet`: whole data files for each touched file, uploaded files, files nothing points to any more, and one summary line per change. Save runs it through the serializer, which names files, stamps dates and versions, and refuses to save while any item has a problem.
 - The draft autosaves to IndexedDB and comes back after a reload if the brand has not changed. Without IndexedDB the editor works and says changes are not kept.
 - Uploaded SVG files are cleaned in the browser: scripts, event handlers, embedded web content, and links to outside files are removed. Icons get `currentColor` and a viewBox. The editor lists what it changed.
 
-The `local` content adapter reads `/admin/data.json`, a build-time snapshot of every record, drafts included. It is for development and the demo brand. Do not publish `/admin` for a real brand with the `local` adapter: use a server-backed adapter (`admin.adapter` and `admin.auth` in `hub.config.ts`, wired in the next release step).
+Preview renders the public pages from the draft in a panel marked "Preview, not live". Save draft and Publish go through the adapters named in `hub.config.ts`. This repo uses `local` under `astro dev`, which writes `brands/demo/` on disk, and `demo` in builds, which keeps changes in memory. Do not publish `/admin` for a real brand with either: implement a server-backed adapter as described in `docs/ADAPTERS.md`.
 
 ## Checks and CI
 
@@ -157,6 +159,7 @@ Every page loads one small shell script (about 2.5 KB gzipped) for the theme swi
 ## Documentation
 
 - `docs/ENGINE_SPEC.md`: architecture, data model, routes, editor, adapters, roadmap.
+- `docs/ADAPTERS.md`: implementing `AuthAdapter` and `ContentAdapter` in an instance, with a git-hosting outline.
 - `docs/DESIGN_SYSTEM.md`: layout, type scale, spacing, shape, components, motion.
 - `docs/STANDARDS.md`: copy and visual standards, enforced in part by `pnpm check`.
 
