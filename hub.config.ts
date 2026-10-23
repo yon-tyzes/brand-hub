@@ -6,6 +6,7 @@ export default defineHub({
   modules: ["logos", "colors", "fonts", "icons", "photos", "templates", "guide", "whats-new"],
   search: { shortcut: ["mod+k", "/"] },
   indexing: false,
-  admin: { enabled: true },
+  // The dev server edits brands/demo on disk; the public demo build keeps edits in memory.
+  admin: { enabled: true, adapter: { dev: "local", build: "demo" }, auth: { dev: "local", build: "demo" } },
   uploads: { maxBytes: 25_000_000 },
 });

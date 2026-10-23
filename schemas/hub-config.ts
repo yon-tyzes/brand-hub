@@ -8,6 +8,10 @@ export const MODULE_IDS = [
 ] as const;
 export type ModuleId = (typeof MODULE_IDS)[number];
 
+/** A built-in adapter name or a module path, for both commands or separately for `astro dev` and `astro build`. */
+const adapterSpec = z.string().min(1);
+const adapterChoice = z.union([adapterSpec, z.strictObject({ dev: adapterSpec, build: adapterSpec })]);
+
 export const hubConfig = z.strictObject({
   /** Folder name under brands/. */
   brand: z.string().regex(ID_PATTERN, "must be a kebab-case folder name"),
@@ -22,10 +26,12 @@ export const hubConfig = z.strictObject({
   admin: z
     .strictObject({
       enabled: z.boolean().default(false),
-      adapter: z.string().min(1).optional(),
-      auth: z.string().min(1).optional(),
+      /** Content adapter: "local", "demo", or a path to a module whose default export is a ContentAdapter. */
+      adapter: adapterChoice.default("local"),
+      /** Auth adapter: "local", "demo", or a path to a module whose default export is an AuthAdapter. */
+      auth: adapterChoice.default("local"),
     })
-    .default({ enabled: false }),
+    .default({ enabled: false, adapter: "local", auth: "local" }),
   uploads: z.strictObject({ maxBytes: z.int().positive().default(25_000_000) }).default({ maxBytes: 25_000_000 }),
 });
 

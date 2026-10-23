@@ -2,6 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { pathToFileURL } from "node:url";
 import { BrandDataError } from "../src/content/load.ts";
+import { hubConfig } from "../schemas/hub-config.ts";
 import { brandHub, HubConfigError, resolveHubConfig, routesFor } from "../src/integration/index.ts";
 import { demoCopy, edit, write } from "./helpers.ts";
 
@@ -29,8 +30,19 @@ describe("brandHub integration", () => {
 
   it("injects /admin only when admin is enabled", () => {
     const hub = (admin: boolean) => ({ brand: "demo", modules: ["icons" as const], admin: { enabled: admin } });
-    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", "/admin", "/admin/data.json"]);
+    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", "/admin", "/admin/preview"]);
     expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons"]);
+  });
+
+  it("builds the record snapshot only for the demo adapter, and the disk endpoint only under astro dev", () => {
+    const hub = (adapter: unknown) => hubConfigOf({ brand: "demo", modules: [], admin: { enabled: true, adapter, auth: "demo" } as never });
+    const admin = (adapter: unknown, command: "dev" | "build") => routesFor(hub(adapter), command).map((r) => r.pattern).filter((p) => p.startsWith("/admin"));
+    expect(admin("demo", "build")).toEqual(["/admin", "/admin/preview", "/admin/data.json"]);
+    expect(admin("local", "build")).toEqual(["/admin", "/admin/preview"]);
+    expect(admin("local", "dev")).toEqual(["/admin", "/admin/preview", "/admin/api/local/[action]"]);
+    expect(admin({ dev: "local", build: "demo" }, "dev")).toEqual(["/admin", "/admin/preview", "/admin/api/local/[action]"]);
+    expect(admin({ dev: "local", build: "demo" }, "build")).toEqual(["/admin", "/admin/preview", "/admin/data.json"]);
+    expect(routesFor(hub("local"), "dev").find((r) => r.pattern.startsWith("/admin/api"))?.prerender).toBe(false);
   });
 
   it("injects rule pages only when the guide module is on", () => {
@@ -62,7 +74,5 @@ describe("brandHub integration", () => {
   });
 });
 
-function hubConfigOf(input: Parameters<typeof resolveHubConfig>[1]) {
-  // Fill defaults the same way the integration does.
-  return { search: { shortcut: [] }, indexing: false, uploads: { maxBytes: 1 }, ...input } as Parameters<typeof routesFor>[0];
-}
+/** Fills defaults the same way the integration does. */
+const hubConfigOf = (input: Parameters<typeof resolveHubConfig>[1]) => hubConfig.parse(input);

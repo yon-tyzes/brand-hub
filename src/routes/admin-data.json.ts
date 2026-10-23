@@ -14,7 +14,7 @@ export const GET: APIRoute = () => {
   const c = loadBrand(brandDir);
   const svgs: Record<string, string> = {};
   for (const r of c.all) if (r.type === "icon") svgs[r.svgPath] = readBrandFile(r.svgPath);
-  const data: BrandContent = { slug: basename(brandDir), brand: c.brand, records: c.all, sources: c.sources, svgs };
+  const data: BrandContent = { slug: basename(brandDir), brand: c.brand, records: c.all, sources: c.sources, changelog: c.changelog, svgs };
   const body = JSON.stringify(data);
   const revision = createHash("sha256").update(body).digest("hex").slice(0, 12);
   return new Response(JSON.stringify({ revision, data }), { headers: { "Content-Type": "application/json; charset=utf-8" } });
