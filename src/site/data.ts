@@ -5,7 +5,7 @@ import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
 import type { SearchAction } from "../lib/search-config.ts";
-import { fileName } from "../lib/paths.ts";
+import { fileName, isExternal } from "../lib/paths.ts";
 import { TYPE_LABEL } from "../lib/labels.ts";
 import { MODULES, type ModuleDef } from "../modules/registry.ts";
 
@@ -125,7 +125,7 @@ export function createSite(input: SiteInput) {
             ...view(),
           ];
         case "template":
-          return [...(a.url ? [{ kind: "open" as const, label: templateOpenLabel(a), href: a.url, external: true }] : []), ...view()];
+          return [...(a.url ? [{ kind: "open" as const, label: templateOpenLabel(a), href: a.url, external: isExternal(a.url) }] : []), ...view()];
         case "photo-source":
           return [{ kind: "open", label: "Open photo library", href: a.url, external: true }, ...view()];
         default:

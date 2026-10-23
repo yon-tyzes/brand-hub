@@ -14,6 +14,9 @@ export const brandPath = z
     message: "must be relative to the brand folder, with forward slashes and no '..'",
   });
 
+/** A full web address, or a page on the same site ("/demo-template/"). */
+export const link = z.union([z.url(), z.string().regex(/^\/(?!\/)\S*$/, "must be a page on this site that starts with /")]);
+
 export const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/, "must be a 6-digit hex color like #0F3D6B");
 
 const isoDate = z.union([z.iso.date(), z.iso.datetime({ offset: true })]);
@@ -122,9 +125,9 @@ export const templateAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("template"),
   category: z.string().min(1),
-  /** Template link. Templates without one are not rendered on the public site. */
-  url: z.url().optional(),
-  fallbackUrl: z.url().optional(),
+  /** Template link: a full web address or a page on this site. Templates without one are not rendered on the public site. */
+  url: link.optional(),
+  fallbackUrl: link.optional(),
   thumbnail: brandPath,
   rules: z.array(id).default([]),
 });

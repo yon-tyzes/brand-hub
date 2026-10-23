@@ -4,7 +4,7 @@ import { MODULES } from "../../modules/registry.ts";
 import { contrastRatio } from "../../theme/color.ts";
 import { MIN_RATIO } from "../../theme/contrast.ts";
 import { renderMarkdown } from "../../lib/markdown.ts";
-import { fileName } from "../../lib/paths.ts";
+import { fileName, isExternal } from "../../lib/paths.ts";
 import type { PhotoSourceAsset } from "../../../schemas/asset.ts";
 import { fontZips, formatCmyk, formatRgb, LOGOS_ZIP, slug, templateOpenLabel } from "../data.ts";
 import { Accordion, Button, Card, Icon, IconTile, Pills, RuleBody, RuleLinks, SectionHead, Tabs, useSite } from "../ui.tsx";
@@ -353,7 +353,7 @@ export function TemplatesPage() {
                 preview={<AssetPreview record={t} urlFor={site.urlFor} />}
                 meta={<span className="caption">{t.category}</span>}
                 footer={
-                  <Button variant="secondary" size="sm" href={t.url} external aria-label={`${templateOpenLabel(t)}: ${t.label} (opens in a new tab)`}>
+                  <Button variant="secondary" size="sm" href={t.url} external={isExternal(t.url!)} aria-label={`${templateOpenLabel(t)}: ${t.label}${isExternal(t.url!) ? " (opens in a new tab)" : ""}`}>
                     {templateOpenLabel(t)}
                   </Button>
                 }

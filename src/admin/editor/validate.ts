@@ -25,6 +25,10 @@ function message(issue: z.core.$ZodIssue): string {
       if (issue.format === "url") return "Enter a full web address that starts with https://";
       if (issue.format === "email") return "Enter an email address.";
       return "Check the format of this value.";
+    case "invalid_union":
+      return issue.errors.flat().some((e) => e.code === "invalid_format" && e.format === "url")
+        ? "Enter a full web address that starts with https://, or a page on this site that starts with /"
+        : "Check this value.";
     case "invalid_value":
       return "Choose one of the options.";
     case "too_big":

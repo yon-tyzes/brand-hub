@@ -645,12 +645,28 @@
             "minLength": 1
           },
           "url": {
-            "type": "string",
-            "format": "uri"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "string",
+                "pattern": "^\\/(?!\\/)\\S*$"
+              }
+            ]
           },
           "fallbackUrl": {
-            "type": "string",
-            "format": "uri"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "string",
+                "pattern": "^\\/(?!\\/)\\S*$"
+              }
+            ]
           },
           "thumbnail": {
             "type": "string",

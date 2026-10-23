@@ -128,7 +128,7 @@ describe("editor helpers", () => {
   it("explains validation problems without technical terms", () => {
     const r = newRecord(EDITOR_MODULES.find((m) => m.id === "templates")!, "Poster", new Set(), { url: "not a link" } as Partial<AnyRecord>);
     const errors = validate(r);
-    expect(errors).toMatchObject({ category: "This can't be empty.", thumbnail: "This can't be empty.", url: "Enter a full web address that starts with https://" });
+    expect(errors).toMatchObject({ category: "This can't be empty.", thumbnail: "This can't be empty.", url: "Enter a full web address that starts with https://, or a page on this site that starts with /" });
     for (const m of Object.values(errors)) expect(m).not.toMatch(/json|schema|path|regex|string|kebab/i);
   });
 });
