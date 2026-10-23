@@ -1,6 +1,98 @@
 ---
-import PlaceholderPage from "../../components/PlaceholderPage.astro";
+// Colors: swatches with copy tabs (HEX, RGB, CMYK, PMS when present) and approved pairings with contrast ratios.
+import { brand } from "virtual:brand-hub";
+import Card from "../../components/Card.astro";
+import Icon from "../../components/Icon.astro";
+import Layout from "../../components/Layout.astro";
+import RuleLinks from "../../components/RuleLinks.astro";
+import SectionHead from "../../components/SectionHead.astro";
+import Tabs from "../../components/Tabs.astro";
+import { assetsOfType, formatCmyk, formatRgb } from "../../lib/assets.ts";
+import { contrastRatio } from "../../theme/color.ts";
+import { MIN_RATIO } from "../../theme/contrast.ts";
 import { MODULES } from "../registry.ts";
+
+const colors = assetsOfType("color");
+const byId = new Map(colors.map((c) => [c.id, c]));
+
+function formats(c: (typeof colors)[number]) {
+  const out = [
+    { id: "hex", label: "HEX", name: "hex", value: c.hex },
+    { id: "rgb", label: "RGB", name: "RGB", value: formatRgb(c) },
+  ];
+  const cmyk = formatCmyk(c);
+  if (cmyk) out.push({ id: "cmyk", label: "CMYK", name: "CMYK", value: cmyk });
+  if (c.pms) out.push({ id: "pms", label: "PMS", name: "PMS", value: c.pms });
+  return out;
+}
+
+const USE_LABEL = { text: "Text", "large-text": "Large text", graphic: "Graphics" } as const;
+const pairings = colors.flatMap((c) =>
+  c.pairings.flatMap((p) => {
+    const fg = byId.get(p.fg);
+    const bg = byId.get(p.bg);
+    if (!fg || !bg) return [];
+    const ratio = contrastRatio(fg.hex, bg.hex);
+    const level = ratio >= 7 ? "AAA" : ratio >= MIN_RATIO[p.use] ? "AA" : "Below AA";
+    return [{ key: `${p.fg}-on-${p.bg}-${p.use}`, fg, bg, ratio, level, use: USE_LABEL[p.use] }];
+  }),
+);
 ---
 
-<PlaceholderPage title={MODULES["colors"].label} />
+<Layout title={MODULES.colors.label}>
+  <div class="frame page-head">
+    <h1>{MODULES.colors.label}</h1>
+  </div>
+  <section class="section frame" aria-label="Color values">
+    <div class="grid swatches">
+      {
+        colors.map((c) => (
+          <Card headingLevel={2} id={c.id} title={c.label} description={c.help}>
+            <Fragment slot="preview">
+              <div class="swatch" style={`background:${c.hex}; width: 100%; border: 0`} />
+            </Fragment>
+            <Fragment slot="meta">
+              <span class="caption">{c.role}</span>
+            </Fragment>
+            <Tabs label={`${c.label} values`} idPrefix={c.id} tabs={formats(c)}>
+              {formats(c).map((f) => (
+                <Fragment slot={f.id}>
+                  <code class="value">{f.value}</code>
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    type="button"
+                    data-copy={f.value}
+                    data-copy-message={`${c.label} ${f.name} ${f.value} copied.`}
+                    aria-label={`Copy ${f.name}: ${c.label}`}
+                  >
+                    <Icon name="copy" size={16} />
+                    Copy {f.name}
+                  </button>
+                </Fragment>
+              ))}
+            </Tabs>
+            <RuleLinks asset={c} />
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    pairings.length > 0 && (
+      <section class="section frame" aria-labelledby="pairings">
+        <SectionHead title="Approved pairings" id="pairings" />
+        <ul class="grid swatches" role="list">
+          {pairings.map((p) => (
+            <li class="pairing" style={`background:${p.bg.hex}; color:${p.fg.hex}; border-color:${p.fg.hex}`}>
+              <span class="pairing-sample">{brand.name}</span>
+              <span class="caption" style="color: inherit">
+                {p.fg.label} on {p.bg.label} · {p.ratio.toFixed(2)}:1 · {p.level} for {p.use.toLowerCase()}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Layout>
