@@ -1,42 +1,16 @@
 ---
 // One rule: body, do and don't, and the assets it applies to.
 import type { GetStaticPaths } from "astro";
-import { content } from "virtual:brand-hub";
-import Button from "../../components/Button.astro";
 import Layout from "../../components/Layout.astro";
-import RuleBody from "../../components/RuleBody.astro";
-import { assetHref, findAsset, TYPE_LABEL } from "../../lib/assets.ts";
+import { site } from "../../lib/site-server.ts";
+import { PageBody } from "../../site/Page.tsx";
 import type { RuleAsset } from "../../../schemas/asset.ts";
 
-export const getStaticPaths = (() => content.rules.map((rule) => ({ params: { id: rule.id }, props: { rule } }))) satisfies GetStaticPaths;
+export const getStaticPaths = (() => site.rules.map((rule) => ({ params: { id: rule.id }, props: { rule } }))) satisfies GetStaticPaths;
 
 const { rule } = Astro.props as { rule: RuleAsset };
-const applies = rule.appliesTo
-  .map((id) => findAsset(id))
-  .filter((a) => !!a)
-  .map((a) => ({ label: a.label, type: TYPE_LABEL[a.type], href: assetHref(a) }));
 ---
 
 <Layout title={rule.title} description={rule.label}>
-  <div class="frame page-head">
-    <Button variant="text" href="/guide" size="sm">Guide</Button>
-    <h1>{rule.title}</h1>
-  </div>
-  <div class="frame section stack-lg">
-    <RuleBody rule={rule} level={2} />
-    {
-      applies.length > 0 && (
-        <section class="stack" aria-labelledby="applies">
-          <h2 class="h4" id="applies">Applies to</h2>
-          <ul class="stack" role="list">
-            {applies.map((a) => (
-              <li>
-                {a.href ? <a href={a.href}>{a.label}</a> : a.label} <span class="small">{a.type}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
-    }
-  </div>
+  <PageBody site={site} page={`rule:${rule.id}`} />
 </Layout>

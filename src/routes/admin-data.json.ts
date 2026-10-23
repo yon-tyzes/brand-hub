@@ -6,7 +6,7 @@ import { basename } from "node:path";
 import { brandDir } from "virtual:brand-hub";
 import type { BrandContent } from "../adapters/types.ts";
 import { loadBrand } from "../content/load.ts";
-import { readBrandFile } from "../lib/assets.ts";
+import { readBrandFile } from "../lib/site-server.ts";
 
 export const prerender = true;
 

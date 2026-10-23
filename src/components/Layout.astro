@@ -2,8 +2,8 @@
 // Page shell: head metadata, theme, header, main, footer, toast region.
 import "../styles/global.css";
 import { brand, config, fontCss, themeCss } from "virtual:brand-hub";
-import Footer from "./Footer.astro";
-import Header from "./Header.astro";
+import { site } from "../lib/site-server.ts";
+import { SiteFooter, SiteHeader } from "../site/Page.tsx";
 
 interface Props {
   title: string;
@@ -47,11 +47,11 @@ const hasDark = !!brand.tokens.dark;
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <Header path={path} />
+    <SiteHeader site={site} path={path} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer />
+    <SiteFooter site={site} />
     <div class="toast-region" role="status" aria-live="polite" data-toast-region></div>
     <script>
       import "../scripts/shell.ts";

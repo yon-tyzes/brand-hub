@@ -1,63 +1,10 @@
 ---
-// Photos: a link card per photo source with its access level, then the rules that govern photos.
-import Button from "../../components/Button.astro";
-import Card from "../../components/Card.astro";
-import IconTile from "../../components/IconTile.astro";
 import Layout from "../../components/Layout.astro";
-import RuleBody from "../../components/RuleBody.astro";
-import { assetHref, assetsOfType, rulesFor } from "../../lib/assets.ts";
-import type { PhotoSourceAsset } from "../../../schemas/asset.ts";
+import { site } from "../../lib/site-server.ts";
+import { PageBody } from "../../site/Page.tsx";
 import { MODULES } from "../registry.ts";
-
-const sources = assetsOfType("photo-source");
-const PROVIDER = { dropbox: "Dropbox", drive: "Google Drive", sharepoint: "SharePoint", url: "Web link" } as const;
-const access = (s: PhotoSourceAsset) =>
-  s.access === "open"
-    ? "Public folder: anyone with the link can open it."
-    : `Sign-in required.${s.accessGroup ? ` ${s.accessGroup} can open it.` : ""}`;
-const rules = [...new Map(sources.flatMap(rulesFor).map((r) => [r.id, r])).values()];
 ---
 
-<Layout title={MODULES.photos.label}>
-  <div class="frame page-head">
-    <h1>{MODULES.photos.label}</h1>
-  </div>
-
-  <section class="section frame" aria-label="Photo libraries">
-    <div class="grid cards-2">
-      {
-        sources.map((s) => (
-          <Card headingLevel={2} id={s.id} title={s.label} description={s.help}>
-            <Fragment slot="meta">
-              <IconTile name="image" />
-              <span class="caption">{PROVIDER[s.provider]}</span>
-            </Fragment>
-            <p>{access(s)}</p>
-            {s.guidelines.length > 0 && (
-              <ul class="small prose" style="padding-left: 1.25em">
-                {s.guidelines.map((g) => <li>{g}</li>)}
-              </ul>
-            )}
-            <Fragment slot="footer">
-              <Button variant="primary" href={s.url} external>Open {s.label.toLowerCase()}</Button>
-            </Fragment>
-          </Card>
-        ))
-      }
-    </div>
-  </section>
-
-  {
-    rules.map((r) => (
-      <section class="section frame stack-lg" aria-labelledby={`rule-${r.id}`} id={r.id}>
-        <div class="section-head" style="margin-bottom: 0">
-          <div>
-            <h2 id={`rule-${r.id}`}>{r.title}</h2>
-          </div>
-          {assetHref(r) && <Button slot="action" variant="text" href={assetHref(r)} iconEnd="arrow-right" aria-label={`Rule page: ${r.title}`}>Rule page</Button>}
-        </div>
-        <RuleBody rule={r} />
-      </section>
-    ))
-  }
+<Layout title={MODULES["photos"].label}>
+  <PageBody site={site} page="photos" />
 </Layout>

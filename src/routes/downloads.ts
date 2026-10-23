@@ -4,7 +4,9 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { zipSync, type Zippable } from "fflate";
 import { brandDir } from "virtual:brand-hub";
-import { assetsOfType, fileName, fontZips, isEnabled, LOGOS_ZIP } from "../lib/assets.ts";
+import { fileName } from "../lib/paths.ts";
+import { site } from "../lib/site-server.ts";
+import { fontZips, LOGOS_ZIP } from "../site/data.ts";
 
 export const prerender = true;
 
@@ -26,12 +28,12 @@ function zipOf(paths: string[], withLicenses: boolean): Uint8Array {
 
 function downloads(): Record<string, () => Uint8Array> {
   const out: Record<string, () => Uint8Array> = {};
-  if (isEnabled("logos")) {
-    const files = assetsOfType("logo").flatMap((l) => l.files.map((f) => f.path));
+  if (site.isEnabled("logos")) {
+    const files = site.assetsOfType("logo").flatMap((l) => l.files.map((f) => f.path));
     if (files.length) out[LOGOS_ZIP.split("/").pop()!] = () => zipOf(files, false);
   }
-  if (isEnabled("fonts")) {
-    for (const f of assetsOfType("font")) for (const z of fontZips(f)) out[z.href.split("/").pop()!] = () => zipOf(z.files, true);
+  if (site.isEnabled("fonts")) {
+    for (const f of site.assetsOfType("font")) for (const z of fontZips(f)) out[z.href.split("/").pop()!] = () => zipOf(z.files, true);
   }
   return out;
 }

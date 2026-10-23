@@ -1,6 +1,10 @@
 ---
-import PlaceholderPage from "../../components/PlaceholderPage.astro";
+import Layout from "../../components/Layout.astro";
+import { site } from "../../lib/site-server.ts";
+import { PageBody } from "../../site/Page.tsx";
 import { MODULES } from "../registry.ts";
 ---
 
-<PlaceholderPage title={MODULES["boilerplate"].label} />
+<Layout title={MODULES["boilerplate"].label}>
+  <PageBody site={site} page="boilerplate" />
+</Layout>

@@ -1,52 +1,14 @@
 ---
-// Templates: category pills and cards with thumbnail, rules, and an open button.
-// Templates without a link are not rendered.
-import Button from "../../components/Button.astro";
-import Card from "../../components/Card.astro";
 import Layout from "../../components/Layout.astro";
-import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
-import Pills from "../../components/Pills.astro";
-import RuleLinks from "../../components/RuleLinks.astro";
-import { assetsOfType, fileUrl, templateOpenLabel } from "../../lib/assets.ts";
+import { site } from "../../lib/site-server.ts";
+import { PageBody } from "../../site/Page.tsx";
 import { MODULES } from "../registry.ts";
-
-const templates = assetsOfType("template").filter((t) => t.url);
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-const categories = [...new Set(templates.map((t) => t.category))];
 ---
 
-<Layout title={MODULES.templates.label}>
-  <div class="frame page-head">
-    <h1>{MODULES.templates.label}</h1>
-  </div>
-  <div class="frame section stack-lg" data-filter-root>
-    {
-      categories.length > 1 && (
-        <div class="stack">
-          <Pills label="Template categories" options={categories.map((c) => ({ value: slug(c), label: c, count: templates.filter((t) => t.category === c).length }))} allCount={templates.length} />
-          <p class="small" role="status" data-filter-status data-noun="templates">{templates.length} templates shown</p>
-        </div>
-      )
-    }
-    <ul class="grid cards-3" role="list" aria-label="Templates">
-      {
-        templates.map((t) => (
-          <li data-filter-item data-values={slug(t.category)} style="display: grid">
-            <Card headingLevel={2} id={t.id} title={t.label} description={t.help}>
-              <Fragment slot="preview">
-                <AssetPreview record={t} urlFor={fileUrl} />
-              </Fragment>
-              <Fragment slot="meta">
-                <span class="caption">{t.category}</span>
-              </Fragment>
-              <RuleLinks asset={t} />
-              <Fragment slot="footer">
-                <Button variant="secondary" size="sm" href={t.url} external aria-label={`${templateOpenLabel(t)}: ${t.label} (opens in a new tab)`}>{templateOpenLabel(t)}</Button>
-              </Fragment>
-            </Card>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+<Layout title={MODULES["templates"].label}>
+  <PageBody site={site} page="templates" />
 </Layout>
+
+<script>
+  import "../../scripts/filter.ts";
+</script>

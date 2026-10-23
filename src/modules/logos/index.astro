@@ -1,69 +1,14 @@
 ---
-// Logos: lockup cards with a light/dark preview toggle, direct downloads per format, and an all-logos zip.
-import Button from "../../components/Button.astro";
-import Card from "../../components/Card.astro";
 import Layout from "../../components/Layout.astro";
-import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
-import RuleLinks from "../../components/RuleLinks.astro";
-import { assetsOfType, fileName, fileUrl, LOGOS_ZIP } from "../../lib/assets.ts";
+import { site } from "../../lib/site-server.ts";
+import { PageBody } from "../../site/Page.tsx";
 import { MODULES } from "../registry.ts";
-
-const logos = assetsOfType("logo");
-const label = (f: { ext: string; width?: number }) => `Download ${f.ext.toUpperCase()}${f.width ? `, ${f.width} px` : ""}`;
 ---
 
-<Layout title={MODULES.logos.label}>
-  <div class="frame page-head">
-    <h1>{MODULES.logos.label}</h1>
-    {logos.length > 0 && <div class="row"><Button href={LOGOS_ZIP} download icon="download">Download all logos (ZIP)</Button></div>}
-  </div>
-  <section class="section frame" aria-label="Logo files">
-    <div class="grid cards-2">
-      {
-        logos.map((l) => {
-          return (
-            <Card headingLevel={2} id={l.id} title={l.label} description={l.help}>
-              <Fragment slot="preview">
-                <AssetPreview record={l} urlFor={fileUrl} />
-              </Fragment>
-              <Fragment slot="meta">
-                <span class="caption">{l.lockup} · {l.colorway}</span>
-              </Fragment>
-              <div class="pills" role="group" aria-label={`Preview background: ${l.label}`} data-bg-toggle={l.id}>
-                {(["light", "dark"] as const).map((bg) => (
-                  <button class="pill" type="button" data-bg={bg} aria-pressed={l.background === bg ? "true" : "false"}>
-                    {bg === "light" ? "Light background" : "Dark background"}
-                  </button>
-                ))}
-              </div>
-              <RuleLinks asset={l} />
-              <Fragment slot="footer">
-                <ul class="row" role="list" aria-label={`Downloads: ${l.label}`}>
-                  {l.files.map((f) => (
-                    <li>
-                      <Button size="sm" href={fileUrl(f.path)} download={fileName(f.path)} icon="download" aria-label={`${label(f)}: ${l.label}`}>
-                        {label(f)}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </Fragment>
-            </Card>
-          );
-        })
-      }
-    </div>
-  </section>
+<Layout title={MODULES["logos"].label}>
+  <PageBody site={site} page="logos" />
 </Layout>
 
 <script>
-  for (const group of document.querySelectorAll<HTMLElement>("[data-bg-toggle]")) {
-    const preview = group.closest(".card")?.querySelector<HTMLElement>("[data-logo-preview]");
-    group.addEventListener("click", (e) => {
-      const btn = (e.target as Element).closest<HTMLElement>("button[data-bg]");
-      if (!btn || !preview) return;
-      preview.dataset.bg = btn.dataset.bg;
-      for (const b of group.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b === btn));
-    });
-  }
+  import "../../scripts/logos.ts";
 </script>
