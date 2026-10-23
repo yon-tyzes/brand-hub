@@ -1,22 +1,23 @@
-// Test fixtures: a throwaway copy of brands/demo that each test can break in one specific way.
+// Test fixtures: a throwaway copy of tests/fixtures/brand (a frozen, minimal brand) that each test
+// can break in one specific way. The live demo brand is validated by `pnpm check` instead.
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach } from "vitest";
 
-const DEMO = join(import.meta.dirname, "..", "brands", "demo");
+const FIXTURE = join(import.meta.dirname, "fixtures", "brand");
 const roots: string[] = [];
 
 afterEach(() => {
   while (roots.length) rmSync(roots.pop()!, { recursive: true, force: true });
 });
 
-/** Creates <tmp>/brands/demo from the demo brand. Returns the project root and the brand folder. */
+/** Creates <tmp>/brands/demo from the fixture brand. Returns the project root and the brand folder. */
 export function demoCopy(): { root: string; brandDir: string } {
   const root = mkdtempSync(join(tmpdir(), "brand-hub-test-"));
   roots.push(root);
   const brandDir = join(root, "brands", "demo");
-  cpSync(DEMO, brandDir, { recursive: true });
+  cpSync(FIXTURE, brandDir, { recursive: true });
   return { root, brandDir };
 }
 

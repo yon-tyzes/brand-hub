@@ -8,7 +8,7 @@ import {
 } from "../src/theme/index.ts";
 import { demoCopy, edit } from "./helpers.ts";
 
-const demo = brandSchema.parse(JSON.parse(readFileSync(join(import.meta.dirname, "..", "brands", "demo", "brand.json"), "utf8")));
+const demo = brandSchema.parse(JSON.parse(readFileSync(join(import.meta.dirname, "fixtures", "brand", "brand.json"), "utf8")));
 
 describe("color math", () => {
   it("computes WCAG contrast ratios", () => {
