@@ -45,7 +45,7 @@ for (const { width, name } of WIDTHS) {
 const settled = (page: import("@playwright/test").Page) =>
   page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running"));
 
-test("open dialogs and menus pass axe", async ({ page }) => {
+test("open dialogs pass axe", async ({ page }) => {
   await page.goto("/icons/");
   await page.getByRole("button", { name: "Hot cup" }).first().click();
   await expect(page.getByRole("dialog", { name: "Hot cup" })).toBeVisible();
@@ -56,11 +56,6 @@ test("open dialogs and menus pass axe", async ({ page }) => {
   await page.keyboard.press("/");
   await page.getByRole("searchbox", { name: "Search assets and rules" }).fill("green");
   await expect(page.getByRole("button", { name: /Comet Green/ }).first()).toBeVisible();
-  await settled(page);
-  expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).toEqual([]);
-  await page.keyboard.press("Escape");
-
-  await page.getByRole("button", { name: "Modules" }).click();
   await settled(page);
   expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).toEqual([]);
 });

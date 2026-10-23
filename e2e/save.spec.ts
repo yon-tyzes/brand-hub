@@ -91,7 +91,7 @@ test("preview draws public pages from the draft, marked as not live", async ({ p
   await expect(frame.getByRole("heading", { level: 1, name: "Colors" })).toBeVisible();
 
   // Links inside the preview switch the preview page.
-  await frame.getByRole("link", { name: "Home", exact: true }).first().click();
+  await frame.getByRole("link", { name: "All files", exact: true }).first().click();
   await expect(panel.getByLabel("Page")).toHaveValue("home");
   await expect(frame.getByRole("heading", { level: 1, name: "Pocket Comet Teapots" })).toBeVisible();
 });
