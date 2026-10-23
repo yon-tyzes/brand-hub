@@ -17,17 +17,25 @@ async function runSetup(root: string, inline?: Parameters<typeof brandHub>[0]) {
   return injectRoute.mock.calls.map(([route]) => route.pattern as string);
 }
 
+/** Routes injected whatever the config: brand files, zips, and the search index. */
+const ALWAYS = ["/files/[...path]", "/downloads/[name]", "/search-index.json"];
+
 describe("brandHub integration", () => {
   it("loads hub.config.ts and injects routes for enabled modules only", async () => {
     const { root } = demoCopy();
     write(root, "hub.config.ts", 'export default { brand: "demo", modules: ["logos", "colors"] };\n');
-    expect(await runSetup(root)).toEqual(["/", "/logos", "/colors"]);
+    expect(await runSetup(root)).toEqual(["/", ...ALWAYS, "/logos", "/colors"]);
   });
 
   it("injects /admin only when admin is enabled", () => {
     const hub = (admin: boolean) => ({ brand: "demo", modules: ["icons" as const], admin: { enabled: admin } });
-    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", "/icons", "/admin"]);
-    expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", "/icons"]);
+    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", "/admin"]);
+    expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons"]);
+  });
+
+  it("injects rule pages only when the guide module is on", () => {
+    const patterns = routesFor(hubConfigOf({ brand: "demo", modules: ["guide"], admin: { enabled: false } })).map((r) => r.pattern);
+    expect(patterns).toEqual(["/", ...ALWAYS, "/guide", "/guide/[id]"]);
   });
 
   it("fails the build when demo data has a broken reference", async () => {
