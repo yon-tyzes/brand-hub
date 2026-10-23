@@ -320,6 +320,9 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
   .changelog-entry { grid-template-columns: 96px 1fr auto; }
   .changelog-entry time { grid-column: auto; }
 }
+/* Entries grouped under a date heading (the change log) have no date column. */
+.changelog-by-date .changelog-nodate { display: none; }
+@media (min-width: 768px) { .changelog-by-date .changelog-entry { grid-template-columns: 1fr auto; } }
 .changelog-main { display: grid; gap: var(--space-1); justify-items: start; }
 .changelog-title { font-weight: var(--weight-medium); }
 .changelog-entry a { color: inherit; text-decoration: none; }

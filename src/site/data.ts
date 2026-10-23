@@ -16,7 +16,6 @@ export interface SiteInput {
   /** Locked assets and rules: what public pages show. */
   assets: Asset[];
   rules: RuleAsset[];
-  pending: AnyRecord[];
   changelog: ChangelogEntry[];
   /** Public URL of a file in the brand folder. */
   urlFor: (path: string) => string;

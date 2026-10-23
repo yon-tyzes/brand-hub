@@ -165,7 +165,7 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
         const adapters = { content: adapterModule(adapter, "content", root), auth: adapterModule(auth, "auth", root), mode: adapter };
         updateConfig({ vite: { plugins: [virtualModule(data, adapters)] } });
         redirects = redirectsFor(
-          createSite({ ...data.content, brand: content.brand, config: hub, engineVersion: ENGINE_VERSION, urlFor: fileUrl, svgFor: () => undefined }),
+          createSite({ assets: content.assets, rules: content.rules, changelog: content.changelog, brand: content.brand, config: hub, engineVersion: ENGINE_VERSION, urlFor: fileUrl, svgFor: () => undefined }),
         );
       },
       // Netlify serves these as real 301s; other hosts use the redirect pages.

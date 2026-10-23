@@ -23,7 +23,7 @@ export function PreviewPanel({ data, startPage, onClose }: { data: PreviewData; 
       brand: data.brand, config, engineVersion,
       assets: all.filter((r): r is Asset => r.type !== "rule" && r.status === "locked"),
       rules: all.filter((r): r is RuleAsset => r.type === "rule" && r.status === "locked"),
-      pending: [], changelog: [], urlFor: fileUrl, svgFor: () => undefined,
+      changelog: [], urlFor: fileUrl, svgFor: () => undefined,
     });
     return pageList(site);
   }, [data]);

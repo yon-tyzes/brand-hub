@@ -34,7 +34,6 @@ export default function PreviewApp({ config, engineVersion }: { config: Pick<Hub
       engineVersion,
       assets: all.filter((r): r is Asset => r.type !== "rule" && r.status === "locked"),
       rules: all.filter((r): r is RuleAsset => r.type === "rule" && r.status === "locked"),
-      pending: all.filter((r) => r.status === "pending"),
       changelog: data.changelog,
       urlFor: (p) => data.urls[p] ?? fileUrl(p),
       svgFor: (p) => data.svgs[p],

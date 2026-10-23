@@ -58,7 +58,7 @@ export interface CheckedContent {
   assets: Asset[];
   /** Locked rules only. */
   rules: RuleAsset[];
-  /** Pending assets and rules, for the "In progress" list on What's new. */
+  /** Pending assets and rules. Shown in the editor only, never on public pages. */
   pending: AnyRecord[];
   /** Every record in every status, for the editor. */
   all: AnyRecord[];

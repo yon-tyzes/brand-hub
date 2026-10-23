@@ -17,7 +17,6 @@ export const site = createSite({
   engineVersion,
   assets: content.assets,
   rules: content.rules,
-  pending: content.pending,
   changelog: content.changelog,
   urlFor: fileUrl,
   svgFor: (path) => {
