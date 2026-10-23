@@ -1,5 +1,6 @@
 // Site top bar and footer (docs/DESIGN_SYSTEM.md, TopTabs). Theme, search, and the frosted bar are wired by
 // src/scripts/shell.ts.
+import type { CSSProperties } from "react";
 import { formatDate, logoFile } from "./data.ts";
 import { currentTab, navTabs, sidebarFor } from "./nav.ts";
 import { uiIconSvg } from "../lib/ui-icons.ts";
@@ -39,6 +40,12 @@ export function Header({ path }: { path: string }) {
           <ThemeToggle />
         </div>
       </header>
+      {/* Below 768px the tabs move here, as a segmented control under the bar. */}
+      <nav className="tabs-segmented" aria-label="Main" style={{ "--tab-count": tabs.length } as CSSProperties}>
+        {tabs.map((t) => (
+          <a key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined}>{t.label}</a>
+        ))}
+      </nav>
     </>
   );
 }

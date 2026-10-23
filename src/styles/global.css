@@ -395,6 +395,33 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
   transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
 .theme-toggle:hover { background: var(--surface-subtle); color: var(--text); }
+/* Segmented tabs: phones only. */
+.tabs-segmented { display: none; }
+
+@media (max-width: 767.98px) {
+  .topbar { gap: 10px; padding: 0 8px 0 16px; }
+  .topbar-brand { min-height: 44px; }
+  .topbar-tabs { display: none; }
+  .topbar-tools { gap: 0; }
+  .search-trigger { width: 44px; height: 44px; padding: 0; justify-content: center; background: transparent; border-color: transparent; color: var(--text); }
+  .search-trigger svg { width: 20px; height: 20px; }
+  .search-trigger-label, .search-trigger-keys { display: none; }
+  .theme-toggle { width: 44px; height: 44px; border: 0; }
+
+  .tabs-segmented {
+    display: grid; grid-template-columns: repeat(var(--tab-count, 3), minmax(0, 1fr)); gap: 4px;
+    margin: 10px var(--gutter) 0; padding: 4px;
+    border-radius: var(--radius-md); background: var(--surface-subtle); border: 1px solid var(--border);
+  }
+  .tabs-segmented a {
+    position: relative; height: 36px; display: grid; place-items: center;
+    border-radius: 8px; font-size: 13px; font-weight: 500; text-decoration: none; color: var(--text-secondary);
+  }
+  /* 44px touch target: the control's padding is part of each tab. */
+  .tabs-segmented a::before { content: ""; position: absolute; inset: -4px 0; }
+  .tabs-segmented a[aria-current="page"] { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px color-mix(in srgb, var(--fill-primary) 8%, transparent), inset 0 0 0 1px var(--border); }
+}
+
 .theme-toggle .sun { display: none; }
 :root[data-theme="dark"] .theme-toggle .sun { display: contents; }
 :root[data-theme="dark"] .theme-toggle .moon { display: none; }
@@ -409,7 +436,26 @@ details[open] .accordion-toggle::after { transform: rotate(0deg); }
 .shell-main { min-width: 0; display: flex; flex-direction: column; }
 .shell-main > main { flex: 1; }
 
-.sidebar { display: none; }
+/* Below 992px the sidebar is a horizontally scrolling chip row; the current item is filled. */
+@media (max-width: 991.98px) {
+  .sidebar { border-bottom: 1px solid var(--border); }
+  .sidebar .sidebar-items { display: flex; gap: 8px; padding: 12px var(--gutter); overflow-x: auto; }
+  .sidebar-item {
+    position: relative; flex: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 12px; border-radius: var(--radius-pill);
+    border: 1px solid var(--border-control); color: var(--text);
+    font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap;
+  }
+  /* 44px touch target around the 32px chip. */
+  .sidebar-item::before { content: ""; position: absolute; inset: -6px 0; }
+  .sidebar-item[aria-current="page"] { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-primary); }
+  .sidebar-item > .ui-icon svg { display: none; }
+  .sidebar-end { display: inline-flex; color: var(--text-muted); }
+  .sidebar-item[aria-current="page"] .sidebar-end { color: inherit; }
+  .sidebar-count { font-size: 12px; }
+  .sidebar-contact { display: none; }
+}
 
 @media (min-width: 992px) {
   .shell { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
