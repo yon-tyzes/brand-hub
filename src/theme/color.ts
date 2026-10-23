@@ -1,5 +1,5 @@
-// Color math for the token pipeline: hex parsing, OKLab mixing (matches CSS `color-mix(in oklab, ...)`),
-// and WCAG 2.x relative luminance and contrast ratio.
+// Color math: hex parsing, OKLab mixing (matches CSS `color-mix(in oklab, ...)`), OKLCH conversion for the
+// hero tuning, and WCAG 2.x relative luminance and contrast ratio.
 
 export type Rgb = [number, number, number];
 
@@ -40,6 +40,36 @@ function oklabToRgb([L, a, b]: Rgb): Rgb {
     fromLinear(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
     fromLinear(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
   ];
+}
+
+export type Oklch = { l: number; c: number; h: number };
+
+export function hexToOklch(hex: string): Oklch {
+  const [l, a, b] = rgbToOklab(hexToRgb(hex));
+  const h = (Math.atan2(b, a) * 180) / Math.PI;
+  return { l, c: Math.hypot(a, b), h: (h + 360) % 360 };
+}
+
+const oklchToRgb = ({ l, c, h }: Oklch): Rgb => {
+  const rad = (h * Math.PI) / 180;
+  return oklabToRgb([l, c * Math.cos(rad), c * Math.sin(rad)]);
+};
+
+const inGamut = (rgb: Rgb) => rgb.every((v) => v >= -0.5 && v <= 255.5);
+
+/** OKLCH to hex. Out-of-gamut colors keep lightness and hue and lose chroma until they fit. */
+export function oklchToHex(color: Oklch): string {
+  let rgb = oklchToRgb(color);
+  if (!inGamut(rgb)) {
+    let [lo, hi] = [0, color.c];
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (inGamut(oklchToRgb({ ...color, c: mid }))) lo = mid;
+      else hi = mid;
+    }
+    rgb = oklchToRgb({ ...color, c: lo });
+  }
+  return rgbToHex(rgb);
 }
 
 /** Mix `b` into `a` by `amount` (0 to 1) in OKLab. Same result as `color-mix(in oklab, a, b amount%)`. */
