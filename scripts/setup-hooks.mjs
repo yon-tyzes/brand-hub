@@ -1,5 +1,6 @@
-// Points git at the versioned hooks in .githooks. Runs on `pnpm install` via the prepare script.
-// Skips quietly outside a git work tree (tarball installs, some CI caches).
+// Points git at the versioned hooks in .githooks. Run once after cloning: `pnpm setup-hooks`.
+// Not a prepare or postinstall script: pnpm refuses git-hosted dependencies that run install scripts, and
+// instances install the engine from git. Skips quietly outside a git work tree.
 import { execFileSync } from "node:child_process";
 import { chmodSync, existsSync } from "node:fs";
 

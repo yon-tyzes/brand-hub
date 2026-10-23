@@ -20,7 +20,7 @@
     "node": ">=22.23.4"
   },
   "scripts": {
-    "prepare": "node scripts/setup-hooks.mjs",
+    "setup-hooks": "node scripts/setup-hooks.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
