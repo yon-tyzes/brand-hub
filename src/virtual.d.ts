@@ -1,0 +1,10 @@
+// Types for the module the integration serves to pages (src/integration/index.ts).
+type BrandHubVirtualData = import("./integration/index.ts").VirtualData;
+
+declare module "virtual:brand-hub" {
+  export const config: BrandHubVirtualData["config"];
+  export const modules: BrandHubVirtualData["modules"];
+  export const brand: BrandHubVirtualData["brand"];
+  export const content: BrandHubVirtualData["content"];
+  export const themeCss: BrandHubVirtualData["themeCss"];
+}

@@ -1,0 +1,78 @@
+---
+// Bare test page used until each module gets its real page. Renders the page name and the module list.
+import { brand, config, modules, themeCss } from "virtual:brand-hub";
+
+interface Props {
+  title: string;
+  /** Admin is never indexed, whatever the config says. */
+  noindex?: boolean;
+}
+
+const { title, noindex = !config.indexing } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <title>{title} | {brand.shortName}</title>
+    <style is:inline set:html={themeCss}></style>
+    <style>
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-body);
+        font-size: var(--step-0);
+        line-height: var(--leading-body);
+      }
+      main {
+        max-width: var(--content-max);
+        margin-inline: auto;
+        padding: var(--space-7) var(--gutter);
+      }
+      h1 {
+        font-family: var(--font-display);
+        font-size: var(--step-6);
+        font-weight: var(--weight-display);
+        line-height: var(--leading-title);
+        letter-spacing: var(--tracking-title);
+        margin: 0 0 var(--space-6);
+      }
+      ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2) var(--space-5);
+        padding: 0;
+        list-style: none;
+      }
+      a {
+        color: var(--color-link);
+      }
+      a:focus-visible {
+        outline: 2px solid var(--color-focus);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>{title}</h1>
+      <nav aria-label="Modules">
+        <ul>
+          <li><a href="/" aria-current={path === "/" ? "page" : undefined}>Home</a></li>
+          {
+            modules.map((m) => (
+              <li>
+                <a href={m.route} aria-current={path === m.route ? "page" : undefined}>{m.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </main>
+  </body>
+</html>
