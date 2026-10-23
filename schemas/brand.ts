@@ -1,40 +1,20 @@
-// brand.json (spec section 9). Tokens feed the theme pipeline in src/theme.
+// brand.json (spec sections 5 and 10).
 import { z } from "zod";
 import { hex, id } from "./asset.ts";
 
-/** Colors every brand declares. Names match the CSS custom properties (--color-<name>). */
-export const baseColors = z.strictObject({
-  bg: hex,
-  surface: hex,
-  text: hex,
-  muted: hex,
-  primary: hex,
-  link: hex,
-  border: hex,
-  // Derived by the pipeline when omitted (docs/DESIGN_SYSTEM.md, "Derived color defaults").
-  surface2: hex.optional(),
-  borderStrong: hex.optional(),
-  onPrimary: hex.optional(),
-  primaryHover: hex.optional(),
-  focus: hex.optional(),
-});
-
-const px = z.number().nonnegative();
-
+/**
+ * Brand values the shell reads (spec section 10). The engine owns every other visual value; the 0.1 shell keys
+ * (other tokens.color entries, tokens.font, tokens.radius, tokens.space, tokens.dark) are removed with a
+ * warning before validation (src/content/legacy.ts).
+ */
 export const brandTokens = z.strictObject({
-  color: baseColors,
-  /** Dark theme colors. Omit to ship light only; the theme toggle is then not rendered. */
-  dark: baseColors.optional(),
-  font: z.strictObject({
-    display: z.string().min(1),
-    body: z.string().min(1),
-    displayWeight: z.union([z.literal(400), z.literal(500), z.literal(600), z.literal(700)]).default(500),
+  color: z.strictObject({
+    /** The brand's main color. The hero gradient takes its hue. */
+    primary: hex,
   }),
-  radius: z.strictObject({ sm: px, md: px, lg: px, control: px.default(999) }),
-  space: z
-    .tuple([px, px, px, px, px, px, px, px, px])
-    .refine((s) => s.every((v, i) => i === 0 || v > s[i - 1]!), { message: "space steps must increase" }),
 });
+
+export const guideChapter = z.strictObject({ id, title: z.string().min(1) });
 
 export const brand = z.strictObject({
   $schema: z.string().optional(),
@@ -57,8 +37,24 @@ export const brand = z.strictObject({
       font: z.string().min(1).optional(),
     })
     .default({}),
-  /** Asset ids shown as top tasks on the home page, in order. */
-  topTasks: z.array(id).default([]),
+  /** Home hero settings. */
+  hero: z
+    .strictObject({
+      /** Up to three exact gradient colors. Replaces the tuning from tokens.color.primary; use only when asked for a specific look. */
+      tint: z.array(hex).min(1).max(3).nullable().optional(),
+    })
+    .default({}),
+  /** Asset ids in the home page's "Quick downloads" row, in order. Must be locked. */
+  quickDownloads: z.array(id).default([]),
+  /** Brand guide chapters, in reading order. Every rule names one in `chapter`. */
+  guide: z
+    .strictObject({
+      chapters: z
+        .array(guideChapter)
+        .default([])
+        .refine((cs) => new Set(cs.map((c) => c.id)).size === cs.length, { message: "chapter ids must be unique" }),
+    })
+    .default({ chapters: [] }),
   /** Per-module settings, keyed by module id. */
   modules: z
     .looseObject({
@@ -68,6 +64,6 @@ export const brand = z.strictObject({
     .default({}),
 });
 
-export type BrandColors = z.infer<typeof baseColors>;
+export type GuideChapter = z.infer<typeof guideChapter>;
 export type BrandTokens = z.infer<typeof brandTokens>;
 export type Brand = z.infer<typeof brand>;

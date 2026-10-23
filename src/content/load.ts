@@ -5,6 +5,7 @@ import { join, relative } from "node:path";
 import { checkBrand, type BrandSource, type CheckedContent, type Problem } from "./check.ts";
 
 export { SPLIT_FILES, type Problem } from "./check.ts";
+export { formatWarning, type Warning } from "./legacy.ts";
 
 export class BrandDataError extends Error {
   readonly problems: Problem[];

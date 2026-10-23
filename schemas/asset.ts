@@ -19,6 +19,8 @@ export const link = z.union([z.url(), z.string().regex(/^\/(?!\/)\S*$/, "must be
 
 export const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/, "must be a 6-digit hex color like #0F3D6B");
 
+const fileWith = (ext: string) => brandPath.refine((p) => p.toLowerCase().endsWith(ext), { message: `must point to a ${ext} file` });
+
 const isoDate = z.union([z.iso.date(), z.iso.datetime({ offset: true })]);
 const oneLine = z.string().min(1).regex(/^[^\n]*$/, "must be a single line");
 
@@ -56,6 +58,7 @@ export const logoAsset = z.strictObject({
   files: z
     .array(
       z.strictObject({
+        /** svg and png for screens, pdf and eps for print and sign vendors. */
         ext: z.string().regex(/^[a-z0-9]+$/, "lowercase extension without the dot"),
         path: brandPath,
         width: z.int().positive().optional(),
@@ -125,9 +128,18 @@ export const templateAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("template"),
   category: z.string().min(1),
-  /** Template link: a full web address or a page on this site. Templates without one are not rendered on the public site. */
+  /** Where to get the template. At least one is required (checked by the loader). Canva is the recommended format. */
+  formats: z
+    .strictObject({
+      /** Canva share link. */
+      canva: z.url().optional(),
+      docx: fileWith(".docx").optional(),
+      pptx: fileWith(".pptx").optional(),
+      pdf: fileWith(".pdf").optional(),
+    })
+    .default({}),
+  /** 0.1 template link, read as a single "Open template" link with a build warning until moved to `formats`. */
   url: link.optional(),
-  fallbackUrl: link.optional(),
   thumbnail: brandPath,
   rules: z.array(id).default([]),
 });
@@ -176,6 +188,8 @@ export const ruleAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("rule"),
   title: z.string().min(1),
+  /** Brand guide chapter id from guide.chapters in brand.json. */
+  chapter: id,
   body: z.string().min(1),
   do: z.array(z.string().min(1)).default([]),
   dont: z.array(z.string().min(1)).default([]),
@@ -198,6 +212,7 @@ export type ColorPairing = z.infer<typeof colorPairing>;
 export type FontAsset = z.infer<typeof fontAsset>;
 export type IconAsset = z.infer<typeof iconAsset>;
 export type TemplateAsset = z.infer<typeof templateAsset>;
+export type TemplateFormat = keyof TemplateAsset["formats"];
 export type PhotoSourceAsset = z.infer<typeof photoSourceAsset>;
 export type BoilerplateAsset = z.infer<typeof boilerplateAsset>;
 export type DocumentAsset = z.infer<typeof documentAsset>;

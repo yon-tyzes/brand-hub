@@ -644,19 +644,30 @@
             "type": "string",
             "minLength": 1
           },
-          "url": {
-            "anyOf": [
-              {
+          "formats": {
+            "default": {},
+            "type": "object",
+            "properties": {
+              "canva": {
                 "type": "string",
                 "format": "uri"
               },
-              {
+              "docx": {
                 "type": "string",
-                "pattern": "^\\/(?!\\/)\\S*$"
+                "minLength": 1
+              },
+              "pptx": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pdf": {
+                "type": "string",
+                "minLength": 1
               }
-            ]
+            },
+            "additionalProperties": false
           },
-          "fallbackUrl": {
+          "url": {
             "anyOf": [
               {
                 "type": "string",

@@ -4,9 +4,9 @@ import { MODULES } from "../../modules/registry.ts";
 import { contrastRatio } from "../../theme/color.ts";
 import { MIN_RATIO } from "../../theme/contrast.ts";
 import { renderMarkdown } from "../../lib/markdown.ts";
-import { fileName, isExternal } from "../../lib/paths.ts";
+import { fileName } from "../../lib/paths.ts";
 import type { PhotoSourceAsset } from "../../../schemas/asset.ts";
-import { fontZips, formatCmyk, formatRgb, LOGOS_ZIP, slug, templateOpenLabel } from "../data.ts";
+import { fontZips, formatCmyk, formatRgb, LOGOS_ZIP, slug } from "../data.ts";
 import { Accordion, Button, Card, Icon, IconTile, Pills, RuleBody, RuleLinks, SectionHead, Tabs, useSite } from "../ui.tsx";
 
 const PageHead = ({ title, children }: { title: string; children?: React.ReactNode }) => (
@@ -330,7 +330,7 @@ export function PhotosPage() {
 
 export function TemplatesPage() {
   const site = useSite();
-  const templates = site.assetsOfType("template").filter((t) => t.url);
+  const templates = site.assetsOfType("template").filter((t) => site.templateLinks(t).length > 0);
   const categories = [...new Set(templates.map((t) => t.category))];
   return (
     <>
@@ -353,9 +353,21 @@ export function TemplatesPage() {
                 preview={<AssetPreview record={t} urlFor={site.urlFor} />}
                 meta={<span className="caption">{t.category}</span>}
                 footer={
-                  <Button variant="secondary" size="sm" href={t.url} external={isExternal(t.url!)} aria-label={`${templateOpenLabel(t)}: ${t.label}${isExternal(t.url!) ? " (opens in a new tab)" : ""}`}>
-                    {templateOpenLabel(t)}
-                  </Button>
+                  <div className="row">
+                    {site.templateLinks(t).map((l, i) => (
+                      <Button
+                        key={l.format}
+                        variant={i === 0 && l.format === "canva" ? "primary" : "secondary"}
+                        size="sm"
+                        href={l.href}
+                        external={l.external}
+                        download={l.filename}
+                        aria-label={`${l.label}: ${t.label}${l.external ? " (opens in a new tab)" : ""}`}
+                      >
+                        {l.label}
+                      </Button>
+                    ))}
+                  </div>
                 }
               >
                 <RuleLinks asset={t} />

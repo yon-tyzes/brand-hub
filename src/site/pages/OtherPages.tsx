@@ -9,9 +9,9 @@ const TASK_ICON: Partial<Record<string, string>> = { font: "type", template: "la
 
 export function HomePage() {
   const site = useSite();
-  const tasks = site.brand.topTasks
+  const tasks = site.brand.quickDownloads
     .map((id) => site.findAsset(id))
-    .filter((a) => !!a && site.assetHref(a) && !(a.type === "template" && !a.url))
+    .filter((a) => !!a && site.assetHref(a) && !(a.type === "template" && !site.templateLinks(a).length))
     .map((asset) => ({ asset: asset!, first: site.actionsFor(asset!)[0] }));
   const recent = site.isEnabled("whats-new") ? site.sortedChangelog().slice(0, 3) : [];
   return (

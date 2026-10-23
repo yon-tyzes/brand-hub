@@ -8,6 +8,7 @@
     "updated": "2026-10-22",
     "audience": "public",
     "title": "Use Comet Green for one action per screen",
+    "chapter": "color-use",
     "body": "Comet Green marks the single most important action on a screen. Everything else uses text and neutral colors.",
     "do": ["Use Comet Green for the main button", "Set text on Comet Green in Kiln White"],
     "dont": ["Color two buttons green on the same screen", "Use Comet Green for body text"],

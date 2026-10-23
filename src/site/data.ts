@@ -1,6 +1,6 @@
 // Everything a public page needs, built from plain data. The build creates one from the brand folder
 // (src/lib/site-server.ts); the editor's preview creates one from the draft. No file system access here.
-import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, AnyRecord } from "../../schemas/asset.ts";
+import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat, AnyRecord } from "../../schemas/asset.ts";
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
@@ -42,14 +42,34 @@ export function logoFile(l: LogoAsset, ext: string) {
   return l.files.find((f) => f.ext === ext);
 }
 
-/** Label for a template's open button: names Canva when the link goes there. */
-export function templateOpenLabel(t: TemplateAsset): string {
-  try {
-    const host = new URL(t.url ?? "").hostname;
-    return host === "canva.com" || host.endsWith(".canva.com") ? "Open in Canva" : "Open template";
-  } catch {
-    return "Open template";
+export interface TemplateLink {
+  format: TemplateFormat | "link";
+  label: string;
+  href: string;
+  external: boolean;
+  /** File name for formats that download. */
+  filename?: string;
+}
+
+const FILE_FORMATS = [
+  ["docx", "Word"],
+  ["pptx", "PowerPoint"],
+  ["pdf", "PDF"],
+] as const;
+
+/**
+ * A template's formats in button order (spec section 5): Canva first, then Word, PowerPoint, and PDF. Only the
+ * formats it has. A 0.1 `url` stands in as one "Open template" link when no format is set.
+ */
+export function templateLinks(t: TemplateAsset, urlFor: (path: string) => string): TemplateLink[] {
+  const out: TemplateLink[] = [];
+  if (t.formats.canva) out.push({ format: "canva", label: "Open in Canva", href: t.formats.canva, external: true });
+  for (const [format, label] of FILE_FORMATS) {
+    const path = t.formats[format];
+    if (path) out.push({ format, label, href: urlFor(path), external: false, filename: fileName(path) });
   }
+  if (!out.length && t.url) out.push({ format: "link", label: "Open template", href: t.url, external: isExternal(t.url) });
+  return out;
 }
 
 export function fontZips(f: FontAsset): { kind: "static" | "variable"; href: string; files: string[] }[] {
@@ -84,6 +104,8 @@ export function createSite(input: SiteInput) {
     isEnabled,
     assetHref,
     iconMarkup,
+    /** A template's formats, in button order. Empty when it has none. */
+    templateLinks: (t: TemplateAsset) => templateLinks(t, input.urlFor),
     assetsOfType: <T extends AssetType>(type: T): OfType<T>[] => input.assets.filter((a): a is OfType<T> => a.type === type),
     findAsset: (id: string) => assetById.get(id),
     findRule: (id: string) => ruleById.get(id),
@@ -125,7 +147,12 @@ export function createSite(input: SiteInput) {
             ...view(),
           ];
         case "template":
-          return [...(a.url ? [{ kind: "open" as const, label: templateOpenLabel(a), href: a.url, external: isExternal(a.url) }] : []), ...view()];
+          return [
+            ...templateLinks(a, input.urlFor).map((l): SearchAction =>
+              l.filename ? { kind: "download", label: `Download ${l.label}`, href: l.href, filename: l.filename } : { kind: "open", label: l.label, href: l.href, external: l.external },
+            ),
+            ...view(),
+          ];
         case "photo-source":
           return [{ kind: "open", label: "Open photo library", href: a.url, external: true }, ...view()];
         default:

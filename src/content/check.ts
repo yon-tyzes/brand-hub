@@ -8,6 +8,7 @@ import {
 } from "../../schemas/index.ts";
 import { checkPairingContrast, formatContrastFailure } from "../theme/contrast.ts";
 import { filePaths } from "./file-paths.ts";
+import { migrateBrand, migrateRecord, type Warning } from "./legacy.ts";
 
 /** Optional per-module split files and the asset type each may hold. assets.json may hold any type. */
 export const SPLIT_FILES: Record<string, AssetType> = {
@@ -64,13 +65,21 @@ export interface CheckedContent {
   /** Data file each record was read from, by id. */
   sources: Record<string, string>;
   changelog: ChangelogEntry[];
+  /** 0.1 data read with a fallback (src/content/legacy.ts). The build prints them and goes on. */
+  warnings: Warning[];
 }
 
 export const byOrder = (a: AnyRecord, b: AnyRecord) =>
   (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) || a.label.localeCompare(b.label);
 
-export function checkBrand(src: BrandSource): { problems: Problem[]; content?: CheckedContent } {
+export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: Warning[]; content?: CheckedContent } {
   const problems: Problem[] = [];
+  const warnings: Warning[] = [];
+  /** Applies a 0.1 migration and keeps its warnings. */
+  const migrate = (m: { data: unknown; warnings: Warning[] }) => {
+    warnings.push(...m.warnings);
+    return m.data;
+  };
   /** Set when a file cannot be read as JSON or as an array. Cross-file checks are skipped then. */
   let unreadable = false;
   const invalidIds = new Map<string, string>();
@@ -107,7 +116,7 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
   }
 
   /** Validates an array file item by item, so one bad record does not hide the rest. */
-  function validateItems<S extends z.ZodType>(name: string, schema: S, data: unknown): z.output<S>[] {
+  function validateItems<S extends z.ZodType>(name: string, schema: S, data: unknown, migrateItem?: (item: unknown) => unknown): z.output<S>[] {
     if (data === undefined) return [];
     if (!Array.isArray(data)) {
       problems.push({ file: src.label(name), problem: "must be a JSON array", code: "not-array" });
@@ -115,7 +124,8 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
       return [];
     }
     const out: z.output<S>[] = [];
-    data.forEach((item: unknown, index) => {
+    data.forEach((original: unknown, index) => {
+      const item = migrateItem ? migrateItem(original) : original;
       const raw = (item ?? {}) as { id?: unknown; type?: unknown };
       const result = schema.safeParse(item);
       if (result.success) return out.push(result.data);
@@ -129,11 +139,11 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
 
   // 1. Schema validation, file by file and record by record.
   const brandRaw = readJson("brand.json", true);
-  const brand = brandRaw === undefined ? undefined : validate("brand.json", brandSchema, brandRaw);
+  const brand = brandRaw === undefined ? undefined : validate("brand.json", brandSchema, migrate(migrateBrand(brandRaw, src.label("brand.json"))));
 
   const records: { record: AnyRecord; file: string }[] = [];
   for (const name of ["assets.json", ...Object.keys(SPLIT_FILES)]) {
-    for (const a of validateItems(name, assetSchema, readJson(name, false))) {
+    for (const a of validateItems(name, assetSchema, readJson(name, false), (item) => migrate(migrateRecord(item, src.label(name))))) {
       const expected = SPLIT_FILES[name];
       if (expected && a.type !== expected) {
         problems.push({ file: src.label(name), id: a.id, problem: `type "${a.type}" does not belong in ${name} (expects "${expected}")`, code: "wrong-file" });
@@ -180,7 +190,7 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
   // brand.json references into the records.
   if (brand && !unreadable) {
     const at = src.label("brand.json");
-    for (const ref of brand.topTasks) if (!assetIds.has(ref)) problems.push({ file: at, problem: `topTasks: asset "${ref}" does not exist`, code: "reference", field: "topTasks", ref });
+    for (const ref of brand.quickDownloads) if (!assetIds.has(ref)) problems.push({ file: at, problem: `quickDownloads: asset "${ref}" does not exist`, code: "reference", field: "quickDownloads", ref });
     for (const ref of brand.modules.icons?.colors ?? []) if (!colorIds.has(ref)) problems.push({ file: at, problem: `modules.icons.colors: color "${ref}" does not exist`, code: "reference", field: "modules", ref });
   }
 
@@ -199,11 +209,12 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
     problems.push({ file: src.label(records.find((r) => r.record.id === f.owner)?.file ?? "assets.json"), id: f.owner, problem: `contrast ${formatContrastFailure(f)}`, code: "contrast", field: "pairings" });
   }
 
-  if (problems.length || !brand) return { problems };
+  if (problems.length || !brand) return { problems, warnings };
 
   const all = records.map((r) => r.record).sort(byOrder);
   return {
     problems,
+    warnings,
     content: {
       brand,
       assets: all.filter((r): r is Asset => r.type !== "rule" && r.status === "locked"),
@@ -212,6 +223,7 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; content?: C
       all,
       sources: Object.fromEntries(records.map((r) => [r.record.id, r.file])),
       changelog,
+      warnings,
     },
   };
 }

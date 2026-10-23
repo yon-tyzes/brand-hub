@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import { runnerImport, type Plugin } from "vite";
 import { hubConfig, type HubConfig, type HubConfigInput } from "../../schemas/hub-config.ts";
-import { loadBrand, type BrandContent } from "../content/load.ts";
+import { formatWarning, loadBrand, type BrandContent } from "../content/load.ts";
 import type { FontAsset } from "../../schemas/asset.ts";
 import { fileUrl } from "../lib/paths.ts";
 import { MODULES, type ModuleDef } from "../modules/registry.ts";
@@ -128,6 +128,7 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
 
         const brandDir = join(root, "brands", hub.brand);
         const content = loadBrand(brandDir);
+        for (const w of content.warnings) logger.warn(formatWarning(w));
         for (const name of readdirSync(brandDir)) if (name.endsWith(".json")) addWatchFile(join(brandDir, name));
 
         for (const route of routesFor(hub, command)) injectRoute(route);

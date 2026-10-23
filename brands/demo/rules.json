@@ -8,6 +8,7 @@
     "audience": "public",
     "type": "rule",
     "title": "Use Comet Green for one action per screen",
+    "chapter": "color-use",
     "body": "Comet Green marks the single most important action on a screen. Everything else uses Ink, Slate, Kiln White, and the background colors.",
     "do": [
       "Use Comet Green for the main button",
@@ -36,6 +37,7 @@
     "audience": "public",
     "type": "rule",
     "title": "Keep clear space around the logo",
+    "chapter": "logo-use",
     "body": "Leave space on every side of the logo equal to the height of the comet head. Nothing else sits inside that space.\n\nUse the reversed logo on Ink or Comet Green. Use the full color logo on Kiln White or white.",
     "do": [
       "Use the file that matches the background",
@@ -61,6 +63,7 @@
     "audience": "public",
     "type": "rule",
     "title": "Photograph in natural light",
+    "chapter": "photography",
     "body": "Photos show real teapots in use, lit by daylight. Keep backgrounds plain and colors true to life.",
     "do": [
       "Shoot near a window",
@@ -83,6 +86,7 @@
     "audience": "public",
     "type": "rule",
     "title": "Take headshots against Kiln White",
+    "chapter": "headshots",
     "body": "Headshots are shoulders up, centered, against a plain Kiln White wall, in daylight. Export at 1200 by 1200 pixels.",
     "do": [
       "Face the camera with eyes level with the lens",
@@ -105,6 +109,7 @@
     "audience": "public",
     "type": "rule",
     "title": "Keep template text in Inter",
+    "chapter": "templates",
     "body": "Templates set all text in Inter. Change words and photos, not fonts, colors, or layout.",
     "do": [
       "Replace sample text with your own",
@@ -129,6 +134,7 @@
     "label": "Background colors",
     "type": "rule",
     "title": "Use Kiln White for pages, Mist and Clay for panels",
+    "chapter": "backgrounds",
     "body": "Kiln White is the page background. Mist and Clay set a panel or section apart. Use one panel color per page.\n\nSet text on these backgrounds in Ink or Slate.",
     "do": [
       "Use Mist for a highlighted section",
@@ -154,6 +160,7 @@
     "label": "Type pairing",
     "type": "rule",
     "title": "Fraunces for headings, Inter for everything else",
+    "chapter": "type",
     "body": "Set page titles and section headings in Fraunces at weight 500. Set body text, labels, and buttons in Inter.\n\nUse 600 for emphasis in either family. Do not use other weights.",
     "do": [
       "Keep headings short so Fraunces stays readable",
@@ -177,6 +184,7 @@
     "label": "Icon style",
     "type": "rule",
     "title": "Use icons from the library at 16px or larger",
+    "chapter": "icons",
     "body": "The icon library uses Bootstrap Icons, drawn on a 16px grid with filled shapes. Use them at 16, 24, or 32 pixels so the lines stay sharp.\n\nColor icons with Ink, Comet Green, or Copper. Pair an icon with a text label unless the meaning is universal, like Search or Close.",
     "do": [
       "Use the pinned icons for common actions",

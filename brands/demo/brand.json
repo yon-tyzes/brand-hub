@@ -49,6 +49,42 @@
       96
     ]
   },
+  "guide": {
+    "chapters": [
+      {
+        "id": "logo-use",
+        "title": "Logo use"
+      },
+      {
+        "id": "color-use",
+        "title": "Color use"
+      },
+      {
+        "id": "backgrounds",
+        "title": "Backgrounds"
+      },
+      {
+        "id": "type",
+        "title": "Type"
+      },
+      {
+        "id": "icons",
+        "title": "Icons"
+      },
+      {
+        "id": "photography",
+        "title": "Photography"
+      },
+      {
+        "id": "headshots",
+        "title": "Headshots"
+      },
+      {
+        "id": "templates",
+        "title": "Templates"
+      }
+    ]
+  },
   "topTasks": [
     "logo-horizontal",
     "comet-green",

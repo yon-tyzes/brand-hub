@@ -39,246 +39,19 @@
         "color": {
           "type": "object",
           "properties": {
-            "bg": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "surface": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "text": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "muted": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
             "primary": {
               "type": "string",
               "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "link": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "border": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "surface2": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "borderStrong": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "onPrimary": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "primaryHover": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "focus": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
             }
           },
           "required": [
-            "bg",
-            "surface",
-            "text",
-            "muted",
-            "primary",
-            "link",
-            "border"
+            "primary"
           ],
           "additionalProperties": false
-        },
-        "dark": {
-          "type": "object",
-          "properties": {
-            "bg": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "surface": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "text": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "muted": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "primary": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "link": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "border": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "surface2": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "borderStrong": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "onPrimary": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "primaryHover": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "focus": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            }
-          },
-          "required": [
-            "bg",
-            "surface",
-            "text",
-            "muted",
-            "primary",
-            "link",
-            "border"
-          ],
-          "additionalProperties": false
-        },
-        "font": {
-          "type": "object",
-          "properties": {
-            "display": {
-              "type": "string",
-              "minLength": 1
-            },
-            "body": {
-              "type": "string",
-              "minLength": 1
-            },
-            "displayWeight": {
-              "default": 500,
-              "anyOf": [
-                {
-                  "type": "number",
-                  "const": 400
-                },
-                {
-                  "type": "number",
-                  "const": 500
-                },
-                {
-                  "type": "number",
-                  "const": 600
-                },
-                {
-                  "type": "number",
-                  "const": 700
-                }
-              ]
-            }
-          },
-          "required": [
-            "display",
-            "body"
-          ],
-          "additionalProperties": false
-        },
-        "radius": {
-          "type": "object",
-          "properties": {
-            "sm": {
-              "type": "number",
-              "minimum": 0
-            },
-            "md": {
-              "type": "number",
-              "minimum": 0
-            },
-            "lg": {
-              "type": "number",
-              "minimum": 0
-            },
-            "control": {
-              "default": 999,
-              "type": "number",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "sm",
-            "md",
-            "lg"
-          ],
-          "additionalProperties": false
-        },
-        "space": {
-          "type": "array",
-          "prefixItems": [
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            },
-            {
-              "type": "number",
-              "minimum": 0
-            }
-          ],
-          "items": false,
-          "minItems": 9,
-          "maxItems": 9
         }
       },
       "required": [
-        "color",
-        "font",
-        "radius",
-        "space"
+        "color"
       ],
       "additionalProperties": false
     },
@@ -305,13 +78,67 @@
       },
       "additionalProperties": false
     },
-    "topTasks": {
+    "hero": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "tint": {
+          "anyOf": [
+            {
+              "minItems": 1,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "quickDownloads": {
       "default": [],
       "type": "array",
       "items": {
         "type": "string",
         "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
       }
+    },
+    "guide": {
+      "default": {
+        "chapters": []
+      },
+      "type": "object",
+      "properties": {
+        "chapters": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "title"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     },
     "modules": {
       "default": {},

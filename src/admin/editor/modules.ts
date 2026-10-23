@@ -16,7 +16,7 @@ export interface EditorModule {
 }
 
 export const EDITOR_MODULES: EditorModule[] = [
-  { id: "logos", label: "Logos", noun: "logo", type: "logo", dataFile: "logos.json", accept: [".svg", ".png", ".jpg", ".jpeg", ".webp", ".pdf"], folder: "logos" },
+  { id: "logos", label: "Logos", noun: "logo", type: "logo", dataFile: "logos.json", accept: [".svg", ".png", ".jpg", ".jpeg", ".webp", ".pdf", ".eps"], folder: "logos" },
   { id: "colors", label: "Colors", noun: "color", type: "color", dataFile: "colors.json", accept: [".svg"], folder: "colors" },
   { id: "fonts", label: "Fonts", noun: "font", type: "font", dataFile: "fonts.json", accept: [".woff2", ".woff", ".ttf", ".otf"], folder: "fonts" },
   { id: "icons", label: "Icons", noun: "icon", type: "icon", dataFile: "icons.json", accept: [".svg"], folder: "icons" },
@@ -65,9 +65,9 @@ export function newRecord(mod: EditorModule, label: string, taken: Set<string>, 
     color: { hex: "#000000", rgb: [0, 0, 0], role: "", pairings: [] },
     font: { family: label, role: "", weights: [400], files: { static: [], variable: [] }, license: "", install: "" },
     icon: { svgPath: "", group: "", pinned: false, source: "" },
-    template: { category: "", thumbnail: "", rules: [] },
+    template: { category: "", formats: {}, thumbnail: "", rules: [] },
     "photo-source": { provider: "drive", url: "", access: "sign-in", guidelines: [] },
-    rule: { title: label, body: "", do: [], dont: [], appliesTo: [] },
+    rule: { title: label, chapter: "", body: "", do: [], dont: [], appliesTo: [] },
   };
   return { ...base, type: mod.type, ...byType[mod.type], ...prefill } as AnyRecord;
 }

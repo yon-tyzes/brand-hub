@@ -1,7 +1,8 @@
-import type { FieldDef } from "./types.ts";
+import { suggest, type FieldDef } from "./types.ts";
 
 export const ruleFields: FieldDef[] = [
   { key: "title", kind: "text", label: "Rule", help: "The rule as a short sentence, like “Keep clear space around the logo.”" },
+  { key: "chapter", kind: "text", label: "Chapter", help: "The Brand guide chapter this rule belongs to, like logo-use.", suggestions: suggest("rule", "chapter") },
   { key: "body", kind: "textarea", rows: 6, label: "Explanation", help: "Plain text. Leave a blank line between paragraphs." },
   { key: "do", kind: "lines", label: "Do", help: "One example per line.", optional: true },
   { key: "dont", kind: "lines", label: "Don't", help: "One example per line.", optional: true },

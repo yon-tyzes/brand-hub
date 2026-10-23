@@ -160,8 +160,8 @@ describe("serialize validation", () => {
 
   it("points brand-wide references at the item they name", () => {
     const base = input((rs) => rs.filter((x) => x.id !== "inter"));
-    base.brand = { ...base.brand, topTasks: ["inter"] };
-    expect(errorsOf(base)).toEqual([expect.objectContaining({ id: "inter", code: "reference", field: "topTasks" })]);
+    base.brand = { ...base.brand, quickDownloads: ["inter"] };
+    expect(errorsOf(base)).toEqual([expect.objectContaining({ id: "inter", code: "reference", field: "quickDownloads" })]);
   });
 
   it("flags a pairing that is no longer readable on the color that declares it", () => {

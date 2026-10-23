@@ -18,7 +18,7 @@ export function searchDocs(): SearchDoc[] {
   const docs: SearchDoc[] = [];
   for (const a of site.assets) {
     if (!site.assetHref(a)) continue;
-    if (a.type === "template" && !a.url) continue;
+    if (a.type === "template" && !site.templateLinks(a).length) continue;
     docs.push({
       id: a.id,
       type: a.type,

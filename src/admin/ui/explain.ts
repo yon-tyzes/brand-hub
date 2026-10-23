@@ -16,7 +16,7 @@ export function explain(e: SerializeError, names: Map<string, string>): string {
     case "contrast":
       return "An approved pairing is too hard to read. Change the colors or remove the pairing.";
     case "reference":
-      if (e.field === "topTasks") return `${ref} is a top task on the home page, so it can't be deleted. Restore it.`;
+      if (e.field === "quickDownloads") return `${ref} is in Quick downloads on the home page, so it can't be deleted. Restore it.`;
       if (e.field === "modules") return `${ref} is an icon color, so it can't be deleted. Restore it.`;
       if (e.field === "pairings") return `An approved pairing uses ${ref}, which was deleted. Remove that pairing.`;
       return `${FIELD[e.field as keyof typeof FIELD] ?? "This item"} includes ${ref}, which was deleted. Remove it there.`;
