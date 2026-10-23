@@ -4,7 +4,7 @@ An engine for brand resource sites. It builds a static site of logos, colors, fo
 
 The engine is an [Astro](https://astro.build) integration. Pages are static HTML. React is used only for interactive islands (search, icon detail, logo helper, signature generator, admin).
 
-Status: 0.1. The public site is built: home, search, logos, colors, fonts, icons, photos, templates, What's new, and rule pages under `/guide`. Start, signature, boilerplate, and the editor are placeholders until 0.2 to 0.4.
+Status: 0.1, with the 0.2 editor in progress. The public site is built: home, search, logos, colors, fonts, icons, photos, templates, What's new, and rule pages under `/guide`. The editor at `/admin` edits everything in memory; saving and publishing come next. Start, signature, and boilerplate are placeholders until 0.3 and 0.4.
 
 ## Requirements
 
@@ -114,6 +114,26 @@ An instance is a separate, usually private, Astro project that holds one brand's
 4. Add the brand folder at `brands/example/` and run `pnpm build`.
 
 Known gap: the package currently ships TypeScript source and has no `exports` map. Node does not strip types from files inside `node_modules`, so steps 1 and 2 will not load until the package ships compiled JavaScript. That build step is required before the first tag. Inside this repo the engine runs from source.
+
+## Editor
+
+`/admin` is a React app for adding, editing, reordering, and retiring brand items without touching files. It is built when `admin.enabled` is true in `hub.config.ts`.
+
+| Path | What it does |
+|---|---|
+| `src/admin/ui/` | The app: top bar, section rail, card grid, inspector, dialogs. |
+| `src/admin/fields/` | Inspector fields per section: label, one line of help, and the control. Edit these to change what the editor asks for. |
+| `src/admin/editor/` | No UI: state and undo history, the change set, validation messages, SVG cleaning, upload handling, autosave. |
+| `src/adapters/` | `AuthAdapter` and `ContentAdapter` interfaces, and the `local` stubs. |
+
+How it works:
+
+- Every edit is a pure function on the draft, kept in an undo history (Ctrl or Cmd+Z, Shift to redo). Typing in one field merges into one undo step.
+- `toChangeSet()` turns the draft into the spec's `ChangeSet`: whole data files for each touched file, uploaded files, files nothing points to any more, and one summary line per change. Paths are provisional until the serializer lands.
+- The draft autosaves to IndexedDB and comes back after a reload if the brand has not changed. Without IndexedDB the editor works and says changes are not kept.
+- Uploaded SVG files are cleaned in the browser: scripts, event handlers, embedded web content, and links to outside files are removed. Icons get `currentColor` and a viewBox. The editor lists what it changed.
+
+The `local` content adapter reads `/admin/data.json`, a build-time snapshot of every record, drafts included. It is for development and the demo brand. Do not publish `/admin` for a real brand with the `local` adapter: use a server-backed adapter (`admin.adapter` and `admin.auth` in `hub.config.ts`, wired in the next release step).
 
 ## Checks and CI
 
