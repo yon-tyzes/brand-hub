@@ -1,4 +1,5 @@
-// axe on every route in both themes, and no horizontal scroll at 390, 768, and 1440.
+// axe on every route in both themes, and no horizontal scroll at 320, 390, 768, and 1440, and at 200% zoom
+// (a 1280px window at 200% zoom lays out at 640 CSS pixels).
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { routes, setTheme, THEMES } from "./routes.ts";
@@ -19,8 +20,16 @@ for (const theme of THEMES) {
   }
 }
 
-for (const width of [390, 768, 1440]) {
-  test(`no horizontal scroll at ${width}px`, async ({ page }) => {
+const WIDTHS = [
+  { width: 320, name: "320px" },
+  { width: 390, name: "390px" },
+  { width: 640, name: "200% zoom on a 1280px window" },
+  { width: 768, name: "768px" },
+  { width: 1440, name: "1440px" },
+];
+
+for (const { width, name } of WIDTHS) {
+  test(`no horizontal scroll at ${name}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const wide: string[] = [];
     for (const route of routes) {
