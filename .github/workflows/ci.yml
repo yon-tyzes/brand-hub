@@ -36,6 +36,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Structure (no short label above a heading in the built pages)
+        run: node scripts/check-structure.mjs
+
       - name: Install browser for end-to-end tests
         run: pnpm exec playwright install --with-deps chromium
 
