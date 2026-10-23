@@ -1,14 +1,17 @@
 // Astro integration. Loads hub.config.ts, validates the brand folder, injects one route per enabled
 // module (plus / and, when enabled, /admin), and exposes config, content and theme CSS to pages
 // through the `virtual:brand-hub` module.
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import { runnerImport, type Plugin } from "vite";
 import { hubConfig, type HubConfig, type HubConfigInput } from "../../schemas/hub-config.ts";
 import { loadBrand, type BrandContent } from "../content/load.ts";
+import type { FontAsset } from "../../schemas/asset.ts";
+import { fileUrl } from "../lib/paths.ts";
 import { MODULES, type ModuleDef } from "../modules/registry.ts";
+import { fontFaceCss } from "../theme/fonts.ts";
 import { buildThemeCss } from "../theme/tokens.ts";
 
 export const VIRTUAL_ID = "virtual:brand-hub";
@@ -37,21 +40,35 @@ export async function resolveHubConfig(root: string, inline?: HubConfigInput): P
   return result.data;
 }
 
-/** Route entry for each page the integration injects. */
+/** Route entry for each page and file the integration injects. */
 export function routesFor(hub: HubConfig): { pattern: string; entrypoint: URL }[] {
   const modulesDir = new URL("../modules/", import.meta.url);
-  const routes = [{ pattern: "/", entrypoint: new URL("home/index.astro", modulesDir) }];
+  const routesDir = new URL("../routes/", import.meta.url);
+  const routes = [
+    { pattern: "/", entrypoint: new URL("home/index.astro", modulesDir) },
+    { pattern: "/files/[...path]", entrypoint: new URL("files.ts", routesDir) },
+    { pattern: "/downloads/[name]", entrypoint: new URL("downloads.ts", routesDir) },
+    { pattern: "/search-index.json", entrypoint: new URL("search-index.json.ts", routesDir) },
+  ];
   for (const id of hub.modules) routes.push({ pattern: MODULES[id].route, entrypoint: new URL(`${id}/index.astro`, modulesDir) });
+  if (hub.modules.includes("guide")) routes.push({ pattern: "/guide/[id]", entrypoint: new URL("guide/rule.astro", modulesDir) });
   if (hub.admin.enabled) routes.push({ pattern: "/admin", entrypoint: new URL("../admin/index.astro", import.meta.url) });
   return routes;
 }
 
+const ENGINE_VERSION: string = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")).version;
+
 export interface VirtualData {
+  /** Absolute path of brands/<slug>/. Build-time code only. */
+  brandDir: string;
+  engineVersion: string;
   config: HubConfig;
   modules: ModuleDef[];
   brand: BrandContent["brand"];
   content: Pick<BrandContent, "assets" | "rules" | "pending" | "changelog">;
   themeCss: string;
+  /** @font-face rules for the brand's locked font assets. */
+  fontCss: string;
 }
 
 function virtualModule(data: VirtualData): Plugin {
@@ -80,12 +97,16 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
 
         for (const route of routesFor(hub)) injectRoute({ ...route, prerender: true });
 
+        const fonts = content.assets.filter((a): a is FontAsset => a.type === "font");
         const data: VirtualData = {
+          brandDir,
+          engineVersion: ENGINE_VERSION,
           config: hub,
           modules: hub.modules.map((id) => MODULES[id]),
           brand: content.brand,
           content: { assets: content.assets, rules: content.rules, pending: content.pending, changelog: content.changelog },
           themeCss: buildThemeCss(content.brand.tokens),
+          fontCss: fontFaceCss(fonts, fileUrl),
         };
         updateConfig({ vite: { plugins: [virtualModule(data)] } });
       },

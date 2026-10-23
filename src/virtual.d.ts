@@ -2,9 +2,12 @@
 type BrandHubVirtualData = import("./integration/index.ts").VirtualData;
 
 declare module "virtual:brand-hub" {
+  export const brandDir: BrandHubVirtualData["brandDir"];
+  export const engineVersion: BrandHubVirtualData["engineVersion"];
   export const config: BrandHubVirtualData["config"];
   export const modules: BrandHubVirtualData["modules"];
   export const brand: BrandHubVirtualData["brand"];
   export const content: BrandHubVirtualData["content"];
   export const themeCss: BrandHubVirtualData["themeCss"];
+  export const fontCss: BrandHubVirtualData["fontCss"];
 }
