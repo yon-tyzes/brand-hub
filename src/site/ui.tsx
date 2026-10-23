@@ -1,7 +1,7 @@
 // Shared public components (docs/DESIGN_SYSTEM.md). Rendered to static HTML by Astro on the site, with no
 // hydration, and rendered live by the editor's preview. Behavior comes from src/scripts/*, not from React.
 import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
-import type { Asset, ColorAsset, RuleAsset } from "../../schemas/asset.ts";
+import type { ColorAsset, RuleAsset } from "../../schemas/asset.ts";
 import { renderMarkdown } from "../lib/markdown.ts";
 import { uiIconSvg } from "../lib/ui-icons.ts";
 import type { Site } from "./data.ts";
@@ -176,22 +176,6 @@ export function LibraryHead({ title, intro, introShort, action }: { title: strin
   );
 }
 
-export const IconTile = ({ name, svg, dense }: { name?: string; svg?: string; dense?: boolean }) => (
-  <span className={dense ? "icon-tile icon-tile-sm" : "icon-tile"} aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg ?? (name ? uiIconSvg(name) : "") }} />
-);
-
-export function SectionHead({ title, intro, id, action }: { title: string; intro?: string; id?: string; action?: ReactNode }) {
-  return (
-    <div className="section-head">
-      <div>
-        <h2 id={id}>{title}</h2>
-        {intro && <p className="small">{intro}</p>}
-      </div>
-      {action}
-    </div>
-  );
-}
-
 interface CardProps {
   title: string;
   description?: string;
@@ -218,22 +202,6 @@ export function Card({ title, description, href, id, headingLevel = 3, preview, 
   );
 }
 
-export function Accordion({ items }: { items: { id: string; title: string; body: ReactNode }[] }) {
-  return (
-    <div className="accordion">
-      {items.map((item) => (
-        <details id={item.id} key={item.id}>
-          <summary>
-            <span>{item.title}</span>
-            <span className="accordion-toggle" aria-hidden="true" />
-          </summary>
-          <div className="accordion-body">{item.body}</div>
-        </details>
-      ))}
-    </div>
-  );
-}
-
 export function ChangelogEntry({ date, dateLabel, tag, title, detail, href, muted }: { date?: string; dateLabel?: string; tag: string; title: string; detail?: string; href?: string; muted?: boolean }) {
   return (
     <li className="changelog-entry">
@@ -249,22 +217,6 @@ export function ChangelogEntry({ date, dateLabel, tag, title, detail, href, mute
         </span>
       )}
     </li>
-  );
-}
-
-/** "Rules:" line linking an asset to the rules that govern it. */
-export function RuleLinks({ asset }: { asset: Asset }) {
-  const site = useSite();
-  const rules = site.rulesFor(asset);
-  if (!rules.length) return null;
-  return (
-    <p className="rule-links above-link">
-      <span>Rules:</span>
-      {rules.map((r) => {
-        const href = site.assetHref(r);
-        return href ? <a key={r.id} href={href}>{r.label}</a> : <span key={r.id}>{r.label}</span>;
-      })}
-    </p>
   );
 }
 
@@ -289,25 +241,6 @@ export function RuleBody({ rule, level = 3 }: { rule: RuleAsset; level?: 2 | 3 |
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-/** Filter pills markup. Place inside [data-filter-root]; src/scripts/filter.ts does the filtering. */
-export function Pills({ label, options, allCount }: { label: string; options: { value: string; label: string; count?: number }[]; allCount?: number }) {
-  return (
-    <div className="pills" role="group" aria-label={label} data-filter-pills="">
-      <button className="pill" type="button" aria-pressed="true" data-value="all">
-        <Icon name="check" size={16} />
-        All{allCount !== undefined && <span className="pill-count">{allCount}</span>}
-      </button>
-      {options.map((o) => (
-        <button key={o.value} className="pill" type="button" aria-pressed="false" data-value={o.value}>
-          <Icon name="check" size={16} />
-          {o.label}
-          {o.count !== undefined && <span className="pill-count">{o.count}</span>}
-        </button>
-      ))}
     </div>
   );
 }

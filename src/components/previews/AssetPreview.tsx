@@ -41,7 +41,7 @@ export function AssetPreview({ record: r, urlFor, svgFor, bg, alt }: Props) {
       return r.thumbnail ? <img className="template-thumb" src={urlFor(r.thumbnail)} alt="" loading="lazy" /> : <div className="template-thumb" />;
     case "font":
       return (
-        <div className="font-preview" style={{ fontFamily: `"${r.family}", var(--font-body)` }} aria-hidden="true">
+        <div className="font-preview" style={{ fontFamily: `"${r.family}", var(--font-sans)` }} aria-hidden="true">
           Aa
         </div>
       );

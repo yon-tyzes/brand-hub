@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BrandDataError, loadBrand } from "../src/content/load.ts";
-import { buildThemeCss, checkPairingContrast, checkShellContrast, contrastRatio, mix, SHELL_COLORS } from "../src/theme/index.ts";
+import { buildThemeCss, checkPairingContrast, checkShellContrast, contrastRatio, mix } from "../src/theme/index.ts";
 import { demoCopy, edit } from "./helpers.ts";
 
 describe("color math", () => {
@@ -75,9 +75,7 @@ describe("buildThemeCss", () => {
     expect(css).toMatch(/@media \(min-width: 992px\) \{\n {2}:root \{\n {4}--gutter: var\(--space-8\);/);
   });
 
-  it("maps the 0.1 names onto the shell tokens (temporary)", () => {
-    expect(css).toContain("--color-bg: var(--bg);");
-    expect(css).toContain("--color-primary: var(--fill-primary);");
-    expect(css).toContain(`--preview-light: ${SHELL_COLORS.bg.light};`);
+  it("has no 0.1 variable names left", () => {
+    expect(css).not.toMatch(/--(color-|step-|leading-|tracking-|font-body|font-display|weight-|radius-control|header-offset|preview-)/);
   });
 });

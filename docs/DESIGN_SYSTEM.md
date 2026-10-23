@@ -39,6 +39,7 @@ How to use the roles:
 - Use `fill-primary` with `on-primary` for one primary action per view. It is ink, never brand color.
 - `focus` is the only saturated color the shell owns. It draws the 2px focus ring, offset 2px, on every interactive element.
 - `success` and `danger` always travel with an icon and a word.
+- `logo-ground-light` (`#ffffff`) and `logo-ground-dark` (`#0b0d10`) are fixed grounds for logo previews in the editor. They do not change with the theme.
 
 ### Light
 
