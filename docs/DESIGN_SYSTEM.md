@@ -224,10 +224,6 @@ A swatch shows one brand color and every value someone might need, each copyable
 - Each value row is labeled by use: Web (HEX), RGB, Print (CMYK), and Sign (PMS). Values in `value`, labels in `caption`.
 - Clicking a row copies its value and shows a toast naming the color and value: "Comet Green #1E5B4A copied".
 
-### Cover
-
-The title card for this design system: the engine's name in a large 600 weight over `bg`, one line of supporting copy in `text-secondary`, and a block arrangement built from shell tokens (`text`, `surface-subtle`, `focus`, `border-strong`) on `space-6` gaps with `radius-lg` corners and a dot grid at `space-4` pitch. It is documentation art. It never appears on a brand's site.
-
 ### Hero
 
 The home hero puts search first: the brand's name, a large search field, and four quick picks, over a slow grain mesh tuned from the brand's colors. It takes the brand name, the brand's primary color (or a `hero.tint` override), four quick-pick assets, and real asset names for the search hint.
