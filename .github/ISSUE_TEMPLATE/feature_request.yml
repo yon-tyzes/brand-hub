@@ -1,0 +1,23 @@
+name: Feature request
+description: A change to the engine that brand instances would use.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What a person using a brand hub cannot do today, and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What the engine should do. Note any change to brand data or the adapter interfaces.
+    validations:
+      required: true
+  - type: textarea
+    id: spec
+    attributes:
+      label: Spec section
+      description: The part of docs/ENGINE_SPEC.md this touches, if any.

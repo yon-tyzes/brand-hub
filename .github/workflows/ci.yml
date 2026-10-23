@@ -41,3 +41,6 @@ jobs:
 
       - name: End-to-end (axe in both themes, widths, keyboard flow, JS budget)
         run: pnpm test:e2e
+
+      - name: Local adapter (astro dev on a temporary copy, writes and git history)
+        run: pnpm test:local

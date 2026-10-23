@@ -1,0 +1,45 @@
+name: Bug report
+description: Something in the engine, the public site, or the editor does not work as documented.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run pnpm dev with the demo brand
+        2. Open /admin
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Engine version
+      description: The tag or commit the instance installs, for example v0.1.0.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Public site
+        - Editor
+        - Brand data and checks
+        - Adapters
+        - Build or install
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, operating system, Node and pnpm versions. Add error output if there is any.
