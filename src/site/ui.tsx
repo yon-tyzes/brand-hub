@@ -27,6 +27,8 @@ type ButtonProps = {
   iconEnd?: string;
   /** Format shown beside the label, in small type: "For Word and PowerPoint" PNG. */
   format?: string;
+  /** Read after the visible label, hidden on screen: which item the button is for. */
+  suffix?: string;
   /** Opens in a new tab with an announced hint. */
   external?: boolean;
   download?: string | true;
@@ -36,7 +38,7 @@ type ButtonProps = {
   "aria-label"?: string;
 } & Record<`data-${string}`, string | undefined>;
 
-export function Button({ variant = "secondary", size = "md", href, icon, iconEnd, format, external, download, className, children, type = "button", ...rest }: ButtonProps) {
+export function Button({ variant = "secondary", size = "md", href, icon, iconEnd, format, suffix, external, download, className, children, type = "button", ...rest }: ButtonProps) {
   const v = variant === "text" ? "ghost" : variant;
   const classes = ["btn", `btn-${v}`, size === "sm" && "btn-sm", className].filter(Boolean).join(" ");
   const end = iconEnd ?? (external ? "external" : undefined);
@@ -46,6 +48,7 @@ export function Button({ variant = "secondary", size = "md", href, icon, iconEnd
       {icon && <Icon name={icon} size={iconSize} />}
       {children}
       {format && <span className="btn-format">{format}</span>}
+      {suffix && <span className="visually-hidden">, {suffix}</span>}
     </>
   );
   if (href) {
@@ -68,7 +71,7 @@ export function Button({ variant = "secondary", size = "md", href, icon, iconEnd
 /** A button or link that downloads a file, named by use with the format beside it. */
 export function DownloadButton({ d, variant = "secondary", size, short, bare, assetLabel }: { d: Download; variant?: "primary" | "secondary"; size?: "md" | "sm"; short?: boolean; bare?: boolean; assetLabel: string }) {
   return (
-    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={bare ? undefined : d.format} aria-label={`${short ? d.short : d.label}, ${d.format}: ${assetLabel}`}>
+    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={bare ? undefined : d.format} suffix={bare ? `${d.format}, ${assetLabel}` : assetLabel}>
       {short ? d.short : (
         <>
           <span className="label-long">{d.label}</span>
@@ -126,10 +129,12 @@ export function ColorRows({ color, rows, className }: { color: ColorAsset; rows:
     <ul className={["value-rows", className].filter(Boolean).join(" ")} role="list">
       {rows.map((r) => (
         <li key={r.use} data-use={r.use.toLowerCase()}>
-          <button className="value-row" type="button" data-copy={r.value} data-copy-name={color.label} aria-label={`Copy ${r.name} ${r.value}: ${color.label}`}>
+          <button className="value-row" type="button" data-copy={r.value} data-copy-name={color.label}>
+            <span className="visually-hidden">Copy </span>
             <span className="value-row-use">{r.use}</span>
             <span className="value-row-icon"><Icon name="copy" size={16} /></span>
             <span className="value-row-value">{r.value}</span>
+            <span className="visually-hidden">, {color.label}</span>
           </button>
         </li>
       ))}

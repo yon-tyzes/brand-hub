@@ -775,7 +775,7 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .icon-tile-svg { display: contents; }
 .icon-tile-name { font-size: 11px; line-height: 1.2; color: var(--text-secondary); text-align: center; }
 .icon-panel {
-  flex: 1 1 260px; max-width: 300px; position: sticky; top: calc(var(--header-h) + 24px);
+  order: 2; flex: 1 1 260px; max-width: 300px; position: sticky; top: calc(var(--header-h) + 24px);
   border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); overflow: hidden;
 }
 .icon-panel-preview { height: 180px; display: grid; place-items: center; background: var(--surface-subtle); border-bottom: 1px solid var(--border); color: var(--icon-color); }
@@ -798,7 +798,7 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   .icon-tile-btn { height: 72px; padding: 4px; gap: 6px; }
   .icon-tile-name { font-size: 10.5px; }
   /* The panel docks to the bottom of the screen, frosted over the grid. */
-  .icon-layout { display: block; }
+  .icon-layout { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 0; }
   .icon-panel {
     position: sticky; top: auto; bottom: 0; max-width: none; margin: 16px calc(-1 * var(--gutter)) -24px;
     border: 0; border-top: 1px solid var(--border); border-radius: 0;

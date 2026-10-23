@@ -25,7 +25,8 @@ function SupportingColor({ color: c }: { color: ColorAsset }) {
       <div className="support-card-body">
         <h3 className="color-card-name">{c.label}</h3>
         {c.help && <p className="color-card-help">{c.help}</p>}
-        <button className="support-copy" type="button" data-copy={c.hex} data-copy-name={c.label} aria-label={`Copy hex ${c.hex}: ${c.label}`}>
+        <button className="support-copy" type="button" data-copy={c.hex} data-copy-name={c.label}>
+          <span className="visually-hidden">Copy </span>
           <span className="support-copy-swatch" style={{ background: c.hex }} aria-hidden="true" />
           <span className="support-copy-name">{c.label}</span>
           <Icon name="copy" size={16} />

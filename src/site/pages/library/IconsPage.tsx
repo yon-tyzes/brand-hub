@@ -41,23 +41,7 @@ export function IconsPage() {
         <span className="icon-count" role="status" data-icon-count="" data-total={icons.length}>{icons.length} of {icons.length} icons</span>
       </div>
       <div className="icon-layout">
-        <div className="icon-groups">
-          {groups.map((g) => (
-            <section key={g} aria-labelledby={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`} data-icon-group="">
-              <h2 className="icon-group-title" id={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`}>{g}</h2>
-              <ul className="icon-grid" role="list">
-                {icons.filter((i) => i.group === g).map((i) => (
-                  <li key={i.id} id={i.id} data-icon-item="" data-text={[i.label, i.group, ...(i.keywords ?? [])].join(" ").toLowerCase()}>
-                    <button className="icon-tile-btn" type="button" aria-pressed={i === selected} data-icon-id={i.id} data-icon-name={i.label} data-icon-group={i.group} data-icon-file={fileName(i.svgPath).replace(/\.svg$/, "")}>
-                      <span className="icon-tile-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg(i, 24) }} />
-                      <span className="icon-tile-name">{i.label}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+        {/* The panel comes first so its downloads follow the color choice in tab order; CSS draws it on the right. */}
         {selected && (
           <aside className="icon-panel" aria-label="Selected icon" data-icon-panel="">
             <div className="icon-panel-preview" aria-hidden="true" data-icon-preview="" dangerouslySetInnerHTML={{ __html: svg(selected, 64) }} />
@@ -84,6 +68,23 @@ export function IconsPage() {
             </div>
           </aside>
         )}
+        <div className="icon-groups">
+          {groups.map((g) => (
+            <section key={g} aria-labelledby={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`} data-icon-group="">
+              <h2 className="icon-group-title" id={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`}>{g}</h2>
+              <ul className="icon-grid" role="list">
+                {icons.filter((i) => i.group === g).map((i) => (
+                  <li key={i.id} id={i.id} data-icon-item="" data-text={[i.label, i.group, ...(i.keywords ?? [])].join(" ").toLowerCase()}>
+                    <button className="icon-tile-btn" type="button" aria-pressed={i === selected} data-icon-id={i.id} data-icon-name={i.label} data-icon-group={i.group} data-icon-file={fileName(i.svgPath).replace(/\.svg$/, "")}>
+                      <span className="icon-tile-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg(i, 24) }} />
+                      <span className="icon-tile-name">{i.label}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );

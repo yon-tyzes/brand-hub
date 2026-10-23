@@ -49,13 +49,13 @@ function FamilyCard({ font: f, sample }: { font: FontAsset; sample: string }) {
         </div>
         <div className="font-card-actions">
           {computer && (
-            <Button variant="primary" href={computer.href} download icon="download" format="ZIP" aria-label={`For your computer, ZIP: ${f.label}`}>
+            <Button variant="primary" href={computer.href} download icon="download" format="ZIP" suffix={f.label}>
               <span className="label-long">For your computer</span>
               <span className="label-short">Download font files</span>
             </Button>
           )}
           {web && (
-            <Button href={web.href} download format={web.format} className="hide-phone-flex" aria-label={`For websites, ${web.format}: ${f.label}`}>For websites</Button>
+            <Button href={web.href} download format={web.format} className="hide-phone-flex" suffix={f.label}>For websites</Button>
           )}
         </div>
       </div>

@@ -146,7 +146,7 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button className="search-esc" type="button" onClick={close} aria-label="Close search">Esc</button>
+          <button className="search-esc" type="button" onClick={close}>Esc<span className="visually-hidden"> to close search</span></button>
         </div>
         <button className="search-cancel" type="button" onClick={close}>Cancel</button>
       </div>
@@ -180,8 +180,7 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
                           {body}
                         </a>
                       ) : (
-                        <button className="search-result-main" type="button" data-result-main onFocus={() => setActive(n)} onClick={() => run(first)}
-                          aria-label={first ? `${h.label}: ${first.kind === "copy" ? `copy ${first.label}` : first.label}` : h.label}>
+                        <button className="search-result-main" type="button" data-result-main onFocus={() => setActive(n)} onClick={() => run(first)}>
                           {body}
                         </button>
                       )}
