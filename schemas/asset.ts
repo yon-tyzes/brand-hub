@@ -81,6 +81,8 @@ export const colorAsset = z
   })
   .refine(
     (c) => {
+      // A malformed hex is already reported by its own check.
+      if (!/^#[0-9A-Fa-f]{6}$/.test(c.hex)) return true;
       const n = parseInt(c.hex.slice(1), 16);
       return c.rgb[0] === (n >> 16) && c.rgb[1] === ((n >> 8) & 255) && c.rgb[2] === (n & 255);
     },

@@ -4,7 +4,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { z } from "zod";
 import {
-  assetsFile, brand as brandSchema, changelogFile, rulesFile,
+  asset as assetSchema, brand as brandSchema, changelogEntry, ruleAsset,
   type AnyRecord, type Asset, type AssetType, type Brand, type ChangelogEntry, type ColorAsset, type RuleAsset,
 } from "../../schemas/index.ts";
 import { checkPairingContrast, checkTokenContrast, formatContrastFailure } from "../theme/contrast.ts";
@@ -78,6 +78,9 @@ function filePaths(a: AnyRecord): { field: string; path: string }[] {
 
 export function loadBrand(brandDir: string): BrandContent {
   const problems: Problem[] = [];
+  /** Set when a file cannot be read as JSON or as an array. Cross-file checks are skipped then. */
+  let unreadable = false;
+  const invalidIds = new Map<string, string>();
 
   if (!existsSync(brandDir) || !statSync(brandDir).isDirectory()) {
     throw new BrandDataError(brandDir, [{ file: rel(brandDir), problem: "brand folder not found" }]);
@@ -93,32 +96,54 @@ export function loadBrand(brandDir: string): BrandContent {
       return JSON.parse(readFileSync(path, "utf8"));
     } catch (e) {
       problems.push({ file: rel(path), problem: `invalid JSON: ${(e as Error).message}` });
+      unreadable = true;
       return undefined;
+    }
+  }
+
+  function report(name: string, issues: z.core.$ZodIssue[], prefix: (string | number)[], id?: string) {
+    for (const issue of issues) {
+      const [first, ...rest] = [...prefix, ...issue.path];
+      const where = typeof first === "number" ? [`[${first}]`, ...rest].join(".") : [first, ...rest].filter((p) => p !== undefined).join(".");
+      problems.push({ file: rel(join(brandDir, name)), id, problem: `${where ? `${where}: ` : ""}${issue.message}` });
     }
   }
 
   function validate<S extends z.ZodType>(name: string, schema: S, data: unknown): z.output<S> | undefined {
     const result = schema.safeParse(data);
     if (result.success) return result.data;
-    for (const issue of result.error.issues) {
-      const [index, ...rest] = issue.path;
-      const item = typeof index === "number" && Array.isArray(data) ? (data[index] as { id?: unknown }) : undefined;
-      const id = typeof item?.id === "string" ? item.id : undefined;
-      const where = typeof index === "number" ? [`[${index}]`, ...rest].join(".") : issue.path.join(".");
-      problems.push({ file: rel(join(brandDir, name)), id, problem: `${where ? `${where}: ` : ""}${issue.message}` });
-    }
+    report(name, result.error.issues, []);
     return undefined;
   }
 
-  // 1. Schema validation, file by file.
-  const brand = validate("brand.json", brandSchema, readJson("brand.json", true));
+  /** Validates an array file item by item, so one bad record does not hide the rest. */
+  function validateItems<S extends z.ZodType>(name: string, schema: S, data: unknown): z.output<S>[] {
+    if (data === undefined) return [];
+    if (!Array.isArray(data)) {
+      problems.push({ file: rel(join(brandDir, name)), problem: "must be a JSON array" });
+      unreadable = true;
+      return [];
+    }
+    const out: z.output<S>[] = [];
+    data.forEach((item: unknown, index) => {
+      const raw = (item ?? {}) as { id?: unknown; type?: unknown };
+      const result = schema.safeParse(item);
+      if (result.success) return out.push(result.data);
+      const id = typeof raw.id === "string" ? raw.id : undefined;
+      // Keep the id known, so references to an invalid record do not also report "does not exist".
+      if (id) invalidIds.set(id, typeof raw.type === "string" ? raw.type : "");
+      report(name, result.error.issues, [index], id);
+    });
+    return out;
+  }
+
+  // 1. Schema validation, file by file and record by record.
+  const brandRaw = readJson("brand.json", true);
+  const brand = brandRaw === undefined ? undefined : validate("brand.json", brandSchema, brandRaw);
 
   const records: { record: AnyRecord; file: string }[] = [];
   for (const name of ["assets.json", ...Object.keys(SPLIT_FILES)]) {
-    const raw = readJson(name, false);
-    if (raw === undefined) continue;
-    const items = validate(name, assetsFile, raw);
-    for (const a of items ?? []) {
+    for (const a of validateItems(name, assetSchema, readJson(name, false))) {
       const expected = SPLIT_FILES[name];
       if (expected && a.type !== expected) {
         problems.push({ file: rel(join(brandDir, name)), id: a.id, problem: `type "${a.type}" does not belong in ${name} (expects "${expected}")` });
@@ -126,10 +151,10 @@ export function loadBrand(brandDir: string): BrandContent {
       records.push({ record: a, file: name });
     }
   }
-  for (const r of validate("rules.json", rulesFile, readJson("rules.json", false) ?? []) ?? []) {
+  for (const r of validateItems("rules.json", ruleAsset, readJson("rules.json", false))) {
     records.push({ record: r, file: "rules.json" });
   }
-  const changelog = validate("changelog.json", changelogFile, readJson("changelog.json", false) ?? []) ?? [];
+  const changelog = validateItems("changelog.json", changelogEntry, readJson("changelog.json", false));
 
   // 2. Unique ids across assets and rules.
   const seen = new Map<string, string>();
@@ -139,11 +164,16 @@ export function loadBrand(brandDir: string): BrandContent {
     else seen.set(record.id, file);
   }
 
-  // 3. References between records.
-  const ruleIds = new Set(records.filter((r) => r.record.type === "rule").map((r) => r.record.id));
-  const assetIds = new Set(records.filter((r) => r.record.type !== "rule").map((r) => r.record.id));
-  const colorIds = new Set(records.filter((r) => r.record.type === "color").map((r) => r.record.id));
-  for (const { record, file } of records) {
+  // 3. References between records. Skipped when a file could not be read: every reference would look broken.
+  const idsOf = (match: (type: string) => boolean) =>
+    new Set([
+      ...records.filter((r) => match(r.record.type)).map((r) => r.record.id),
+      ...[...invalidIds].filter(([, type]) => match(type)).map(([id]) => id),
+    ]);
+  const ruleIds = idsOf((t) => t === "rule");
+  const assetIds = idsOf((t) => t !== "rule");
+  const colorIds = idsOf((t) => t === "color");
+  for (const { record, file } of unreadable ? [] : records) {
     const at = rel(join(brandDir, file));
     const missing = (field: string, kind: string, ref: string) =>
       problems.push({ file: at, id: record.id, problem: `${field}: ${kind} "${ref}" does not exist` });
