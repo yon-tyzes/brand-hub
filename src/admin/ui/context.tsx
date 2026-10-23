@@ -32,6 +32,8 @@ export interface EditorApi {
   /** Adds files to the current section, or to the given one. */
   addFiles: (files: File[], moduleId?: string) => void;
   retireItems: (ids: string[]) => void;
+  /** Problems the last save attempt found for an item, in plain words. */
+  issuesFor: (id: string) => string[];
 }
 
 export const EditorContext = createContext<EditorApi | null>(null);

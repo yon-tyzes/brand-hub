@@ -1,5 +1,6 @@
 // Autosave of the working draft in IndexedDB, so a refresh loses nothing. Every call tolerates storage
 // being unavailable (private windows, blocked site data): the editor then works without autosave.
+import type { AnyRecord } from "../../../schemas/asset.ts";
 import type { Draft } from "./state.ts";
 
 const DB = "brand-hub-editor";
@@ -9,6 +10,8 @@ export interface SavedDraft {
   revision: string;
   draft: Draft;
   savedAt: string;
+  /** Records the draft started from, so its edits can be replayed if the brand changed meanwhile. */
+  baseRecords?: AnyRecord[];
 }
 
 function open(): Promise<IDBDatabase> {

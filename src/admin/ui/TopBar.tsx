@@ -6,13 +6,19 @@ import { Icon } from "./Menu.tsx";
 interface Props {
   changes: RecordChange[];
   autosave: "on" | "off";
+  busy: "saving" | "publishing" | null;
+  /** True when there is something to publish: unsaved changes or a saved draft. */
+  canPublish: boolean;
   onShowChanges: () => void;
   onPreview: () => void;
+  onSave: () => void;
+  onPublish: () => void;
+  onHistory: () => void;
 }
 
 const mod = /Mac|iPhone|iPad/.test(typeof navigator === "undefined" ? "" : navigator.platform) ? "Cmd" : "Ctrl";
 
-export function TopBar({ changes, autosave, onShowChanges, onPreview }: Props) {
+export function TopBar({ changes, autosave, busy, canPublish, onShowChanges, onPreview, onSave, onPublish, onHistory }: Props) {
   const { state, dispatch, session } = useEditor();
   const brand = state.base.brand;
   return (
@@ -39,11 +45,14 @@ export function TopBar({ changes, autosave, onShowChanges, onPreview }: Props) {
         <button type="button" className="btn btn-secondary btn-sm" onClick={onPreview}>
           <Icon name="search" /> Preview
         </button>
-        <span className="visually-hidden" id="saving-note">Saving is not set up yet.</span>
-        <button type="button" className="btn btn-secondary btn-sm" aria-disabled="true" aria-describedby="saving-note" title="Saving is not set up yet.">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={onHistory}>
+          History
+        </button>
+        <span role="status" className="small busy-note">{busy === "saving" ? "Saving" : busy === "publishing" ? "Publishing" : ""}</span>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={onSave} disabled={!!busy || !changes.length}>
           Save draft
         </button>
-        <button type="button" className="btn btn-primary btn-sm" aria-disabled="true" aria-describedby="saving-note" title="Publishing is not set up yet.">
+        <button type="button" className="btn btn-primary btn-sm" onClick={onPublish} disabled={!!busy || !canPublish}>
           Publish
         </button>
         <span className="small admin-session">{session.name}</span>

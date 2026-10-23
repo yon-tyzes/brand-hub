@@ -1,97 +1,54 @@
-// Turns the working draft into the spec's ChangeSet (docs/ENGINE_SPEC.md, section 8) and a list of changes
-// for the top bar. Paths are provisional until the serializer (prompt 05) applies the brand's naming pattern.
+// Bridges the editor's draft and the serializer: the change list for the top bar, and the final change set.
 import type { AnyRecord } from "../../../schemas/asset.ts";
-import type { BrandContent, ChangeSet } from "../../adapters/types.ts";
 import { filePaths } from "../../content/file-paths.ts";
-import { TYPE_LABEL } from "../../lib/labels.ts";
-import { moduleForType, STATUS_LABEL } from "./modules.ts";
-import { ordered, type Draft, type EditorState } from "./state.ts";
+import { describeChanges, serialize, type RecordChange, type SerializeError, type SerializeResult } from "../../serializer/index.ts";
+import type { BrandContent } from "../../adapters/types.ts";
+import type { Draft, EditorState } from "./state.ts";
 
-export interface RecordChange {
-  id: string;
-  kind: "added" | "deleted" | "changed";
-  line: string;
+export type { RecordChange, SerializeError };
+
+/** One line per added, deleted, or edited record, plus one per section whose order changed. */
+export const changes = (base: BrandContent, draft: Draft): RecordChange[] => describeChanges(base.records, draft.records);
+
+/** Today's date in the editor's time zone, as YYYY-MM-DD. */
+export function today(now = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
-const STATUS_LINE = { locked: "now live", retired: "retired", draft: `set to ${STATUS_LABEL.draft}`, pending: `set to ${STATUS_LABEL.pending}` } as const;
-
-const pathsOf = (r: AnyRecord) => filePaths(r).map((f) => f.path).sort().join("|");
-const withoutOrder = ({ order: _o, ...r }: AnyRecord) => r;
-
-function describe(before: AnyRecord, after: AnyRecord): string[] {
-  const parts: string[] = [];
-  if (before.label !== after.label) parts.push(`renamed from "${before.label}"`);
-  if (before.status !== after.status) parts.push(STATUS_LINE[after.status]);
-  if (pathsOf(before) !== pathsOf(after)) parts.push(after.type === "logo" || after.type === "font" ? "files changed" : "file replaced");
-  const rest = (r: AnyRecord) => JSON.stringify({ ...withoutOrder(r), label: 0, status: 0, files: 0, svgPath: 0, thumbnail: 0 });
-  if (rest(before) !== rest(after)) parts.push("details updated");
-  return parts;
-}
-
-/** One line per added, deleted, or edited record, plus one per type whose order changed. */
-export function changes(base: BrandContent, draft: Draft): RecordChange[] {
-  const before = new Map(base.records.map((r) => [r.id, r]));
-  const after = new Map(draft.records.map((r) => [r.id, r]));
-  const out: RecordChange[] = [];
-  const name = (r: AnyRecord) => `${TYPE_LABEL[r.type]}, ${r.label}`;
-  for (const r of draft.records) {
-    const old = before.get(r.id);
-    if (!old) out.push({ id: r.id, kind: "added", line: `${name(r)}: added` });
-    else {
-      const parts = describe(old, r);
-      if (parts.length) out.push({ id: r.id, kind: "changed", line: `${name(r)}: ${parts.join(", ")}` });
-    }
-  }
-  for (const r of base.records) if (!after.has(r.id)) out.push({ id: r.id, kind: "deleted", line: `${name(r)}: deleted` });
-
-  const types = [...new Set(draft.records.map((r) => r.type))];
-  for (const t of types) {
-    const ids = (rs: AnyRecord[]) => ordered(rs, t).filter((r) => before.has(r.id) && after.has(r.id)).map((r) => r.id).join(",");
-    if (ids(base.records) !== ids(draft.records)) out.push({ id: `order:${t}`, kind: "changed", line: `${moduleForType(t).label}: order changed` });
-  }
-  return out;
-}
-
-/** Records sorted the way the loader sorts them, as the JSON a data file holds. */
-const fileContent = (records: AnyRecord[]) =>
-  JSON.stringify(
-    [...records].sort((a, b) => (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER) || a.label.localeCompare(b.label)),
-    null,
-    2,
-  ) + "\n";
-
-export function toChangeSet(state: EditorState): ChangeSet {
+/** Runs the serializer on the draft: final names, dates, validation, and the spec's ChangeSet. */
+export function serializeDraft(state: EditorState, author: string, date: string): SerializeResult {
   const { base, present } = state;
-  const root = `brands/${base.slug}/`;
-  const list = changes(base, present);
-  const sourceOf = (r: AnyRecord) => base.sources[r.id] ?? moduleForType(r.type).dataFile;
+  const referenced = new Set(present.records.flatMap((r: AnyRecord) => filePaths(r).map((f) => f.path)));
+  const uploads = Object.values(present.files)
+    .filter((f) => referenced.has(f.path))
+    .map((f) => ({ path: f.path, name: f.name, content: f.blob, width: f.width }));
+  return serialize({
+    slug: base.slug,
+    revision: state.revision,
+    brand: base.brand,
+    base: { records: base.records, sources: base.sources, changelog: base.changelog },
+    records: present.records,
+    uploads,
+    date,
+    author,
+  });
+}
 
-  // Data files touched by any change are written in full.
-  const touched = new Set<string>();
-  const beforeById = new Map(base.records.map((r) => [r.id, r]));
-  for (const c of list) {
+/**
+ * Applies this draft's changes on top of newer content from someone else: records the draft added or
+ * edited replace theirs, records the draft deleted stay deleted, and everything else is theirs.
+ */
+export function rebase(state: EditorState, remote: BrandContent): AnyRecord[] {
+  const mine = changes(state.base, state.present);
+  const byId = new Map(remote.records.map((r) => [r.id, r]));
+  const present = new Map(state.present.records.map((r) => [r.id, r]));
+  for (const c of mine) {
     if (c.id.startsWith("order:")) {
-      const type = c.id.slice(6) as AnyRecord["type"];
-      for (const r of present.records) if (r.type === type) touched.add(sourceOf(r));
-      continue;
-    }
-    const r = present.records.find((x) => x.id === c.id) ?? beforeById.get(c.id)!;
-    touched.add(sourceOf(r));
+      const type = c.id.slice(6);
+      for (const r of state.present.records) if (r.type === type && byId.has(r.id)) byId.set(r.id, { ...byId.get(r.id)!, order: r.order } as AnyRecord);
+    } else if (c.kind === "deleted") byId.delete(c.id);
+    else byId.set(c.id, present.get(c.id)!);
   }
-  const upserts: ChangeSet["upserts"] = [...touched].sort().map((file) => ({
-    path: root + file,
-    content: fileContent(present.records.filter((r) => sourceOf(r) === file)),
-  }));
-
-  // Uploaded files that a record still points to.
-  const referenced = new Set(present.records.flatMap((r) => filePaths(r).map((f) => f.path)));
-  for (const f of Object.values(present.files)) if (referenced.has(f.path)) upserts.push({ path: root + f.path, content: f.blob });
-
-  // Files from the base that nothing points to any more.
-  const deletes = [...new Set(base.records.flatMap((r) => filePaths(r).map((f) => f.path)))]
-    .filter((p) => !referenced.has(p))
-    .sort()
-    .map((p) => root + p);
-
-  return { base: state.revision, upserts, deletes, summary: list.map((c) => c.line) };
+  return [...byId.values()];
 }

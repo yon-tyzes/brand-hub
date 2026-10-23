@@ -1,22 +1,28 @@
-// The editor at /admin (docs/ENGINE_SPEC.md, section 7). Loads the session and draft through the adapters,
-// keeps every edit in an in-memory change set with undo, and autosaves it to IndexedDB.
+// The editor at /admin (docs/ENGINE_SPEC.md, section 7). Loads the session and draft through the adapters
+// chosen in hub.config.ts, keeps every edit in an in-memory change set with undo, autosaves it to IndexedDB,
+// and saves and publishes through the content adapter after the serializer validates the result.
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { AnyRecord, LogoAsset } from "../../../schemas/asset.ts";
-import { localAuth, localContent } from "../../adapters/local.ts";
-import type { BrandContent, Session } from "../../adapters/types.ts";
+import { auth, content, mode } from "virtual:brand-hub/admin";
+import { AdapterError, canRestore, ConflictError, type BrandContent, type Session } from "../../adapters/types.ts";
 import { filePaths } from "../../content/file-paths.ts";
 import { fileName, fileUrl } from "../../lib/paths.ts";
-import { changes as listChanges } from "../editor/changeset.ts";
+import type { PageId } from "../../site/Page.tsx";
+import { changes as listChanges, rebase, serializeDraft, today, type SerializeError } from "../editor/changeset.ts";
 import { extension } from "../editor/files.ts";
 import { accepts, ingest, recordsFromUploads, type Upload } from "../editor/ingest.ts";
 import { EDITOR_MODULES } from "../editor/modules.ts";
-import { addRecord, attachFiles, initialState, reducer, restoreStatuses, retire, type EditorAction, type EditorState } from "../editor/state.ts";
+import { addRecord, attachFiles, reducer, restoreStatuses, retire, type EditorAction, type EditorState, type StoredFile } from "../editor/state.ts";
 import { clearSaved, loadSaved, save } from "../editor/storage.ts";
+import type { PreviewData } from "../preview/protocol.ts";
 import { EditorContext, type EditorApi } from "./context.tsx";
-import { ChangesDialog, PreviewDialog, ReplaceDialog } from "./Dialogs.tsx";
+import { ChangesDialog, ReplaceDialog } from "./Dialogs.tsx";
+import { issuesById } from "./explain.ts";
 import { Grid, type StatusFilter } from "./Grid.tsx";
 import { Inspector } from "./Inspector.tsx";
+import { PreviewPanel } from "./PreviewPanel.tsx";
 import { Rail } from "./Rail.tsx";
+import { ConflictDialog, FailureDialog, HistoryDialog, ProblemsDialog } from "./SaveDialogs.tsx";
 import { Toasts, useToasts } from "./Toasts.tsx";
 import { TopBar } from "./TopBar.tsx";
 import { Sheet } from "../../islands/Sheet.tsx";
@@ -50,6 +56,46 @@ function useWide() {
   return wide;
 }
 
+/** Words for an error from an adapter, for the person editing. */
+const plain = (e: unknown, action: "save" | "publish") =>
+  e instanceof AdapterError ? e.message : `${action === "save" ? "Saving" : "Publishing"} didn't finish. Check your connection and try again.`;
+
+type Dialog =
+  | { kind: "changes" }
+  | { kind: "problems" }
+  | { kind: "history" }
+  | { kind: "preview" }
+  | { kind: "failure"; action: "save" | "publish"; message: string }
+  | { kind: "conflict"; remote: { revision: string; data: BrandContent } };
+
+const historyLoader = () => content.history(20);
+
+/**
+ * With the local adapter, a save rewrites brand files and the dev server reloads the page. The editor
+ * leaves a short-lived note so the reload comes back with the same section, item, and message.
+ */
+const AFTER_RELOAD = "bh-editor-after-reload";
+type AfterReload = { message: string; moduleId: string; selectedId: string | null; at: number };
+
+function rememberForReload(note: Omit<AfterReload, "at">) {
+  try {
+    sessionStorage.setItem(AFTER_RELOAD, JSON.stringify({ ...note, at: Date.now() }));
+  } catch {
+    // Storage blocked: the reload just starts fresh.
+  }
+}
+
+function takeReloadNote(): AfterReload | undefined {
+  try {
+    const raw = sessionStorage.getItem(AFTER_RELOAD);
+    sessionStorage.removeItem(AFTER_RELOAD);
+    const note = raw ? (JSON.parse(raw) as AfterReload) : undefined;
+    return note && Date.now() - note.at < 15_000 ? note : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export default function AdminApp() {
   const [state, dispatch] = useReducer(rootReducer, null);
   const [session, setSession] = useState<Session | null>(null);
@@ -57,9 +103,12 @@ export default function AdminApp() {
   const [moduleId, setModuleId] = useState(EDITOR_MODULES[0]!.id);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [dialog, setDialog] = useState<"changes" | "preview" | null>(null);
+  const [dialog, setDialog] = useState<Dialog | null>(null);
   const [replacing, setReplacing] = useState<{ id: string; upload: Upload } | null>(null);
   const [autosave, setAutosave] = useState<"on" | "off">("on");
+  const [busy, setBusy] = useState<"saving" | "publishing" | null>(null);
+  const [errors, setErrors] = useState<SerializeError[]>([]);
+  const [unpublished, setUnpublished] = useState(false);
   const { toast, show, clear } = useToasts();
   const wide = useWide();
   const urls = useRef(new Map<string, string>());
@@ -68,30 +117,45 @@ export default function AdminApp() {
   // Load the session and the draft, then any autosaved work for the same revision.
   useEffect(() => {
     (async () => {
-      const s = await localAuth.getSession();
+      const s = await auth.getSession();
       if (!s) return setFailed("Sign in to edit the brand.");
       setSession(s);
-      const loaded = await localContent.loadDraft();
+      const loaded = await content.loadDraft();
       if (!loaded) return setFailed("The brand could not be loaded. Reload the page to try again.");
       const saved = await loadSaved(loaded.data.slug);
+      const note = takeReloadNote();
+      if (note) {
+        setModuleId(note.moduleId);
+        setSelectedId(note.selectedId);
+        show({ message: note.message });
+      }
       if (saved && saved.revision === loaded.revision) {
         dispatch({ type: "load", revision: loaded.revision, base: loaded.data, present: saved.draft });
-        show({ message: "Your unsaved changes from last time are back." });
+        if (!note) show({ message: "Your unsaved changes from last time are back." });
+      } else if (saved?.baseRecords) {
+        // The brand changed since the draft was autosaved: replay the draft's edits on the new version.
+        const old = { revision: saved.revision, base: { ...loaded.data, records: saved.baseRecords }, present: saved.draft, past: [], future: [] };
+        dispatch({ type: "load", revision: loaded.revision, base: loaded.data, present: { records: rebase(old, loaded.data), files: saved.draft.files } });
+        show({ message: "The brand changed since your last edit. Your unsaved changes are kept on top of the new version." });
       } else {
         if (saved) await clearSaved(loaded.data.slug);
         dispatch({ type: "load", revision: loaded.revision, base: loaded.data });
       }
-    })().catch(() => setFailed("The brand could not be loaded. Reload the page to try again."));
+    })().catch((e) => setFailed(e instanceof AdapterError ? e.message : "The brand could not be loaded. Reload the page to try again."));
   }, []);
 
   const changes = useMemo(() => (state ? listChanges(state.base, state.present) : []), [state?.base, state?.present]);
+  const issues = useMemo(
+    () => (state ? issuesById(errors, state.present.records, state.base.records) : new Map<string, string[]>()),
+    [errors, state?.present, state?.base],
+  );
 
   // Autosave, debounced.
   useEffect(() => {
     if (!state || !slug) return;
     const t = setTimeout(async () => {
       if (!changes.length) return void clearSaved(slug);
-      const ok = await save(slug, { revision: state.revision, draft: state.present, savedAt: new Date().toISOString() });
+      const ok = await save(slug, { revision: state.revision, draft: state.present, savedAt: new Date().toISOString(), baseRecords: state.base.records });
       setAutosave(ok ? "on" : "off");
     }, 400);
     return () => clearTimeout(t);
@@ -158,8 +222,7 @@ export default function AdminApp() {
     const taken = takenPaths();
     const uploads = (await Promise.all(ok.map((f) => ingest(f, target, taken)))).filter((u) => !u.error);
     const unreadable = ok.length - uploads.length;
-    const taken2 = new Set(records.map((r) => r.id));
-    const added = recordsFromUploads(target, uploads, taken2);
+    const added = recordsFromUploads(target, uploads, new Set(records.map((r) => r.id)));
     if (added.length) {
       dispatch({ type: "apply", edit: (d) => added.reduce((acc, r) => addRecord(r, uploads)(acc), d) });
       setSelectedId(added[0]!.id);
@@ -193,6 +256,105 @@ export default function AdminApp() {
     });
   }
 
+  // ---------- Save, publish, conflicts, history ----------
+
+  async function saveDraft(from: EditorState = state!): Promise<boolean> {
+    const result = serializeDraft(from, session!.name, today());
+    if (!result.ok) {
+      setErrors(result.errors);
+      setDialog({ kind: "problems" });
+      return false;
+    }
+    setErrors([]);
+    const { changeSet } = result;
+    if (!changeSet.upserts.length && !changeSet.deletes.length) return true;
+    setBusy("saving");
+    try {
+      const res = await content.saveDraft(changeSet, session!);
+      // Files now live at their final names; keep the uploaded copies so previews still show them.
+      const files: Record<string, StoredFile> = {};
+      for (const [provisional, final] of Object.entries(result.renamed)) {
+        const f = from.present.files[provisional];
+        if (f) files[final] = { ...f, path: final };
+      }
+      const base: BrandContent = { ...from.base, records: result.records, sources: result.sources, changelog: result.changelog };
+      dispatch({ type: "load", revision: res.revision, base, present: { records: result.records, files } });
+      await clearSaved(from.base.slug);
+      setUnpublished(true);
+      if (!res.previewUrl) rememberForReload({ message: "Draft saved.", moduleId, selectedId });
+      show({
+        message: res.previewUrl ? "Draft saved. A preview link is ready." : "Draft saved.",
+        action: res.previewUrl ? { label: "Open preview link", run: () => window.open(res.previewUrl, "_blank", "noopener") } : undefined,
+      });
+      return true;
+    } catch (e) {
+      if (e instanceof ConflictError) setDialog({ kind: "conflict", remote: e.remote });
+      else setDialog({ kind: "failure", action: "save", message: plain(e, "save") });
+      return false;
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function publish() {
+    if (changes.length && !(await saveDraft())) return;
+    setBusy("publishing");
+    try {
+      await content.publish(session!);
+      setUnpublished(false);
+      show({ message: mode === "demo" ? "Published in this demo. Nothing is kept after a reload." : "Published. The site updates after its next build." });
+    } catch (e) {
+      if (e instanceof ConflictError) setDialog({ kind: "conflict", remote: e.remote });
+      else setDialog({ kind: "failure", action: "publish", message: plain(e, "publish") });
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function resolveConflict(remote: { revision: string; data: BrandContent }, how: "reload" | "overwrite") {
+    const present = how === "reload" ? { records: rebase(state!, remote.data), files: state!.present.files } : state!.present;
+    dispatch({ type: "load", revision: remote.revision, base: remote.data, present });
+    setDialog(null);
+    if (how === "overwrite") void saveDraft({ ...state!, revision: remote.revision, base: remote.data, present, past: [], future: [] });
+    else show({ message: "Their changes are in. Check your edits, then save again." });
+  }
+
+  async function restore(revision: string, date: string) {
+    if (!canRestore(content)) return;
+    try {
+      const old = await content.loadRevision(revision);
+      const files: Record<string, StoredFile> = { ...state!.present.files };
+      for (const [path, blob] of Object.entries(old.files ?? {})) files[path] = { path, name: fileName(path), type: blob.type, blob };
+      dispatch({ type: "apply", edit: () => ({ records: old.data.records, files }) });
+      setDialog(null);
+      show({ message: `The version from ${date.slice(0, 10)} is back as a draft. Review it, then save.` });
+    } catch (e) {
+      show({ message: e instanceof AdapterError ? e.message : "That version could not be restored." });
+    }
+  }
+
+  const previewData = (): PreviewData => {
+    const result = serializeDraft(state!, session!.name, today());
+    const byPath: Record<string, string> = {};
+    for (const path of Object.keys(state!.present.files)) byPath[path] = urlFor(path);
+    return {
+      brand: state!.base.brand,
+      records: state!.present.records,
+      changelog: result.ok ? result.changelog : state!.base.changelog,
+      urls: byPath,
+      svgs: state!.base.svgs,
+    };
+  };
+
+  const showItem = (id: string) => {
+    const r = records.find((x) => x.id === id);
+    if (!r) return;
+    setModuleId(EDITOR_MODULES.find((m) => m.type === r.type)!.id);
+    setFilter("all");
+    setSelectedId(id);
+    setDialog(null);
+  };
+
   const api: EditorApi = {
     state, dispatch, apply, session, module: mod, records,
     setModule: (id) => {
@@ -204,15 +366,32 @@ export default function AdminApp() {
     svgFor: (path) => state.base.svgs[path],
     fileLabel: (path) => state.present.files[path]?.name ?? fileName(path),
     replaceFile, addFiles, retireItems,
+    issuesFor: (id) => issues.get(id) ?? [],
   };
 
   const replacingRecord = replacing && records.find((r) => r.id === replacing.id);
   const selected = records.find((r) => r.id === selectedId);
+  const previewStart = (moduleId === "rules" ? "guide" : moduleId) as PageId;
 
   return (
     <EditorContext.Provider value={api}>
-      <div className="admin">
-        <TopBar changes={changes} autosave={autosave} onShowChanges={() => setDialog("changes")} onPreview={() => setDialog("preview")} />
+      <div className="admin" data-mode={mode}>
+        {mode === "demo" && (
+          <section className="demo-banner" aria-label="Demo mode">
+            <p>Demo mode: changes are not saved.</p>
+          </section>
+        )}
+        <TopBar
+          changes={changes}
+          autosave={autosave}
+          busy={busy}
+          canPublish={changes.length > 0 || unpublished}
+          onShowChanges={() => setDialog({ kind: "changes" })}
+          onPreview={() => setDialog({ kind: "preview" })}
+          onSave={() => void saveDraft()}
+          onPublish={() => void publish()}
+          onHistory={() => setDialog({ kind: "history" })}
+        />
         <Rail filter={filter} setFilter={setFilter} />
         <main className="admin-main" id="main">
           <Grid filter={filter} key={mod.id} />
@@ -227,8 +406,32 @@ export default function AdminApp() {
           </Sheet>
         )}
       </div>
-      {dialog === "changes" && <ChangesDialog changes={changes} onClose={() => setDialog(null)} />}
-      {dialog === "preview" && <PreviewDialog onClose={() => setDialog(null)} />}
+      {dialog?.kind === "changes" && <ChangesDialog changes={changes} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "preview" && <PreviewPanel data={previewData()} startPage={previewStart} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "problems" && <ProblemsDialog issues={issues} records={records} base={state.base.records} onShow={showItem} onClose={() => setDialog(null)} />}
+      {dialog?.kind === "failure" && (
+        <FailureDialog
+          action={dialog.action}
+          message={dialog.message}
+          onClose={() => setDialog(null)}
+          onRetry={() => {
+            setDialog(null);
+            void (dialog.action === "save" ? saveDraft() : publish());
+          }}
+        />
+      )}
+      {dialog?.kind === "conflict" && (
+        <ConflictDialog
+          base={state.base}
+          remote={dialog.remote.data}
+          onClose={() => setDialog(null)}
+          onReload={() => resolveConflict(dialog.remote, "reload")}
+          onOverwrite={() => resolveConflict(dialog.remote, "overwrite")}
+        />
+      )}
+      {dialog?.kind === "history" && (
+        <HistoryDialog load={historyLoader} onRestore={canRestore(content) ? (e) => void restore(e.revision, e.date) : undefined} onClose={() => setDialog(null)} />
+      )}
       {replacing && replacingRecord && (
         <ReplaceDialog
           record={replacingRecord}

@@ -22,11 +22,11 @@ interface Props {
 }
 
 export function ItemCard({ record: r, index, count, checked, onCheck, onReorder }: Props) {
-  const { apply, select, selectedId, urlFor, svgFor, replaceFile, retireItems, module } = useEditor();
+  const { apply, select, selectedId, urlFor, svgFor, replaceFile, retireItems, module, issuesFor } = useEditor();
   const [renaming, setRenaming] = useState(false);
   const [dropHint, setDropHint] = useState<"" | "file" | "before" | "after">("");
   const picker = useRef<HTMLInputElement>(null);
-  const errors = Object.keys(validate(r)).length > 0;
+  const errors = Object.keys(validate(r)).length > 0 || issuesFor(r.id).length > 0;
 
   const save = (value: string) => {
     const label = value.trim();

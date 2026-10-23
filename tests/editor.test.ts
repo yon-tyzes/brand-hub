@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { AnyRecord } from "../schemas/asset.ts";
 import type { BrandContent } from "../src/adapters/types.ts";
-import { changes, toChangeSet } from "../src/admin/editor/changeset.ts";
+import { changes, rebase, serializeDraft } from "../src/admin/editor/changeset.ts";
 import { cleanName, uploadPath } from "../src/admin/editor/files.ts";
 import { canvaLinkWarning } from "../src/admin/editor/links.ts";
 import { EDITOR_MODULES, newRecord, uniqueId } from "../src/admin/editor/modules.ts";
 import {
-  addRecord, attachFiles, deleteRecord, initialState, moveBy, reducer, retire, setStatus, updateRecord,
+  addRecord, deleteRecord, initialState, moveBy, reducer, retire, setStatus, updateRecord,
   type EditorAction, type EditorState,
 } from "../src/admin/editor/state.ts";
 import { validate } from "../src/admin/editor/validate.ts";
@@ -23,6 +23,7 @@ function base(): BrandContent {
     brand: {} as BrandContent["brand"],
     records: [logo("a", 1), logo("b", 2), logo("c", 3), rec("r", "rule", { title: "R", body: "x", do: [], dont: [], appliesTo: [] })],
     sources: { a: "logos.json", b: "logos.json", c: "logos.json", r: "rules.json" },
+    changelog: [],
     svgs: {},
   };
 }
@@ -66,11 +67,11 @@ describe("editor history", () => {
 });
 
 describe("change set", () => {
-  it("has the spec shape and lists each change in plain words", () => {
+  it("serializes the draft into the spec shape, with final names and plain summary lines", () => {
     let s = initialState("rev1", base());
     const svg = new Blob(["<svg/>"], { type: "image/svg+xml" });
     const added = newRecord(EDITOR_MODULES[0]!, "New logo", new Set(["a", "b", "c"]), {
-      files: [{ ext: "svg", path: "files/logos/new-logo.svg" }],
+      lockup: "Mark", colorway: "Full color", files: [{ ext: "svg", path: "files/logos/new-logo.svg" }],
     } as Partial<AnyRecord>);
     s = run(
       s,
@@ -78,35 +79,36 @@ describe("change set", () => {
       apply(updateRecord("a", { label: "Primary logo" })),
       apply(setStatus(["b"], "pending")),
       apply(deleteRecord("c")),
-      apply(attachFiles("b", [{ path: "files/logos/b-2.svg", name: "b.svg", type: "image/svg+xml", blob: svg }], { files: [{ ext: "svg", path: "files/logos/b-2.svg" }] } as Partial<AnyRecord>)),
     );
-    const cs = toChangeSet(s);
-    expect(cs.base).toBe("rev1");
-    expect(cs.summary).toEqual([
+    const r = serializeDraft(s, "Ed", "2026-11-01");
+    expect(r.ok).toBe(false); // base() has no brand settings or files: the serializer validates everything
+    expect(changes(s.base, s.present).map((c) => c.line)).toEqual([
       'Logo, Primary logo: renamed from "a"',
-      "Logo, b: set to Pending, files changed",
+      "Logo, b: set to Pending",
       "Logo, New logo: added",
       "Logo, c: deleted",
     ]);
-    expect(cs.upserts.map((u) => u.path)).toEqual(["brands/demo/logos.json", "brands/demo/files/logos/new-logo.svg", "brands/demo/files/logos/b-2.svg"]);
-    const written = JSON.parse(cs.upserts[0]!.content as string) as AnyRecord[];
-    expect(written.map((r) => r.id)).toEqual(["a", "b", "new-logo"]);
-    expect(cs.deletes).toEqual(["brands/demo/files/logos/b.svg", "brands/demo/files/logos/c.svg"]);
   });
 
-  it("reports a reorder once per section and leaves other files alone", () => {
+  it("reports a reorder once per section", () => {
     let s = initialState("rev1", base());
     s = run(s, apply(moveBy("b", 1)));
-    const cs = toChangeSet(s);
-    expect(cs.summary).toEqual(["Logos: order changed"]);
-    expect(cs.upserts.map((u) => u.path)).toEqual(["brands/demo/logos.json"]);
+    expect(changes(s.base, s.present).map((c) => c.line)).toEqual(["Logos: order changed"]);
   });
 
   it("is empty when nothing changed or every change was undone", () => {
     let s = initialState("rev1", base());
     expect(changes(s.base, s.present)).toEqual([]);
     s = run(s, apply(retire(["a"])), { type: "undo" });
-    expect(toChangeSet(s)).toEqual({ base: "rev1", upserts: [], deletes: [], summary: [] });
+    expect(changes(s.base, s.present)).toEqual([]);
+  });
+
+  it("rebases this draft's edits onto someone else's newer content", () => {
+    let s = initialState("rev1", base());
+    s = run(s, apply(updateRecord("a", { label: "Mine" })), apply(deleteRecord("c")));
+    const remote = { ...s.base, records: s.base.records.map((r) => (r.id === "b" ? { ...r, label: "Theirs" } : r)) };
+    const merged = rebase(s, remote);
+    expect(merged.map((r) => `${r.id}:${r.label}`)).toEqual(["a:Mine", "b:Theirs", "r:r"]);
   });
 });
 
