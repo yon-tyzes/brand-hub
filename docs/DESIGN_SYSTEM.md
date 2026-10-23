@@ -22,6 +22,7 @@ Conventions:
 | Shadow | `--shadow-sm`, `--shadow-lg` | pipeline, from `--color-text` |
 | Motion | `--duration-fast`, `--duration-base`, `--ease-out`, `--ease-in-out` | engine |
 | Layout | `--content-max`, `--gutter`, `--header-h`, `--header-offset` | engine |
+| Preview | `--preview-light`, `--preview-dark` | pipeline, from light `bg` and `text`; the same in both themes |
 
 Derived color defaults:
 
@@ -232,7 +233,7 @@ Every interactive component meets these rules. They are not repeated per compone
 - Sticky at the top with an offset (`--header-offset`: 12 below `lg`, 16 from `lg`). It is a bar inside the gutter, `--header-h: 56px`. It holds `--color-surface`, a 1px border, `--radius-control` and no shadow.
 - Contents, left to right:
   - Brand mark (links to `/`).
-  - At `lg` and up, module nav links, with a gap of `--space-5`.
+  - At `lg` and up, a Modules button that opens the module menu (asset modules), then plain links for the other modules (Guide, What's new). Asset modules sit in the menu so the bar fits at 992px with any module set.
   - Search button (icon plus `Ctrl K` hint from `lg`).
   - Theme toggle.
 - Below `lg`: brand mark, search button, menu button. The theme toggle moves into the mobile menu.
@@ -360,7 +361,8 @@ A row in a list, not a boxed card, so many entries scan quickly.
 - Results: grouped by module, with group headings (step -1, weight 600) and padding `--space-3`.
   - Each result row is 48 or taller, with a dense icon tile (32), then a label and help line, then inline actions (small secondary buttons such as "Copy hex" and "Download SVG").
   - The active row has `--color-surface-2` fill.
-- Combobox pattern: Up and Down arrows move the active row, Enter runs the primary action, Esc closes, and focus returns to the opener.
+- Keys: Down from the input moves focus to the first result. Up and Down move focus between results (each result's main button is a real button, so inline actions stay reachable with Tab). Enter in the input runs the first result's primary action; Enter on a result runs its primary action. Esc closes, and focus returns to the opener.
+- Keys typed after the shortcut but before the dialog loads become the starting query.
 - Empty state: one line naming the query, and no suggestions invented to fill space.
 
 ### Sheet (side panel)
