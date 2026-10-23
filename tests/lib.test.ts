@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { renderMarkdown } from "../src/lib/markdown.ts";
 import { fontFaceCss } from "../src/theme/fonts.ts";
-import type { FontAsset } from "../schemas/asset.ts";
+import type { FontAsset, TemplateAsset } from "../schemas/asset.ts";
+import { templateLinks } from "../src/site/data.ts";
 
 describe("renderMarkdown", () => {
   it("renders paragraphs, lists, bold, code, and links", () => {
@@ -36,5 +37,25 @@ describe("fontFaceCss", () => {
     const css = fontFaceCss([f], url).split("\n");
     expect(css).toHaveLength(2);
     expect(css[1]).toContain('src:url("/s.ttf") format("truetype");font-weight:600');
+  });
+});
+
+describe("templateLinks", () => {
+  const base = {
+    id: "template-letterhead", label: "Letterhead", status: "locked", version: "1.0", updated: "2026-10-23", audience: "public",
+    type: "template", category: "Print", thumbnail: "files/templates/letterhead.svg", rules: [] as string[],
+  } as const;
+  const url = (p: string) => `/files/${p}`;
+
+  it("puts Canva first, then Word, PowerPoint, and PDF, and only the formats a template has", () => {
+    const t: TemplateAsset = { ...base, formats: { pdf: "files/templates/a.pdf", canva: "https://www.canva.com/design/x/view", pptx: "files/templates/a.pptx" } };
+    expect(templateLinks(t, url).map((l) => l.label)).toEqual(["Open in Canva", "PowerPoint", "PDF"]);
+    expect(templateLinks(t, url)[2]).toEqual({ format: "pdf", label: "PDF", href: "/files/files/templates/a.pdf", external: false, filename: "a.pdf" });
+  });
+
+  it("reads a 0.1 url as one Open template link, only when no format is set", () => {
+    const legacy: TemplateAsset = { ...base, formats: {}, url: "https://www.canva.com/design/x/view" };
+    expect(templateLinks(legacy, url)).toEqual([{ format: "link", label: "Open template", href: legacy.url, external: true }]);
+    expect(templateLinks({ ...legacy, formats: { pdf: "files/templates/a.pdf" } }, url).map((l) => l.label)).toEqual(["PDF"]);
   });
 });

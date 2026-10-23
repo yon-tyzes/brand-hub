@@ -173,11 +173,23 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   const ruleIds = idsOf((t) => t === "rule");
   const assetIds = idsOf((t) => t !== "rule");
   const colorIds = idsOf((t) => t === "color");
+  const chapterIds = new Set(brand?.guide.chapters.map((c) => c.id) ?? []);
   for (const { record, file } of unreadable ? [] : records) {
     const missing = (field: string, kind: string, ref: string) =>
       problems.push({ file: src.label(file), id: record.id, problem: `${field}: ${kind} "${ref}" does not exist`, code: "reference", field: field.split(".")[0], ref });
     for (const ref of record.governedBy ?? []) if (!ruleIds.has(ref)) missing("governedBy", "rule", ref);
-    if (record.type === "rule") for (const ref of record.appliesTo) if (!assetIds.has(ref)) missing("appliesTo", "asset", ref);
+    if (record.type === "rule") {
+      for (const ref of record.appliesTo) if (!assetIds.has(ref)) missing("appliesTo", "asset", ref);
+      if (brand && !chapterIds.has(record.chapter)) {
+        problems.push({
+          file: src.label(file), id: record.id, code: "reference", field: "chapter", ref: record.chapter,
+          problem: `chapter: "${record.chapter}" is not in guide.chapters in ${src.label("brand.json")}. Add it there or use one of: ${[...chapterIds].join(", ") || "(none listed)"}`,
+        });
+      }
+    }
+    if (record.type === "template" && !Object.values(record.formats).some(Boolean) && !record.url) {
+      problems.push({ file: src.label(file), id: record.id, code: "schema", field: "formats", problem: "formats: needs at least one of canva, docx, pptx, or pdf" });
+    }
     if (record.type === "template") for (const ref of record.rules) if (!ruleIds.has(ref)) missing("rules", "rule", ref);
     if (record.type === "color") {
       for (const p of record.pairings) {
@@ -190,7 +202,13 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   // brand.json references into the records.
   if (brand && !unreadable) {
     const at = src.label("brand.json");
-    for (const ref of brand.quickDownloads) if (!assetIds.has(ref)) problems.push({ file: at, problem: `quickDownloads: asset "${ref}" does not exist`, code: "reference", field: "quickDownloads", ref });
+    const statusOf = new Map(records.map((r) => [r.record.id, r.record.status]));
+    for (const ref of brand.quickDownloads) {
+      if (!assetIds.has(ref)) problems.push({ file: at, problem: `quickDownloads: asset "${ref}" does not exist`, code: "reference", field: "quickDownloads", ref });
+      else if (statusOf.has(ref) && statusOf.get(ref) !== "locked") {
+        problems.push({ file: at, problem: `quickDownloads: asset "${ref}" is ${statusOf.get(ref)}, only locked assets show on the site. Lock it or remove it from quickDownloads`, code: "reference", field: "quickDownloads", ref });
+      }
+    }
     for (const ref of brand.modules.icons?.colors ?? []) if (!colorIds.has(ref)) problems.push({ file: at, problem: `modules.icons.colors: color "${ref}" does not exist`, code: "reference", field: "modules", ref });
   }
 
