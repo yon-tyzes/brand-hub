@@ -117,6 +117,12 @@ describe("serialize", () => {
     ]);
   });
 
+  it("ignores key order when deciding what changed", () => {
+    const r = serialize(input((rs) => rs.map((x) => Object.fromEntries(Object.entries(x).reverse()) as AnyRecord)));
+    if (!r.ok) throw new Error(JSON.stringify(r.errors));
+    expect(r.changes).toEqual([]);
+  });
+
   it("leaves unchanged data files alone", () => {
     const r = serialize(input());
     if (!r.ok) throw new Error(JSON.stringify(r.errors));

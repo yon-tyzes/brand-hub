@@ -3,6 +3,7 @@
 import type { AnyRecord, AssetType } from "../../schemas/asset.ts";
 import { filePaths } from "../content/file-paths.ts";
 import { TYPE_LABEL } from "../lib/labels.ts";
+import { stableJson } from "./stable-json.ts";
 
 export interface RecordChange {
   /** Record id, or "order:<type>" for a reorder. */
@@ -20,11 +21,11 @@ const SECTION_LABEL: Partial<Record<AssetType, string>> = {
 const STATUS_LINE = { locked: "now live", retired: "retired", draft: "set to Draft", pending: "set to Pending" } as const;
 
 const pathsOf = (r: AnyRecord) => filePaths(r).map((f) => f.path).sort().join("|");
-/** Fields that describe content, not bookkeeping. */
+/** Fields that describe content, not bookkeeping. Key order does not matter. */
 const content = (r: AnyRecord) => {
   const { order: _o, updated: _u, version: _v, label: _l, status: _s, ...rest } = r as AnyRecord & Record<string, unknown>;
   for (const k of ["files", "svgPath", "thumbnail"]) delete (rest as Record<string, unknown>)[k];
-  return JSON.stringify(rest);
+  return stableJson(rest);
 };
 
 export function sortedIds(records: AnyRecord[], type: AnyRecord["type"]): string[] {

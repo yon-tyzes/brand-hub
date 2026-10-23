@@ -114,7 +114,7 @@ export function serialize(input: SerializeInput): SerializeResult {
     for (const { path } of filePaths(r)) {
       const up = uploadByPath.get(path);
       if (!up || renamed[path]) continue;
-      const pattern = brand.naming[r.type as NamedType] ?? DEFAULT_PATTERNS[r.type as NamedType];
+      const pattern = brand.naming?.[r.type as NamedType] ?? DEFAULT_PATTERNS[r.type as NamedType];
       const name = pattern ? applyPattern(pattern, { brand: slug, record: r, original: up.name, width: up.width }) : up.name;
       const folder = folderFor(r);
       const dot = name.lastIndexOf(".");
