@@ -3,28 +3,12 @@ import Layout from "../../components/Layout.astro";
 import { site } from "../../lib/site-server.ts";
 import { PageBody } from "../../site/Page.tsx";
 import { MODULES } from "../registry.ts";
-import IconDetail from "../../islands/icons/IconDetail.tsx";
-import { fileName } from "../../lib/paths.ts";
-
-const colors = (site.brand.modules.icons?.colors ?? [])
-  .map((id) => site.findAsset(id))
-  .flatMap((c) => (c?.type === "color" ? [{ id: c.id, label: c.label, hex: c.hex }] : []));
-const icons = site.assetsOfType("icon").map((i) => ({
-  id: i.id,
-  label: i.label,
-  group: i.group,
-  svg: site.iconMarkup(i),
-  fileBase: fileName(i.svgPath).replace(/\.svg$/, ""),
-  rules: site.rulesFor(i).map((r) => ({ label: r.label, href: site.assetHref(r) })),
-}));
 ---
 
 <Layout title={MODULES.icons.label}>
   <PageBody site={site} page="icons" />
-  <IconDetail client:load icons={icons} colors={colors} />
 </Layout>
 
 <script>
-  import "../../scripts/filter.ts";
   import "../../scripts/icons.ts";
 </script>

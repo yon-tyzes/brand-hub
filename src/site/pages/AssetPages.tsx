@@ -16,49 +16,6 @@ const PageHead = ({ title, children }: { title: string; children?: React.ReactNo
   </div>
 );
 
-export function IconsPage() {
-  const site = useSite();
-  const icons = site.assetsOfType("icon");
-  const groups = [...new Set(icons.map((i) => i.group))];
-  const pinned = icons.filter((i) => i.pinned);
-  const text = (i: (typeof icons)[number]) => [i.label, i.group, ...(i.keywords ?? [])].join(" ").toLowerCase();
-  const tile = (i: (typeof icons)[number], withId: boolean) => (
-    <li key={i.id} id={withId ? i.id : undefined} data-filter-item="" data-values={slug(i.group)} data-text={text(i)}>
-      <button className="icon-button" type="button" data-icon-id={i.id} style={{ width: "100%" }}>
-        <span style={{ display: "contents" }} dangerouslySetInnerHTML={{ __html: site.iconMarkup(i) }} />
-        {i.label}
-      </button>
-    </li>
-  );
-  return (
-    <>
-      <PageHead title={MODULES.icons.label} />
-      <div className="frame section stack-lg" data-filter-root="">
-        <div className="stack-lg">
-          <div style={{ maxWidth: 420 }}>
-            <label className="small" htmlFor="icon-filter" style={{ display: "block", marginBottom: "var(--space-2)" }}>Filter icons by name</label>
-            <input className="field" id="icon-filter" type="search" autoComplete="off" data-filter-search="" />
-          </div>
-          <Pills label="Icon groups" options={groups.map((g) => ({ value: slug(g), label: g, count: icons.filter((i) => i.group === g).length }))} allCount={icons.length} />
-          <p className="small" role="status" data-filter-status="" data-noun="icons">{icons.length} icons shown</p>
-        </div>
-        {pinned.length > 0 && (
-          <section className="stack" aria-labelledby="pinned" data-filter-group="">
-            <h2 className="h3" id="pinned">Pinned</h2>
-            <ul className="grid icon-grid" role="list">{pinned.map((i) => tile(i, false))}</ul>
-          </section>
-        )}
-        {groups.map((g) => (
-          <section key={g} className="stack" aria-labelledby={`group-${slug(g)}`} data-filter-group="">
-            <h2 className="h3" id={`group-${slug(g)}`}>{g}</h2>
-            <ul className="grid icon-grid" role="list">{icons.filter((i) => i.group === g).map((i) => tile(i, true))}</ul>
-          </section>
-        ))}
-      </div>
-    </>
-  );
-}
-
 const PROVIDER = { dropbox: "Dropbox", drive: "Google Drive", sharepoint: "SharePoint", url: "Web link" } as const;
 const access = (s: PhotoSourceAsset) =>
   s.access === "open" ? "Open to anyone: no sign-in needed." : `Sign-in required.${s.accessGroup ? ` ${s.accessGroup} can open it.` : ""}`;
