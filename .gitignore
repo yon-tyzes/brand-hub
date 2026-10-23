@@ -11,3 +11,7 @@ dist/
 CLAUDE.md
 .claude/
 research/
+
+# test output
+test-results/
+playwright-report/
