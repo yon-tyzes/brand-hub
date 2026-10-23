@@ -38,8 +38,8 @@ const settled = (page: import("@playwright/test").Page) =>
 
 test("open dialogs and menus pass axe", async ({ page }) => {
   await page.goto("/icons/");
-  await page.getByRole("button", { name: "Teapot" }).first().click();
-  await expect(page.getByRole("dialog", { name: "Teapot" })).toBeVisible();
+  await page.getByRole("button", { name: "Hot cup" }).first().click();
+  await expect(page.getByRole("dialog", { name: "Hot cup" })).toBeVisible();
   await settled(page);
   expect((await new AxeBuilder({ page }).withTags(TAGS).analyze()).violations.map((v) => v.id)).toEqual([]);
   await page.keyboard.press("Escape");

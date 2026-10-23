@@ -1,18 +1,82 @@
 [
   {
+    "date": "2026-10-23",
+    "assetId": "fraunces",
+    "assetType": "font",
+    "change": "added",
+    "summary": "Fraunces added for page titles and headings",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "logo-horizontal",
+    "assetType": "logo",
+    "change": "updated",
+    "summary": "Horizontal logo: wordmark redrawn in Fraunces",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "logo-horizontal-reversed",
+    "assetType": "logo",
+    "change": "updated",
+    "summary": "Horizontal logo, reversed: wordmark redrawn in Fraunces",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "logo-stacked",
+    "assetType": "logo",
+    "change": "updated",
+    "summary": "Stacked logo: wordmark redrawn in Fraunces",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "icon-cup-hot",
+    "assetType": "icon",
+    "change": "added",
+    "summary": "Icon library now uses Bootstrap Icons: 65 icons in 5 groups",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "slate",
+    "assetType": "color",
+    "change": "added",
+    "summary": "Slate added for secondary text",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "mist",
+    "assetType": "color",
+    "change": "added",
+    "summary": "Mist added as a panel background",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "clay",
+    "assetType": "color",
+    "change": "added",
+    "summary": "Clay added as a panel background",
+    "author": "Demo Editor"
+  },
+  {
+    "date": "2026-10-23",
+    "assetId": "photo-library",
+    "assetType": "photo-source",
+    "change": "updated",
+    "summary": "Photo source now links to a public domain collection",
+    "author": "Demo Editor"
+  },
+  {
     "date": "2026-10-22",
     "assetId": "template-social-post",
     "assetType": "template",
     "change": "added",
     "summary": "Social post template added",
-    "author": "Demo Editor"
-  },
-  {
-    "date": "2026-10-21",
-    "assetId": "icon-teapot",
-    "assetType": "icon",
-    "change": "added",
-    "summary": "Teapot icon added to the Tea group",
     "author": "Demo Editor"
   },
   {

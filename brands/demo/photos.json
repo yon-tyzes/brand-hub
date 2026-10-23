@@ -1,24 +1,23 @@
 [
   {
-    "id": "photo-library",
-    "label": "Photo library",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
-    "help": "Approved product and team photos.",
+    "id": "photo-library",
+    "label": "Public domain photos",
+    "help": "Historical photos and prints that are free to use.",
     "governedBy": [
       "photo-natural-light",
       "headshot-standard"
     ],
     "type": "photo-source",
-    "provider": "drive",
-    "url": "https://example.com/photo-library",
-    "access": "sign-in",
-    "accessGroup": "Anyone with a Pocket Comet staff account",
+    "provider": "url",
+    "url": "https://www.loc.gov/free-to-use/",
+    "access": "open",
     "guidelines": [
-      "Credit the photographer named in the file name",
-      "Ask the brand team before using a photo in paid ads"
+      "Check the rights statement on each item page before you use it",
+      "Add the credit line the item page gives"
     ]
   }
 ]

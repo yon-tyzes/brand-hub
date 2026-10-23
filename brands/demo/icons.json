@@ -1,273 +1,1440 @@
 [
   {
     "id": "icon-search",
+    "type": "icon",
     "label": "Search",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "search",
       "interface"
     ],
     "order": 1,
-    "type": "icon",
     "svgPath": "files/icons/search.svg",
     "group": "Interface",
     "pinned": true,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
     "id": "icon-download",
+    "type": "icon",
     "label": "Download",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "download",
       "interface"
     ],
     "order": 2,
-    "type": "icon",
     "svgPath": "files/icons/download.svg",
     "group": "Interface",
     "pinned": true,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
     "id": "icon-copy",
+    "type": "icon",
     "label": "Copy",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "copy",
       "interface"
     ],
     "order": 3,
-    "type": "icon",
     "svgPath": "files/icons/copy.svg",
     "group": "Interface",
     "pinned": true,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-check",
+    "id": "icon-check-lg",
+    "type": "icon",
     "label": "Check",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "check",
       "interface"
     ],
     "order": 4,
-    "type": "icon",
-    "svgPath": "files/icons/check.svg",
+    "svgPath": "files/icons/check-lg.svg",
     "group": "Interface",
     "pinned": true,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-arrow-right",
-    "label": "Arrow right",
-    "status": "locked",
-    "version": "1.0",
-    "updated": "2026-10-22",
-    "audience": "public",
-    "governedBy": [
-      "icon-stroke"
-    ],
-    "keywords": [
-      "arrow right",
-      "interface"
-    ],
-    "order": 5,
+    "id": "icon-x-lg",
     "type": "icon",
-    "svgPath": "files/icons/arrow-right.svg",
-    "group": "Interface",
-    "pinned": false,
-    "source": "Drawn for the demo brand"
-  },
-  {
-    "id": "icon-close",
     "label": "Close",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "close",
+      "x",
       "interface"
     ],
-    "order": 6,
-    "type": "icon",
-    "svgPath": "files/icons/close.svg",
+    "order": 5,
+    "svgPath": "files/icons/x-lg.svg",
     "group": "Interface",
-    "pinned": false,
-    "source": "Drawn for the demo brand"
+    "pinned": true,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-menu",
+    "id": "icon-list",
+    "type": "icon",
     "label": "Menu",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "menu",
+      "list",
       "interface"
     ],
-    "order": 7,
-    "type": "icon",
-    "svgPath": "files/icons/menu.svg",
+    "order": 6,
+    "svgPath": "files/icons/list.svg",
     "group": "Interface",
-    "pinned": false,
-    "source": "Drawn for the demo brand"
+    "pinned": true,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-plus",
+    "id": "icon-plus-lg",
+    "type": "icon",
     "label": "Plus",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "plus",
       "interface"
     ],
-    "order": 8,
-    "type": "icon",
-    "svgPath": "files/icons/plus.svg",
+    "order": 7,
+    "svgPath": "files/icons/plus-lg.svg",
     "group": "Interface",
-    "pinned": false,
-    "source": "Drawn for the demo brand"
+    "pinned": true,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-teapot",
-    "label": "Teapot",
+    "id": "icon-arrow-right",
+    "type": "icon",
+    "label": "Arrow right",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
-      "teapot",
-      "tea"
+      "arrow",
+      "right",
+      "interface"
+    ],
+    "order": 8,
+    "svgPath": "files/icons/arrow-right.svg",
+    "group": "Interface",
+    "pinned": true,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-dash-lg",
+    "type": "icon",
+    "label": "Minus",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "minus",
+      "dash",
+      "interface"
     ],
     "order": 9,
+    "svgPath": "files/icons/dash-lg.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-arrow-left",
     "type": "icon",
-    "svgPath": "files/icons/teapot.svg",
+    "label": "Arrow left",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "arrow",
+      "left",
+      "interface"
+    ],
+    "order": 10,
+    "svgPath": "files/icons/arrow-left.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-arrow-up-right",
+    "type": "icon",
+    "label": "Arrow up right",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "arrow",
+      "up",
+      "right",
+      "interface"
+    ],
+    "order": 11,
+    "svgPath": "files/icons/arrow-up-right.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-chevron-down",
+    "type": "icon",
+    "label": "Chevron down",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "chevron",
+      "down",
+      "interface"
+    ],
+    "order": 12,
+    "svgPath": "files/icons/chevron-down.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-chevron-right",
+    "type": "icon",
+    "label": "Chevron right",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "chevron",
+      "right",
+      "interface"
+    ],
+    "order": 13,
+    "svgPath": "files/icons/chevron-right.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-box-arrow-up-right",
+    "type": "icon",
+    "label": "Open in new window",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "open",
+      "in",
+      "new",
+      "window",
+      "box",
+      "arrow",
+      "up",
+      "right",
+      "interface"
+    ],
+    "order": 14,
+    "svgPath": "files/icons/box-arrow-up-right.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-link-45deg",
+    "type": "icon",
+    "label": "Link",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "link",
+      "interface"
+    ],
+    "order": 15,
+    "svgPath": "files/icons/link-45deg.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-gear",
+    "type": "icon",
+    "label": "Settings",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "settings",
+      "gear",
+      "interface"
+    ],
+    "order": 16,
+    "svgPath": "files/icons/gear.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-sliders",
+    "type": "icon",
+    "label": "Adjust",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "adjust",
+      "sliders",
+      "interface"
+    ],
+    "order": 17,
+    "svgPath": "files/icons/sliders.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-funnel",
+    "type": "icon",
+    "label": "Filter",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "filter",
+      "funnel",
+      "interface"
+    ],
+    "order": 18,
+    "svgPath": "files/icons/funnel.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-three-dots",
+    "type": "icon",
+    "label": "More",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "more",
+      "three",
+      "dots",
+      "interface"
+    ],
+    "order": 19,
+    "svgPath": "files/icons/three-dots.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-pencil",
+    "type": "icon",
+    "label": "Edit",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "edit",
+      "pencil",
+      "interface"
+    ],
+    "order": 20,
+    "svgPath": "files/icons/pencil.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-trash",
+    "type": "icon",
+    "label": "Delete",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "delete",
+      "trash",
+      "interface"
+    ],
+    "order": 21,
+    "svgPath": "files/icons/trash.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-eye",
+    "type": "icon",
+    "label": "Show",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "show",
+      "eye",
+      "interface"
+    ],
+    "order": 22,
+    "svgPath": "files/icons/eye.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-upload",
+    "type": "icon",
+    "label": "Upload",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "upload",
+      "interface"
+    ],
+    "order": 23,
+    "svgPath": "files/icons/upload.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-share",
+    "type": "icon",
+    "label": "Share",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "share",
+      "interface"
+    ],
+    "order": 24,
+    "svgPath": "files/icons/share.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-house",
+    "type": "icon",
+    "label": "Home",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "home",
+      "house",
+      "interface"
+    ],
+    "order": 25,
+    "svgPath": "files/icons/house.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-bell",
+    "type": "icon",
+    "label": "Notifications",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "notifications",
+      "bell",
+      "interface"
+    ],
+    "order": 26,
+    "svgPath": "files/icons/bell.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-info-circle",
+    "type": "icon",
+    "label": "Information",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "information",
+      "info",
+      "circle",
+      "interface"
+    ],
+    "order": 27,
+    "svgPath": "files/icons/info-circle.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-question-circle",
+    "type": "icon",
+    "label": "Help",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "help",
+      "question",
+      "circle",
+      "interface"
+    ],
+    "order": 28,
+    "svgPath": "files/icons/question-circle.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-exclamation-triangle",
+    "type": "icon",
+    "label": "Warning",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "warning",
+      "exclamation",
+      "triangle",
+      "interface"
+    ],
+    "order": 29,
+    "svgPath": "files/icons/exclamation-triangle.svg",
+    "group": "Interface",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-envelope",
+    "type": "icon",
+    "label": "Email",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "email",
+      "envelope",
+      "communication"
+    ],
+    "order": 30,
+    "svgPath": "files/icons/envelope.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-telephone",
+    "type": "icon",
+    "label": "Phone",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "phone",
+      "telephone",
+      "communication"
+    ],
+    "order": 31,
+    "svgPath": "files/icons/telephone.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-chat",
+    "type": "icon",
+    "label": "Chat",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "chat",
+      "communication"
+    ],
+    "order": 32,
+    "svgPath": "files/icons/chat.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-person",
+    "type": "icon",
+    "label": "Person",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "person",
+      "communication"
+    ],
+    "order": 33,
+    "svgPath": "files/icons/person.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-people",
+    "type": "icon",
+    "label": "People",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "people",
+      "communication"
+    ],
+    "order": 34,
+    "svgPath": "files/icons/people.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-calendar",
+    "type": "icon",
+    "label": "Calendar",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "calendar",
+      "communication"
+    ],
+    "order": 35,
+    "svgPath": "files/icons/calendar.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-clock",
+    "type": "icon",
+    "label": "Clock",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "clock",
+      "communication"
+    ],
+    "order": 36,
+    "svgPath": "files/icons/clock.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-geo-alt",
+    "type": "icon",
+    "label": "Location",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "location",
+      "geo",
+      "communication"
+    ],
+    "order": 37,
+    "svgPath": "files/icons/geo-alt.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-globe",
+    "type": "icon",
+    "label": "Website",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "website",
+      "globe",
+      "communication"
+    ],
+    "order": 38,
+    "svgPath": "files/icons/globe.svg",
+    "group": "Communication",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-cart",
+    "type": "icon",
+    "label": "Cart",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "cart",
+      "shop"
+    ],
+    "order": 39,
+    "svgPath": "files/icons/cart.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-bag",
+    "type": "icon",
+    "label": "Bag",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "bag",
+      "shop"
+    ],
+    "order": 40,
+    "svgPath": "files/icons/bag.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-basket",
+    "type": "icon",
+    "label": "Basket",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "basket",
+      "shop"
+    ],
+    "order": 41,
+    "svgPath": "files/icons/basket.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-credit-card",
+    "type": "icon",
+    "label": "Card payment",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "card",
+      "payment",
+      "credit",
+      "shop"
+    ],
+    "order": 42,
+    "svgPath": "files/icons/credit-card.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-receipt",
+    "type": "icon",
+    "label": "Receipt",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "receipt",
+      "shop"
+    ],
+    "order": 43,
+    "svgPath": "files/icons/receipt.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-truck",
+    "type": "icon",
+    "label": "Delivery",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "delivery",
+      "truck",
+      "shop"
+    ],
+    "order": 44,
+    "svgPath": "files/icons/truck.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-box-seam",
+    "type": "icon",
+    "label": "Package",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "package",
+      "box",
+      "shop"
+    ],
+    "order": 45,
+    "svgPath": "files/icons/box-seam.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-gift",
+    "type": "icon",
+    "label": "Gift",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "gift",
+      "shop"
+    ],
+    "order": 46,
+    "svgPath": "files/icons/gift.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-tag",
+    "type": "icon",
+    "label": "Price tag",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "price",
+      "tag",
+      "shop"
+    ],
+    "order": 47,
+    "svgPath": "files/icons/tag.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-shop",
+    "type": "icon",
+    "label": "Shop",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "shop"
+    ],
+    "order": 48,
+    "svgPath": "files/icons/shop.svg",
+    "group": "Shop",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-cup-hot",
+    "type": "icon",
+    "label": "Hot cup",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "hot",
+      "cup",
+      "tea"
+    ],
+    "order": 49,
+    "svgPath": "files/icons/cup-hot.svg",
     "group": "Tea",
     "pinned": true,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
     "id": "icon-cup",
+    "type": "icon",
     "label": "Cup",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "cup",
       "tea"
     ],
-    "order": 10,
-    "type": "icon",
+    "order": 50,
     "svgPath": "files/icons/cup.svg",
     "group": "Tea",
     "pinned": false,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-leaf",
-    "label": "Leaf",
+    "id": "icon-droplet",
+    "type": "icon",
+    "label": "Water",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
-      "leaf",
+      "water",
+      "droplet",
       "tea"
     ],
-    "order": 11,
-    "type": "icon",
-    "svgPath": "files/icons/leaf.svg",
+    "order": 51,
+    "svgPath": "files/icons/droplet.svg",
     "group": "Tea",
     "pinned": false,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-flame",
+    "id": "icon-fire",
+    "type": "icon",
     "label": "Flame",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "governedBy": [
-      "icon-stroke"
+      "icon-style"
     ],
     "keywords": [
       "flame",
+      "fire",
       "tea"
     ],
-    "order": 12,
-    "type": "icon",
-    "svgPath": "files/icons/flame.svg",
+    "order": 52,
+    "svgPath": "files/icons/fire.svg",
     "group": "Tea",
     "pinned": false,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   },
   {
-    "id": "icon-kettle",
-    "label": "Kettle",
-    "status": "pending",
+    "id": "icon-thermometer-half",
+    "type": "icon",
+    "label": "Temperature",
+    "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
-    "governedBy": [],
+    "governedBy": [
+      "icon-style"
+    ],
     "keywords": [
-      "kettle",
+      "temperature",
+      "thermometer",
       "tea"
     ],
-    "order": 13,
-    "type": "icon",
-    "svgPath": "files/icons/kettle.svg",
+    "order": 53,
+    "svgPath": "files/icons/thermometer-half.svg",
     "group": "Tea",
     "pinned": false,
-    "source": "Drawn for the demo brand"
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-hourglass-split",
+    "type": "icon",
+    "label": "Steeping time",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "steeping",
+      "time",
+      "hourglass",
+      "tea"
+    ],
+    "order": 54,
+    "svgPath": "files/icons/hourglass-split.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-flower1",
+    "type": "icon",
+    "label": "Flower",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "flower",
+      "flower1",
+      "tea"
+    ],
+    "order": 55,
+    "svgPath": "files/icons/flower1.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-tree",
+    "type": "icon",
+    "label": "Tea garden",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "tea",
+      "garden",
+      "tree"
+    ],
+    "order": 56,
+    "svgPath": "files/icons/tree.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-sun",
+    "type": "icon",
+    "label": "Sun",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "sun",
+      "tea"
+    ],
+    "order": 57,
+    "svgPath": "files/icons/sun.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-moisture",
+    "type": "icon",
+    "label": "Steam",
+    "status": "pending",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "steam",
+      "moisture",
+      "tea"
+    ],
+    "order": 58,
+    "svgPath": "files/icons/moisture.svg",
+    "group": "Tea",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-file-earmark",
+    "type": "icon",
+    "label": "File",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "file",
+      "files"
+    ],
+    "order": 59,
+    "svgPath": "files/icons/file-earmark.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-file-earmark-pdf",
+    "type": "icon",
+    "label": "PDF",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "pdf",
+      "file",
+      "files"
+    ],
+    "order": 60,
+    "svgPath": "files/icons/file-earmark-pdf.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-file-earmark-image",
+    "type": "icon",
+    "label": "Image file",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "image",
+      "file",
+      "files"
+    ],
+    "order": 61,
+    "svgPath": "files/icons/file-earmark-image.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-file-earmark-zip",
+    "type": "icon",
+    "label": "Zip file",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "zip",
+      "file",
+      "files"
+    ],
+    "order": 62,
+    "svgPath": "files/icons/file-earmark-zip.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-folder",
+    "type": "icon",
+    "label": "Folder",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "folder",
+      "files"
+    ],
+    "order": 63,
+    "svgPath": "files/icons/folder.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-image",
+    "type": "icon",
+    "label": "Image",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "image",
+      "files"
+    ],
+    "order": 64,
+    "svgPath": "files/icons/image.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-camera",
+    "type": "icon",
+    "label": "Camera",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "camera",
+      "files"
+    ],
+    "order": 65,
+    "svgPath": "files/icons/camera.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
+  },
+  {
+    "id": "icon-printer",
+    "type": "icon",
+    "label": "Printer",
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "governedBy": [
+      "icon-style"
+    ],
+    "keywords": [
+      "printer",
+      "files"
+    ],
+    "order": 66,
+    "svgPath": "files/icons/printer.svg",
+    "group": "Files",
+    "pinned": false,
+    "source": "Bootstrap Icons 1.13.2 (MIT)"
   }
 ]

@@ -27,7 +27,7 @@
       "border": "#2B3238"
     },
     "font": {
-      "display": "Inter",
+      "display": "Fraunces",
       "body": "Inter",
       "displayWeight": 500
     },
@@ -52,7 +52,7 @@
   "topTasks": [
     "logo-horizontal",
     "comet-green",
-    "inter",
+    "fraunces",
     "template-letterhead"
   ],
   "modules": {

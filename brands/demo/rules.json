@@ -4,11 +4,11 @@
     "label": "One green action per screen",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "type": "rule",
     "title": "Use Comet Green for one action per screen",
-    "body": "Comet Green marks the single most important action on a screen. Everything else uses Ink, Kiln White, and neutral grays.",
+    "body": "Comet Green marks the single most important action on a screen. Everything else uses Ink, Slate, Kiln White, and the background colors.",
     "do": [
       "Use Comet Green for the main button",
       "Set text on Comet Green in Kiln White"
@@ -21,7 +21,10 @@
       "comet-green",
       "ink",
       "kiln-white",
-      "copper"
+      "copper",
+      "slate",
+      "mist",
+      "clay"
     ]
   },
   {
@@ -47,39 +50,6 @@
       "logo-horizontal-reversed",
       "logo-stacked",
       "logo-mark"
-    ]
-  },
-  {
-    "id": "icon-stroke",
-    "label": "Icon style",
-    "status": "locked",
-    "version": "1.0",
-    "updated": "2026-10-22",
-    "audience": "public",
-    "type": "rule",
-    "title": "Draw icons on a 24px grid with a 2px stroke",
-    "body": "Icons use a 24 by 24 grid, a 2px stroke, and round caps and joins. Use one icon color per screen, taken from the icon colors on the Icons page.",
-    "do": [
-      "Use icons at 16, 24, 32, or 48px",
-      "Pair an icon with a text label in buttons"
-    ],
-    "dont": [
-      "Fill icons with a second color",
-      "Mix icon sets from other sources"
-    ],
-    "appliesTo": [
-      "icon-search",
-      "icon-download",
-      "icon-copy",
-      "icon-check",
-      "icon-arrow-right",
-      "icon-close",
-      "icon-menu",
-      "icon-plus",
-      "icon-teapot",
-      "icon-cup",
-      "icon-leaf",
-      "icon-flame"
     ]
   },
   {
@@ -131,7 +101,7 @@
     "label": "Template text",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "type": "rule",
     "title": "Keep template text in Inter",
@@ -148,6 +118,141 @@
       "template-letterhead",
       "template-slide-deck",
       "template-social-post"
+    ]
+  },
+  {
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "id": "color-backgrounds",
+    "label": "Background colors",
+    "type": "rule",
+    "title": "Use Kiln White for pages, Mist and Clay for panels",
+    "body": "Kiln White is the page background. Mist and Clay set a panel or section apart. Use one panel color per page.\n\nSet text on these backgrounds in Ink or Slate.",
+    "do": [
+      "Use Mist for a highlighted section",
+      "Use Clay for seasonal and gift panels"
+    ],
+    "dont": [
+      "Put Mist and Clay panels next to each other",
+      "Set Slate text on Comet Green"
+    ],
+    "appliesTo": [
+      "kiln-white",
+      "slate",
+      "mist",
+      "clay"
+    ]
+  },
+  {
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "id": "type-pairing",
+    "label": "Type pairing",
+    "type": "rule",
+    "title": "Fraunces for headings, Inter for everything else",
+    "body": "Set page titles and section headings in Fraunces at weight 500. Set body text, labels, and buttons in Inter.\n\nUse 600 for emphasis in either family. Do not use other weights.",
+    "do": [
+      "Keep headings short so Fraunces stays readable",
+      "Use Inter for numbers in tables"
+    ],
+    "dont": [
+      "Set body text in Fraunces",
+      "Use more than two weights on one page"
+    ],
+    "appliesTo": [
+      "fraunces",
+      "inter"
+    ]
+  },
+  {
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "id": "icon-style",
+    "label": "Icon style",
+    "type": "rule",
+    "title": "Use icons from the library at 16px or larger",
+    "body": "The icon library uses Bootstrap Icons, drawn on a 16px grid with filled shapes. Use them at 16, 24, or 32 pixels so the lines stay sharp.\n\nColor icons with Ink, Comet Green, or Copper. Pair an icon with a text label unless the meaning is universal, like Search or Close.",
+    "do": [
+      "Use the pinned icons for common actions",
+      "Download SVG for print and slides"
+    ],
+    "dont": [
+      "Mix icons from other libraries",
+      "Stretch or outline an icon"
+    ],
+    "appliesTo": [
+      "icon-search",
+      "icon-download",
+      "icon-copy",
+      "icon-check-lg",
+      "icon-x-lg",
+      "icon-list",
+      "icon-plus-lg",
+      "icon-arrow-right",
+      "icon-dash-lg",
+      "icon-arrow-left",
+      "icon-arrow-up-right",
+      "icon-chevron-down",
+      "icon-chevron-right",
+      "icon-box-arrow-up-right",
+      "icon-link-45deg",
+      "icon-gear",
+      "icon-sliders",
+      "icon-funnel",
+      "icon-three-dots",
+      "icon-pencil",
+      "icon-trash",
+      "icon-eye",
+      "icon-upload",
+      "icon-share",
+      "icon-house",
+      "icon-bell",
+      "icon-info-circle",
+      "icon-question-circle",
+      "icon-exclamation-triangle",
+      "icon-envelope",
+      "icon-telephone",
+      "icon-chat",
+      "icon-person",
+      "icon-people",
+      "icon-calendar",
+      "icon-clock",
+      "icon-geo-alt",
+      "icon-globe",
+      "icon-cart",
+      "icon-bag",
+      "icon-basket",
+      "icon-credit-card",
+      "icon-receipt",
+      "icon-truck",
+      "icon-box-seam",
+      "icon-gift",
+      "icon-tag",
+      "icon-shop",
+      "icon-cup-hot",
+      "icon-cup",
+      "icon-droplet",
+      "icon-fire",
+      "icon-thermometer-half",
+      "icon-hourglass-split",
+      "icon-flower1",
+      "icon-tree",
+      "icon-sun",
+      "icon-moisture",
+      "icon-file-earmark",
+      "icon-file-earmark-pdf",
+      "icon-file-earmark-image",
+      "icon-file-earmark-zip",
+      "icon-folder",
+      "icon-image",
+      "icon-camera",
+      "icon-printer"
     ]
   }
 ]

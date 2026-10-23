@@ -4,7 +4,7 @@
     "label": "Letterhead",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "help": "Letters and one-page documents.",
     "order": 1,
@@ -13,7 +13,7 @@
     ],
     "type": "template",
     "category": "Print",
-    "url": "https://example.com/templates/letterhead",
+    "url": "/demo-template/#letterhead",
     "thumbnail": "files/templates/letterhead.svg",
     "rules": [
       "logo-clear-space"
@@ -24,7 +24,7 @@
     "label": "Slide deck",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "help": "Presentations, 16:9.",
     "order": 2,
@@ -33,7 +33,7 @@
     ],
     "type": "template",
     "category": "Slides",
-    "url": "https://example.com/templates/slide-deck",
+    "url": "/demo-template/#slide-deck",
     "thumbnail": "files/templates/slide-deck.svg",
     "rules": [
       "logo-clear-space"
@@ -44,7 +44,7 @@
     "label": "Social post",
     "status": "locked",
     "version": "1.0",
-    "updated": "2026-10-22",
+    "updated": "2026-10-23",
     "audience": "public",
     "help": "Square posts for social channels.",
     "order": 3,
@@ -53,26 +53,10 @@
     ],
     "type": "template",
     "category": "Social",
-    "url": "https://example.com/templates/social-post",
+    "url": "/demo-template/#social-post",
     "thumbnail": "files/templates/social-post.svg",
     "rules": [
       "logo-clear-space"
     ]
-  },
-  {
-    "id": "template-business-card",
-    "label": "Business card",
-    "status": "pending",
-    "version": "1.0",
-    "updated": "2026-10-22",
-    "audience": "public",
-    "help": "Standard 85 by 55 mm card.",
-    "order": 4,
-    "governedBy": [],
-    "type": "template",
-    "category": "Print",
-    "url": "https://example.com/templates/business-card",
-    "thumbnail": "files/templates/business-card.svg",
-    "rules": []
   }
 ]

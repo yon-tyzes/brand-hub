@@ -78,7 +78,8 @@
     "audience": "public",
     "help": "Page background and text on dark colors.",
     "governedBy": [
-      "one-green-action"
+      "one-green-action",
+      "color-backgrounds"
     ],
     "order": 3,
     "type": "color",
@@ -140,5 +141,125 @@
       40
     ],
     "pairings": []
+  },
+  {
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "id": "slate",
+    "label": "Slate",
+    "help": "Captions, help text, and other secondary text.",
+    "governedBy": [
+      "one-green-action",
+      "color-backgrounds"
+    ],
+    "order": 5,
+    "type": "color",
+    "hex": "#59616C",
+    "rgb": [
+      89,
+      97,
+      108
+    ],
+    "role": "secondary text",
+    "cmyk": [
+      18,
+      10,
+      0,
+      58
+    ],
+    "pairings": [
+      {
+        "fg": "slate",
+        "bg": "kiln-white",
+        "use": "text"
+      },
+      {
+        "fg": "slate",
+        "bg": "mist",
+        "use": "text"
+      }
+    ]
+  },
+  {
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "id": "mist",
+    "label": "Mist",
+    "help": "Panels and highlighted sections.",
+    "governedBy": [
+      "one-green-action",
+      "color-backgrounds"
+    ],
+    "order": 6,
+    "type": "color",
+    "hex": "#E4EFEA",
+    "rgb": [
+      228,
+      239,
+      234
+    ],
+    "role": "background",
+    "cmyk": [
+      5,
+      0,
+      2,
+      6
+    ],
+    "pairings": [
+      {
+        "fg": "ink",
+        "bg": "mist",
+        "use": "text"
+      },
+      {
+        "fg": "comet-green",
+        "bg": "mist",
+        "use": "text"
+      }
+    ]
+  },
+  {
+    "status": "locked",
+    "version": "1.0",
+    "updated": "2026-10-23",
+    "audience": "public",
+    "id": "clay",
+    "label": "Clay",
+    "help": "Seasonal and gift panels. Pair with Copper accents.",
+    "governedBy": [
+      "one-green-action",
+      "color-backgrounds"
+    ],
+    "order": 7,
+    "type": "color",
+    "hex": "#F5E6DA",
+    "rgb": [
+      245,
+      230,
+      218
+    ],
+    "role": "background",
+    "cmyk": [
+      0,
+      6,
+      11,
+      4
+    ],
+    "pairings": [
+      {
+        "fg": "ink",
+        "bg": "clay",
+        "use": "text"
+      },
+      {
+        "fg": "copper",
+        "bg": "clay",
+        "use": "text"
+      }
+    ]
   }
 ]
