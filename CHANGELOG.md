@@ -13,7 +13,7 @@ First tagged release.
 - Search dialog with inline actions (copy hex, download SVG, open template), opened with Cmd or Ctrl+K and `/`.
 - Logo background toggle and downloads, color copy tabs (HEX, RGB, CMYK, PMS) and approved pairings, font zips and install steps, icon detail sheet with recolor and PNG export, template category filters.
 - Build-time zips for fonts and all logos, and a build-time search index.
-- Light and dark themes from brand tokens. Pages load one 2.5 KB (gzipped) shell script; islands load only where needed.
+- Light and dark themes from brand tokens. Pages load one 2.5 KB (gzipped) shell script, with a 5 KB budget that `pnpm check` enforces; islands load only where needed.
 - Template links can point to a page on the same site (`/demo-template/`) as well as to a full web address.
 
 ### Brand data
@@ -24,6 +24,7 @@ First tagged release.
 ### Editor
 
 - `/admin`: card grid, inspector, inline rename, reorder, status changes, retire and delete, undo and redo, autosave to IndexedDB, and a leave guard.
+- Keyboard: Edit on a card moves focus to the inspector's first field; Escape or Close returns it to the card.
 - Uploads with prefill from the file, SVG cleaning, and replace-file with a side-by-side check.
 - Serializer: turns edits into validated, stable JSON (sorted keys, two-space indent, trailing newline), applies the brand's file naming pattern, stamps `updated` and `version`, and writes changelog lines. Same input gives byte-identical output.
 - Preview of the public pages from the draft, marked "Preview, not live".
