@@ -60,7 +60,7 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         {nameError && <p className="ed-error" id="ed-name-error">{nameError}</p>}
       </div>
 
-      {FIELDS[mod.id]!.map((def) => (
+      {FIELDS[mod.id]!.filter((def) => !def.when || def.when(record)).map((def) => (
         <Field key={`${def.key}-${def.kind}`} def={def} record={record} error={errors[def.key]} />
       ))}
 

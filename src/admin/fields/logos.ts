@@ -13,5 +13,5 @@ export const logoFields: FieldDef[] = [
       { value: "dark", label: "Dark backgrounds" },
     ],
   },
-  { key: "files", kind: "logo-files", label: "Download formats", help: "Each file becomes a download button. Add an SVG and a PNG at least." },
+  { key: "files", kind: "logo-files", label: "Files", help: "Each file becomes a download, named by use. Add an SVG and a PNG at least. Print and sign vendors often ask for PDF or EPS." },
 ];

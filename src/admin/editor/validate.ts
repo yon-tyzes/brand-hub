@@ -48,8 +48,10 @@ const sentence = (m: string) => {
 
 export function validate(record: AnyRecord): FieldErrors {
   const result = SCHEMAS[record.type].safeParse(record);
-  if (result.success) return {};
   const out: FieldErrors = {};
+  // The loader requires a template format; the schema alone allows none (src/content/check.ts).
+  if (record.type === "template" && !Object.values(record.formats ?? {}).some(Boolean) && !record.url) out.formats = "Add a Canva link or at least one file.";
+  if (result.success) return out;
   for (const issue of result.error.issues) {
     const key = String(issue.path[0] ?? "label");
     out[key] ??= message(issue);

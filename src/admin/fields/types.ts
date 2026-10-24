@@ -1,11 +1,14 @@
 // Field definitions for the inspector. Labels and help are written for the person editing the brand:
 // plain words, one line of help, and no technical terms.
 import type { AnyRecord, AssetType } from "../../../schemas/asset.ts";
+import type { GuideChapter } from "../../../schemas/brand.ts";
 
 export interface FieldContext {
   records: AnyRecord[];
   /** The record being edited. */
   record: AnyRecord;
+  /** Brand guide chapters from the draft's brand settings. */
+  chapters: GuideChapter[];
 }
 
 export type FieldKind =
@@ -26,6 +29,10 @@ export type FieldKind =
   /** One uploaded file stored in this field. */
   | { kind: "file"; accept: string[]; icon?: boolean }
   | { kind: "logo-files" }
+  /** A template's Canva link and its Word, PowerPoint, and PDF files. */
+  | { kind: "template-formats" }
+  /** A Brand guide chapter from brand settings. */
+  | { kind: "chapter" }
   | { kind: "font-files"; variant: "static" | "variable" };
 
 export type FieldDef = FieldKind & {
@@ -33,6 +40,8 @@ export type FieldDef = FieldKind & {
   label: string;
   help: string;
   optional?: boolean;
+  /** Shown only when this returns true for the record. */
+  when?: (r: AnyRecord) => boolean;
 };
 
 const uniqueValues = (ctx: FieldContext, type: AssetType, key: string) =>

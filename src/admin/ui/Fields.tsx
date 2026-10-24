@@ -1,7 +1,8 @@
 // Inspector field controls, one per field kind (src/admin/fields/types.ts). Each shows its label, one line
 // of help, and a validation message as the person types.
 import { useId, useRef, useState, type ReactNode } from "react";
-import type { AnyRecord, ColorAsset, ColorPairing, FontAsset, LogoAsset } from "../../../schemas/asset.ts";
+import type { AnyRecord, ColorAsset, ColorPairing, FontAsset, LogoAsset, TemplateAsset } from "../../../schemas/asset.ts";
+import { canvaLinkWarning } from "../editor/links.ts";
 import { filePaths } from "../../content/file-paths.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
 import { contrastRatio } from "../../theme/color.ts";
@@ -39,12 +40,12 @@ function Shell({ def, error, id, children, group }: { def: FieldDef; error?: str
 }
 
 export function Field({ def, record, error }: FieldProps) {
-  const { apply, records } = useEditor();
+  const { apply, records, brand } = useEditor();
   const id = useId();
   const described = [def.help && `${id}-help`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
   const set = (value: unknown) => apply(updateRecord(record.id, { [def.key]: value } as Partial<AnyRecord>), `${record.id}.${def.key}`);
   const common = { id, "aria-describedby": described, "aria-invalid": error ? true : undefined } as const;
-  const ctx: FieldContext = { records, record };
+  const ctx: FieldContext = { records, record, chapters: brand.guide.chapters };
 
   switch (def.kind) {
     case "text": {
@@ -105,6 +106,17 @@ export function Field({ def, record, error }: FieldProps) {
       return <FileField def={def} record={record} error={error} id={id} accept={def.accept} />;
     case "logo-files":
       return <LogoFilesField def={def} record={record as LogoAsset} error={error} id={id} />;
+    case "template-formats":
+      return <TemplateFormatsField def={def} record={record as TemplateAsset} error={error} id={id} />;
+    case "chapter":
+      return (
+        <Shell def={def} error={error} id={id}>
+          <select className="field" value={String(get(record, def.key) ?? "")} onChange={(e) => set(e.target.value)} {...common}>
+            {!ctx.chapters.some((c) => c.id === get(record, def.key)) && <option value={String(get(record, def.key) ?? "")}>Choose a chapter</option>}
+            {ctx.chapters.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+          </select>
+        </Shell>
+      );
     case "font-files":
       return <FontFilesField def={def} record={record as FontAsset} error={error} id={id} variant={def.variant} />;
   }
@@ -392,45 +404,127 @@ function FileField({ def, record, error, id, accept }: Sub & { record: AnyRecord
   );
 }
 
-function LogoFilesField({ def, record, error, id }: Sub & { record: LogoAsset }) {
-  const { apply, fileLabel } = useEditor();
+/** One upload slot: shows the file with Replace and Remove, or an Add button. */
+function Slot({ label, accept, file, note, onUpload, onRemove }: {
+  label: string; accept: string[]; file?: { path: string; detail?: string }; note?: string;
+  onUpload: (f: File) => void; onRemove?: () => void;
+}) {
+  const { fileLabel } = useEditor();
   const picker = useRef<HTMLInputElement>(null);
-  const upload = useUpload(record);
-  const accept = EDITOR_MODULES[0]!.accept;
   return (
-    <Shell def={def} error={error} id={id} group>
-      <ul className="ed-files" role="list">
-        {record.files.map((f) => (
-          <li key={f.path}>
-            <span>
-              <strong>{f.ext.toUpperCase()}</strong>
-              {f.width ? `, ${f.width} px wide` : ""} <span className="small">{fileLabel(f.path)}</span>
-            </span>
-            <button type="button" className="btn btn-text btn-sm" onClick={() => apply(updateRecord(record.id, { files: record.files.filter((x) => x.path !== f.path) }))}>
-              Remove<span className="visually-hidden"> {f.ext.toUpperCase()} file</span>
-            </button>
-            <FileNotes path={f.path} />
-          </li>
-        ))}
-      </ul>
-      <button type="button" className="btn btn-secondary btn-sm" onClick={() => picker.current?.click()}>Add a format</button>
+    <li className="ed-slot">
+      <span className="ed-slot-text">
+        <strong>{label}</strong>
+        {file ? <span className="small">{fileLabel(file.path)}{file.detail ? `, ${file.detail}` : ""}</span> : <span className="small">{note ?? "No file yet"}</span>}
+      </span>
+      <span className="ed-slot-actions">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => picker.current?.click()}>
+          {file ? "Replace" : "Add"}<span className="visually-hidden"> {label}</span>
+        </button>
+        {file && onRemove && (
+          <button type="button" className="btn btn-text btn-sm" onClick={onRemove}>
+            Remove<span className="visually-hidden"> {label}</span>
+          </button>
+        )}
+      </span>
       <input
         ref={picker}
         type="file"
         hidden
         accept={accept.join(",")}
-        aria-label="Add a format"
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
+        aria-label={`${file ? "Replace" : "Add"} ${label}`}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
           e.target.value = "";
-          if (!file) return;
-          const u = await upload(file, accept);
-          if (!u) return;
-          const ext = extension(file.name);
-          const entry = { ext, path: u.path, ...(u.width && ext !== "svg" ? { width: u.width } : {}) };
-          apply(attachFiles(record.id, [u], { files: [...record.files.filter((x) => x.ext !== ext || x.width !== entry.width), entry] }));
+          if (f) onUpload(f);
         }}
       />
+      {file && <FileNotes path={file.path} />}
+    </li>
+  );
+}
+
+const LOGO_SLOTS = [
+  { ext: "svg", label: "SVG", note: "For print and web" },
+  { ext: "png", label: "PNG", note: "For Word and PowerPoint" },
+  { ext: "pdf", label: "PDF", note: "For print vendors" },
+  { ext: "eps", label: "EPS", note: "For sign makers" },
+];
+
+function LogoFilesField({ def, record, error, id }: Sub & { record: LogoAsset }) {
+  const { apply } = useEditor();
+  const upload = useUpload(record);
+  const put = async (file: File, accept: string[]) => {
+    const u = await upload(file, accept);
+    if (!u) return;
+    const ext = extension(file.name);
+    const entry = { ext, path: u.path, ...(u.width && ext !== "svg" ? { width: u.width } : {}) };
+    apply(attachFiles(record.id, [u], { files: [...record.files.filter((x) => x.ext !== ext || (x.width ?? 0) !== (entry.width ?? 0)), entry] }));
+  };
+  const remove = (path: string) => apply(updateRecord(record.id, { files: record.files.filter((x) => x.path !== path) }));
+  const others = record.files.filter((f) => !LOGO_SLOTS.some((s) => s.ext === f.ext));
+  return (
+    <Shell def={def} error={error} id={id} group>
+      <ul className="ed-slots" role="list">
+        {LOGO_SLOTS.map((s) => {
+          const files = record.files.filter((f) => f.ext === s.ext);
+          const accept = [`.${s.ext}`];
+          if (!files.length) return <Slot key={s.ext} label={s.label} accept={accept} note={s.note} onUpload={(f) => put(f, accept)} />;
+          return files.map((f) => (
+            <Slot key={f.path} label={s.label} accept={accept} file={{ path: f.path, detail: f.width ? `${f.width} px wide` : undefined }} onUpload={(file) => put(file, accept)} onRemove={() => remove(f.path)} />
+          ));
+        })}
+        {others.map((f) => (
+          <Slot key={f.path} label={f.ext.toUpperCase()} accept={[`.${f.ext}`]} file={{ path: f.path }} onUpload={(file) => put(file, [`.${f.ext}`])} onRemove={() => remove(f.path)} />
+        ))}
+      </ul>
+    </Shell>
+  );
+}
+
+const TEMPLATE_FILES = [
+  { key: "docx", label: "Word", accept: [".docx"] },
+  { key: "pptx", label: "PowerPoint", accept: [".pptx"] },
+  { key: "pdf", label: "PDF", accept: [".pdf"] },
+] as const;
+
+/** Canva link and file slots for a template. At least one is required (checked by validate). */
+function TemplateFormatsField({ def, record, error, id }: Sub & { record: TemplateAsset }) {
+  const { apply } = useEditor();
+  const upload = useUpload(record);
+  const formats = record.formats ?? {};
+  const setFormats = (next: TemplateAsset["formats"]) =>
+    apply(updateRecord(record.id, { formats: Object.fromEntries(Object.entries(next).filter(([, v]) => !!v)) } as Partial<TemplateAsset>), `${record.id}.formats`);
+  const warning = formats.canva ? canvaLinkWarning(formats.canva) : undefined;
+  return (
+    <Shell def={def} error={error} id={id} group>
+      <label className="ed-sublabel" htmlFor={`${id}-canva`}>Canva link <span className="ed-optional">(recommended)</span></label>
+      <input
+        className="field"
+        id={`${id}-canva`}
+        type="url"
+        inputMode="url"
+        placeholder="https://www.canva.com/design/..."
+        value={formats.canva ?? ""}
+        onChange={(e) => setFormats({ ...formats, canva: e.target.value || undefined })}
+      />
+      {warning && <p className="ed-warning" role="status">{warning}</p>}
+      <ul className="ed-slots" role="list">
+        {TEMPLATE_FILES.map((t) => (
+          <Slot
+            key={t.key}
+            label={t.label}
+            accept={[...t.accept]}
+            file={formats[t.key] ? { path: formats[t.key]! } : undefined}
+            note={`${t.accept[0]!.slice(1).toUpperCase()} file`}
+            onUpload={async (file) => {
+              const u = await upload(file, [...t.accept]);
+              if (u) apply(attachFiles(record.id, [u], { formats: { ...formats, [t.key]: u.path } } as Partial<TemplateAsset>));
+            }}
+            onRemove={() => setFormats({ ...formats, [t.key]: undefined })}
+          />
+        ))}
+      </ul>
     </Shell>
   );
 }

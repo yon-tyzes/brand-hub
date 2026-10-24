@@ -91,8 +91,11 @@ function withPaths(r: AnyRecord, map: (p: string) => string): AnyRecord {
       return { ...r, files: { static: r.files.static.map(map), variable: r.files.variable.map(map) } };
     case "icon":
       return { ...r, svgPath: map(r.svgPath) };
-    case "template":
-      return { ...r, thumbnail: map(r.thumbnail) };
+    case "template": {
+      const formats = { ...r.formats };
+      for (const k of ["docx", "pptx", "pdf"] as const) if (formats[k]) formats[k] = map(formats[k]);
+      return { ...r, thumbnail: map(r.thumbnail), formats };
+    }
     default:
       return r;
   }
