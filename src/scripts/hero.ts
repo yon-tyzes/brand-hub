@@ -154,6 +154,13 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retone);
   addEventListener("resize", redraw, { passive: true });
 
+  // A lost context (GPU reset, too many contexts) falls back to the static gradient underneath.
+  canvas.addEventListener("webglcontextlost", () => {
+    cancelAnimationFrame(frame);
+    canvas.remove();
+    hero.dataset.heroState = "static";
+  });
+
   hero.prepend(canvas);
   requestAnimationFrame((now) => {
     draw(now);
