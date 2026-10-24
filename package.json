@@ -1,6 +1,6 @@
 {
   "name": "@yon-tyzes/brand-hub",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Astro engine for brand resource sites with an in-site editor, driven by brand data.",
   "license": "MIT",
   "type": "module",
