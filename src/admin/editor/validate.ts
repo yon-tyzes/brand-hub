@@ -42,7 +42,8 @@ const sentence = (m: string) => {
   const text = m
     .replace(/^must be a 6-digit hex color like (#[0-9A-F]+)/i, "Enter a 6-digit hex like $1")
     .replace(/^needs at least one static or variable file/, "Add at least one font file")
-    .replace(/^must point to an \.svg file/, "Upload an SVG file");
+    .replace(/^must point to an \.svg file/, "Upload an SVG file")
+    .replace(/^must point to a \.(\w+) file/, (_m, ext: string) => `Upload a ${ext.toUpperCase()} file`);
   return text.charAt(0).toUpperCase() + text.slice(1) + (text.endsWith(".") ? "" : ".");
 };
 

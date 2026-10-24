@@ -10,7 +10,7 @@ const brandFile = (name: string) => join(root(), "brands", "demo", name);
 const details = (page: Page) => page.getByRole("complementary", { name: "Details" });
 
 async function open(page: Page) {
-  await page.goto("/admin/");
+  await page.goto("/admin/logos/");
   await expect(page.getByRole("list", { name: "Logos" })).toBeVisible({ timeout: 60_000 });
 }
 
@@ -93,7 +93,7 @@ test("a save against a newer version shows what changed and can overwrite", asyn
   await expect(conflict).toContainText('Color, Ink, theirs: renamed from "Ink"');
   await conflict.getByRole("button", { name: "Get their changes" }).click();
   await expect(page.getByRole("button", { name: "Edit Reversed, mine", exact: true })).toBeVisible();
-  await page.locator(".rail-item", { hasText: "Colors" }).click();
+  await page.locator(".ed-side-item", { hasText: "Colors" }).click();
   await expect(page.getByRole("button", { name: "Edit Ink, theirs", exact: true })).toBeVisible();
 });
 
@@ -105,6 +105,33 @@ test("history lists git commits and restores one as a draft", async ({ page }) =
   // Restore the committed version over the edits the earlier tests saved.
   await history.getByRole("listitem").filter({ hasText: "Demo brand as committed" }).getByRole("button", { name: /^Restore/ }).click();
   await expect(page.getByRole("button", { name: "Edit Logo mark", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: /Show unsaved changes/ }).click();
+  await page.getByRole("button", { name: /unsaved change/ }).click();
   await expect(page.getByRole("dialog", { name: "Unsaved changes" })).toContainText("Logo, Logo mark: renamed from");
+});
+
+test("brand settings, a color edit, preview, and publish work with the local adapter", async ({ page }) => {
+  await page.goto("/admin/");
+  await expect(page.getByRole("heading", { level: 1, name: "Overview" })).toBeVisible({ timeout: 60_000 });
+  await page.getByRole("navigation", { name: "Editor" }).getByRole("link", { name: /^Colors/ }).click();
+  await expect(page).toHaveURL(/\/admin\/colors\/$/);
+  await page.getByRole("button", { name: "Edit Slate", exact: true }).click();
+  await details(page).getByLabel("Where it's used").fill("Captions and help text.");
+  await expect(page.locator('.admin-card[data-id="slate"]')).toContainText("Edited");
+
+  await page.getByRole("button", { name: "Preview" }).click();
+  const frame = page.frameLocator("iframe.preview-frame");
+  await expect(frame.getByRole("heading", { level: 1, name: "Colors" })).toBeVisible();
+  await page.getByRole("dialog", { name: "Preview, not live" }).getByRole("button", { name: /Close/ }).click();
+
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status").filter({ hasText: /Published/ })).toBeVisible({ timeout: 30_000 });
+  const colors = JSON.parse(readFileSync(brandFile("colors.json"), "utf8")) as { id: string; help?: string }[];
+  expect(colors.find((c) => c.id === "slate")?.help).toBe("Captions and help text.");
+
+  await page.goto("/admin/settings/");
+  await page.getByLabel("Short name").fill("Comet, local");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Draft saved." })).toBeVisible({ timeout: 30_000 });
+  const brand = JSON.parse(readFileSync(brandFile("brand.json"), "utf8")) as { shortName: string };
+  expect(brand.shortName).toBe("Comet, local");
 });

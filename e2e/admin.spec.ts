@@ -6,7 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" onload="alert(1)"><script>alert(1)</script><rect width="120" height="40" fill="#1E5B4A"/></svg>`;
 
 async function open(page: Page) {
-  await page.goto("/admin/");
+  await page.goto("/admin/logos/");
   await expect(page.getByRole("list", { name: "Logos" })).toBeVisible();
 }
 
@@ -79,8 +79,9 @@ test("change status with the segmented control", async ({ page }) => {
   const status = page.getByRole("radiogroup", { name: "Status" });
   await expect(status.getByRole("radio", { name: "Live" })).toBeChecked();
   await status.getByRole("radio", { name: "Live" }).focus();
-  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowRight");
   await expect(status.getByRole("radio", { name: "Pending" })).toBeChecked();
+  await expect(page.locator(".ed-status-help")).toHaveText("Not on the site yet. Waiting for approval.");
   await expect(card(page, "Logo mark").locator(".status-badge").first()).toHaveText("Pending");
 
   await page.getByRole("button", { name: /unsaved change/ }).click();
@@ -142,7 +143,7 @@ test("editor shows no technical terms and passes axe", async ({ page }) => {
   await open(page);
   const sections = ["Logos", "Colors", "Fonts", "Icons", "Photos", "Templates", "Rules"];
   for (const s of sections) {
-    await page.locator(".rail-item", { hasText: s }).click();
+    await page.locator(".ed-side-item", { hasText: s }).click();
     await page.locator(".admin-card-title").first().click();
     await expect(page.getByRole("complementary", { name: "Details" }).locator(".inspector")).toBeVisible();
     const text = await page.locator("body").innerText();
@@ -179,22 +180,22 @@ test("delete permanently asks first, names the item, and can be undone", async (
 
 test("module editors: hex updates RGB live, Canva edit links get a warning, icons add from the picker", async ({ page }) => {
   await open(page);
-  await page.locator(".rail-item", { hasText: "Colors" }).click();
+  await page.locator(".ed-side-item", { hasText: "Colors" }).click();
   await page.getByRole("button", { name: "Edit Copper" }).click();
   const details = page.getByRole("complementary", { name: "Details" });
-  const hex = details.getByLabel("Hex");
+  const hex = details.getByLabel("Web (HEX)");
   await hex.fill("#12");
   await expect(details.getByText("Enter a 6-digit hex like #1E5B4A.")).toBeVisible();
   await hex.fill("#336699");
-  await expect(details.getByText("RGB 51, 102, 153")).toBeVisible();
-  await expect(details.getByRole("list", { name: "Contrast on site backgrounds" })).toContainText("Page background");
+  await expect(details.getByText("RGB 51 102 153")).toBeVisible();
+  await expect(card(page, "Copper")).toContainText("Edited");
 
-  await page.locator(".rail-item", { hasText: "Templates" }).click();
+  await page.locator(".ed-side-item", { hasText: "Templates" }).click();
   await page.getByRole("button", { name: "Edit Letterhead" }).click();
-  await details.getByLabel("Template link").fill("https://www.canva.com/design/DAF0000/edit");
+  await details.getByLabel(/Canva link/).fill("https://www.canva.com/design/DAF0000/edit");
   await expect(details.getByText(/This looks like an edit link/)).toBeVisible();
 
-  await page.locator(".rail-item", { hasText: "Icons" }).click();
+  await page.locator(".ed-side-item", { hasText: "Icons" }).click();
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: "Add icon" }).click();
   await (await chooser).setFiles({ name: "steam-cloud.svg", mimeType: "image/svg+xml", buffer: Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 12h16" stroke="#000000"/></svg>') });
@@ -210,18 +211,18 @@ test("Edit moves focus to the inspector's first field; Escape and Close return i
 
   await edit.focus();
   await page.keyboard.press("Enter");
-  await expect(details.getByRole("radio", { name: "Live" })).toBeFocused();
+  await expect(details.getByLabel("Name", { exact: true })).toBeFocused();
 
   // Escape from a field closes the inspector and puts focus back on the card.
   await page.keyboard.press("Tab");
-  await expect(details.getByLabel("Name", { exact: true })).toBeFocused();
+  await expect(details.getByLabel("Layout")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(details.getByText("Select an item to edit its details.")).toBeVisible();
   await expect(edit).toBeFocused();
 
   // The Close button does the same.
   await page.keyboard.press("Enter");
-  await expect(details.getByRole("radio", { name: "Live" })).toBeFocused();
+  await expect(details.getByLabel("Name", { exact: true })).toBeFocused();
   await details.getByRole("button", { name: "Close details" }).click();
   await expect(edit).toBeFocused();
 });
@@ -234,7 +235,7 @@ test("on small screens, Edit opens the details sheet on its first field and Esca
   await page.keyboard.press("Enter");
   const sheet = page.getByRole("dialog", { name: "Details: Stacked logo" });
   await expect(sheet).toBeVisible();
-  await expect(sheet.getByRole("radio", { name: "Live" })).toBeFocused();
+  await expect(sheet.getByLabel("Name", { exact: true })).toBeFocused();
 
   await page.keyboard.press("Escape");
   await expect(sheet).toBeHidden();

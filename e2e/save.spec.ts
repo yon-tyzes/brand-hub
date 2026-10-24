@@ -3,7 +3,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 async function open(page: Page) {
-  await page.goto("/admin/");
+  await page.goto("/admin/logos/");
   await expect(page.getByRole("list", { name: "Logos" })).toBeVisible();
 }
 
@@ -57,7 +57,7 @@ test("restore an earlier version as a new draft", async ({ page }) => {
 
 test("problems block the save and point to the items to fix", async ({ page }) => {
   await open(page);
-  await page.locator(".rail-item", { hasText: "Rules" }).click();
+  await page.locator(".ed-side-item", { hasText: "Rules" }).click();
   await page.getByRole("button", { name: "Edit Logo clear space" }).click();
   await page.getByRole("button", { name: "Delete permanently" }).click();
   await page.getByRole("dialog", { name: /Delete Logo clear space/ }).getByRole("button", { name: "Delete Logo clear space" }).click();
@@ -70,7 +70,7 @@ test("problems block the save and point to the items to fix", async ({ page }) =
   await problems.getByRole("button", { name: "Show Horizontal logo", exact: true }).click();
 
   await expect(details(page).getByRole("alert")).toContainText("Rules that apply includes Logo clear space");
-  await expect(page.locator('.admin-card[data-id="logo-horizontal"] .status-attention')).toBeVisible();
+  await expect(page.locator('.admin-card[data-id="logo-horizontal"] .admin-attention')).toBeVisible();
   // Nothing was saved.
   await expect(count(page)).toHaveText("1");
 });
@@ -110,7 +110,7 @@ test("an uploaded logo saves and keeps showing under its uploaded name", async (
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Draft saved." })).toBeVisible();
   // The editor keeps showing the name she uploaded; the final file name (tests/serializer.test.ts) stays out of view.
-  await expect(details(page).locator(".ed-files")).toContainText("My new mark.svg");
+  await expect(details(page).locator(".ed-slots")).toContainText("My new mark.svg");
   await page.getByRole("button", { name: "History" }).click();
   await expect(page.getByRole("dialog", { name: "History" })).toContainText("Logo, My new mark: added");
 });

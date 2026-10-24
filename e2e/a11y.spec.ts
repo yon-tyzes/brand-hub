@@ -12,7 +12,7 @@ for (const theme of THEMES) {
       await setTheme(page, theme);
       await page.goto(route);
       // The editor renders in the browser; check it once it has loaded.
-      if (route === "/admin/") await page.locator(".admin-cards").waitFor();
+      if (route.startsWith("/admin/") && route !== "/admin/preview/") await page.locator(".ed-side").waitFor();
       const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
       const summary = violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`);
       expect(summary).toEqual([]);

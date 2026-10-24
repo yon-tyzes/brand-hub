@@ -98,6 +98,9 @@ test("the hero script stays under 12 KB gzipped and loads after first paint", as
     if (body) hero.push({ url: res.url(), gzip: gzipSync(body, { level: 9 }).length, at: Date.now() });
   });
   await page.goto("/", { waitUntil: "networkidle" });
+  // The hero loads after first paint, so it can arrive after the network first goes quiet.
+  await page.waitForFunction(() => performance.getEntriesByType("resource").some((r) => /\/hero[^/]*\.js$/.test(r.name)));
+  await expect.poll(() => hero.length).toBeGreaterThan(0);
   const fcp = await page.evaluate(() => performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? 0);
   expect(hero.length).toBeGreaterThan(0);
   expect(hero.reduce((s, f) => s + f.gzip, 0)).toBeLessThan(12 * 1024);

@@ -32,18 +32,18 @@ describe("brandHub integration", () => {
 
   it("injects /admin only when admin is enabled", () => {
     const hub = (admin: boolean) => ({ brand: "demo", modules: ["icons" as const], admin: { enabled: admin } });
-    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", LEGACY, "/admin", "/admin/preview"]);
+    expect(routesFor(hubConfigOf(hub(true))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", LEGACY, "/admin", "/admin/preview", "/admin/[section]"]);
     expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", LEGACY]);
   });
 
   it("builds the record snapshot only for the demo adapter, and the disk endpoint only under astro dev", () => {
     const hub = (adapter: unknown) => hubConfigOf({ brand: "demo", modules: [], admin: { enabled: true, adapter, auth: "demo" } as never });
     const admin = (adapter: unknown, command: "dev" | "build") => routesFor(hub(adapter), command).map((r) => r.pattern).filter((p) => p.startsWith("/admin"));
-    expect(admin("demo", "build")).toEqual(["/admin", "/admin/preview", "/admin/data.json"]);
-    expect(admin("local", "build")).toEqual(["/admin", "/admin/preview"]);
-    expect(admin("local", "dev")).toEqual(["/admin", "/admin/preview", "/admin/api/local/[action]"]);
-    expect(admin({ dev: "local", build: "demo" }, "dev")).toEqual(["/admin", "/admin/preview", "/admin/api/local/[action]"]);
-    expect(admin({ dev: "local", build: "demo" }, "build")).toEqual(["/admin", "/admin/preview", "/admin/data.json"]);
+    expect(admin("demo", "build")).toEqual(["/admin", "/admin/preview", "/admin/[section]", "/admin/data.json"]);
+    expect(admin("local", "build")).toEqual(["/admin", "/admin/preview", "/admin/[section]"]);
+    expect(admin("local", "dev")).toEqual(["/admin", "/admin/preview", "/admin/[section]", "/admin/api/local/[action]"]);
+    expect(admin({ dev: "local", build: "demo" }, "dev")).toEqual(["/admin", "/admin/preview", "/admin/[section]", "/admin/api/local/[action]"]);
+    expect(admin({ dev: "local", build: "demo" }, "build")).toEqual(["/admin", "/admin/preview", "/admin/[section]", "/admin/data.json"]);
     expect(routesFor(hub("local"), "dev").find((r) => r.pattern.startsWith("/admin/api"))?.prerender).toBe(false);
   });
 
