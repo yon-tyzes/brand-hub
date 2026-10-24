@@ -460,7 +460,7 @@ CI blocks merge on failure.
 | Version | Scope | Status |
 |---|---|---|
 | 0.1 | Public site for logos, colors, fonts, icons, photos, templates, search, guide pages, What's new. Admin editor with local and demo adapters, serializer, preview. Demo brand. | Released (v0.1.0) |
-| 0.2 | Redesign. Engine-owned shell and interface fonts, Library, Brand guide, and Create navigation, search-first home with tuned hero gradient, frosted surfaces, motion, guide chapters, template formats, logo print files, rebuilt editor with Overview. | Next |
+| 0.2 | Redesign. Engine-owned shell and interface fonts, Library, Brand guide, and Create navigation, search-first home with tuned hero gradient, frosted surfaces, motion, guide chapters, template formats, logo print files, rebuilt editor with Overview. | Released (v0.2.0) |
 | 0.3 | Email signature generator, New to the team, Office theme download. | Planned |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 

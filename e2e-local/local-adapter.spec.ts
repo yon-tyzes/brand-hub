@@ -39,7 +39,15 @@ test("saving writes stable brand files, and a build shows the change", async ({ 
   const changelog = JSON.parse(readFileSync(brandFile("changelog.json"), "utf8")) as { assetId: string; summary: string }[];
   expect(changelog).toContainEqual(expect.objectContaining({ assetId: "logo-mark", summary: 'Comet mark: renamed from "Logo mark"' }));
 
-  await build({ root: root(), logLevel: "error" });
+  // Build from inside the copy: with an outDir outside the working directory, Astro stages files in
+  // <cwd>/.astro and moves them into dist, which fails when the copy is on another disk (as on CI).
+  const cwd = process.cwd();
+  process.chdir(root());
+  try {
+    await build({ root: root(), logLevel: "error" });
+  } finally {
+    process.chdir(cwd);
+  }
   const html = readFileSync(join(root(), "dist", "logos", "index.html"), "utf8");
   expect(html).toContain("Comet mark");
   expect(html).not.toContain(">Logo mark<");
