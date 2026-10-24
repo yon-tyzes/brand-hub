@@ -10,11 +10,29 @@ import { PageBody } from "../../site/Page.tsx";
 
 <script>
   // The hero gradient loads after the page renders and never blocks search.
-  const load = () =>
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
     setTimeout(() => {
       import("../../scripts/hero-typing.ts");
       import("../../scripts/hero.ts");
     }, 0);
-  if (document.readyState === "complete") requestAnimationFrame(load);
-  else addEventListener("load", () => requestAnimationFrame(load), { once: true });
+  };
+  // Wait for the browser to report the first contentful paint, which can land after the next frame. Browsers
+  // that never report it start a second later.
+  const afterPaint = () => {
+    if (performance.getEntriesByName("first-contentful-paint").length) return start();
+    try {
+      new PerformanceObserver((list, observer) => {
+        if (list.getEntriesByName("first-contentful-paint").length) (observer.disconnect(), start());
+      }).observe({ type: "paint", buffered: true });
+    } catch {
+      // No paint timing: the fallback below starts it.
+    }
+    setTimeout(start, 1000);
+  };
+  const load = () => requestAnimationFrame(afterPaint);
+  if (document.readyState === "complete") load();
+  else addEventListener("load", load, { once: true });
 </script>
