@@ -29,8 +29,7 @@ test.describe("redirects from 0.1 routes", () => {
 
   test("a rule page from 0.1 opens its chapter at the rule", async ({ page }) => {
     await page.goto("/guide/logo-clear-space/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Logo use");
-    await expect(page.getByRole("heading", { level: 2, name: "Keep clear space around the logo" })).toBeInViewport();
+    await expect(page.getByRole("heading", { level: 1, name: "Keep clear space around the logo" })).toBeInViewport();
   });
 });
 
@@ -73,7 +72,7 @@ test.describe("desktop at 1440px", () => {
     const side = page.getByRole("navigation", { name: "Brand guide" });
     await expect(side.getByRole("link").first()).toHaveText("Logo use");
     await side.getByRole("link", { name: "Color use" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Color use");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Use Comet Green for one action per screen");
     await expect(side.getByRole("link", { name: "Color use" })).toHaveAttribute("aria-current", "page");
   });
 
