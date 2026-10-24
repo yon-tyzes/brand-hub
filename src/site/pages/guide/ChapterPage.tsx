@@ -1,20 +1,68 @@
 // A Brand guide chapter (GuideLogo.dc.html, GuideMobile.dc.html): each rule's body at reading width, its do and
-// don't lists, a link to the files in the Library, and the next chapter.
+// don't lists, examples drawn from the brand's own logo files when the rule covers logos, a link to the files in
+// the Library, and the next chapter.
 import type { ReactNode } from "react";
-import type { Asset, RuleAsset } from "../../../../schemas/asset.ts";
+import type { Asset, LogoAsset, RuleAsset } from "../../../../schemas/asset.ts";
 import type { GuideChapter } from "../../../../schemas/brand.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import { renderMarkdown } from "../../../lib/markdown.ts";
-import { MODULE_FOR_TYPE } from "../../data.ts";
+import { logoFile, MODULE_FOR_TYPE, type Site } from "../../data.ts";
+import { darkGround } from "../../library.ts";
 import { chapterHref, guideChapters } from "../../nav.ts";
 import { Button, Icon, useSite } from "../../ui.tsx";
 
 const NUMBER = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const count = (n: number) => NUMBER[n] ?? String(n);
 
+/** The light ground for logo examples: the brand's own background color, or white. */
+function lightGround(site: Site): string {
+  return site.assetsOfType("color").find((c) => c.role.toLowerCase() === "background")?.hex ?? "var(--logo-ground-light)";
+}
+
+const image = (l: LogoAsset) => logoFile(l, "svg") ?? logoFile(l, "png");
+
 interface Examples {
+  clear: ReactNode;
   do: ReactNode;
   dont: ReactNode;
+}
+
+/**
+ * Examples made from the brand's own logo files, never drawn: clear space around the light logo, each logo on
+ * its ground, and two misuses (stretched, and the full color logo on the dark ground).
+ */
+function logoExamples(site: Site, rule: RuleAsset): Examples | null {
+  const logos = rule.appliesTo.map((id) => site.findAsset(id)).filter((a): a is LogoAsset => a?.type === "logo" && !!image(a));
+  const light = logos.find((l) => l.background === "light");
+  if (!light) return null;
+  const dark = logos.find((l) => l.background === "dark" && l.lockup === light.lockup) ?? logos.find((l) => l.background === "dark");
+  const lightSrc = site.urlFor(image(light)!.path);
+  const grounds = { light: lightGround(site), dark: darkGround(site) };
+  return {
+    clear: (
+      <figure className="guide-figure">
+        <div className="clear-space">
+          <img src={lightSrc} alt={`${light.label} with clear space marked on every side`} />
+          <span className="clear-space-v" aria-hidden="true" />
+          <span className="clear-space-h" aria-hidden="true" />
+          <span className="clear-space-x" aria-hidden="true">x</span>
+        </div>
+        <figcaption>x marks the clear space on every side.</figcaption>
+      </figure>
+    ),
+    do: (
+      <div className="example-well">
+        <div style={{ background: grounds.light }}><img src={lightSrc} alt={`${light.label} on its light background`} /></div>
+        {dark && <div style={{ background: grounds.dark }}><img src={site.urlFor(image(dark)!.path)} alt={`${dark.label} on its dark background`} /></div>}
+      </div>
+    ),
+    dont: (
+      <div className="example-well">
+        <div style={{ background: grounds.light }}><img className="example-stretched" src={lightSrc} alt={`${light.label} stretched wide`} /></div>
+        <div style={{ background: grounds.dark }}><img src={lightSrc} alt={`${light.label} on a dark background`} /></div>
+      </div>
+    ),
+  };
 }
 
 /** "Need the files? All four logos are in the Library." with a button to the page. */
@@ -61,12 +109,15 @@ function DoDont({ rule, examples, level }: { rule: RuleAsset; examples: Examples
 }
 
 function Rule({ rule, heading }: { rule: RuleAsset; heading: "h1" | "h2" }) {
+  const site = useSite();
+  const examples = logoExamples(site, rule);
   const H = heading;
   return (
     <section className="guide-rule" id={rule.id} aria-labelledby={`${rule.id}-title`}>
       <H className={heading === "h1" ? "guide-title" : "guide-rule-title"} id={`${rule.id}-title`}>{rule.title}</H>
       <div className="guide-body" dangerouslySetInnerHTML={{ __html: renderMarkdown(rule.body) }} />
-      <DoDont rule={rule} examples={null} level={heading === "h1" ? 2 : 3} />
+      {examples?.clear}
+      <DoDont rule={rule} examples={examples} level={heading === "h1" ? 2 : 3} />
       <FilesLink rule={rule} />
     </section>
   );
