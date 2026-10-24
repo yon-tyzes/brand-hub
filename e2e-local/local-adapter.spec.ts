@@ -123,8 +123,13 @@ test("brand settings, a color edit, preview, and publish work with the local ada
   await expect(frame.getByRole("heading", { level: 1, name: "Colors" })).toBeVisible();
   await page.getByRole("dialog", { name: "Preview, not live" }).getByRole("button", { name: /Close/ }).click();
 
+  // Publishing saves first, which rewrites watched brand files: wait for the dev server's reload before moving
+  // on, or it can land mid-edit on the next page.
+  const reloadedAfterPublish = page.waitForEvent("framenavigated", { predicate: (f) => f === page.mainFrame() });
   await page.getByRole("button", { name: "Publish" }).click();
   await expect(page.getByRole("status").filter({ hasText: /Published/ })).toBeVisible({ timeout: 30_000 });
+  await reloadedAfterPublish;
+  await expect(page.getByRole("heading", { level: 1, name: "Colors" })).toBeVisible({ timeout: 60_000 });
   const colors = JSON.parse(readFileSync(brandFile("colors.json"), "utf8")) as { id: string; help?: string }[];
   expect(colors.find((c) => c.id === "slate")?.help).toBe("Captions and help text.");
 
