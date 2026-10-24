@@ -12,12 +12,14 @@ export function toast(message: string, value?: string): void {
 }
 
 /** Copies text and announces what was copied. The message names the thing: "Comet Green #1E5B4A copied". */
-export async function copyText(text: string, message: string): Promise<void> {
+export async function copyText(text: string, message: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
     toast(message, message.includes(text) ? text : undefined);
+    return true;
   } catch {
     toast("Copy did not work in this browser. Select the value and copy it.");
+    return false;
   }
 }
 

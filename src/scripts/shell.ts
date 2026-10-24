@@ -64,8 +64,21 @@ document.addEventListener("click", (e) => {
   const btn = (e.target as Element).closest<HTMLElement>("[data-copy]");
   if (!btn) return;
   const value = btn.dataset.copy ?? "";
-  copyText(value, btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`);
+  copyText(value, btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`).then((ok) => ok && checked(btn));
 });
+
+/** A copy button's icon swaps to a check for a moment (DESIGN_SYSTEM.md, Motion). */
+function checked(btn: HTMLElement) {
+  const svg = btn.querySelector("svg");
+  if (!svg || btn.dataset.copied !== undefined) return;
+  const icon = svg.innerHTML;
+  btn.dataset.copied = "";
+  svg.innerHTML = '<path d="m5 12 5 5 9-10"/>';
+  window.setTimeout(() => {
+    svg.innerHTML = icon;
+    delete btn.dataset.copied;
+  }, 1500);
+}
 
 // ---------- Download confirmations: "logo-horizontal.png downloaded" ----------
 document.addEventListener("click", (e) => {

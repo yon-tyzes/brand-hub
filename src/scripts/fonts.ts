@@ -17,4 +17,19 @@ size?.addEventListener("input", () => {
   if (readout) readout.textContent = `${size.value}px`;
 });
 
+// A variable family's sample follows the pointer by weight, light on the left to heavy on the right. Static
+// families have no range and stay put.
+for (const specimen of document.querySelectorAll<HTMLElement>("[data-weight-range]")) {
+  const [min, max] = specimen.dataset.weightRange!.split(" ").map(Number) as [number, number];
+  const sample = specimen.querySelector<HTMLElement>("[data-font-sample]");
+  if (!sample || !(max > min)) continue;
+  const rest = sample.style.fontWeight;
+  specimen.addEventListener("pointermove", (e) => {
+    const r = specimen.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    sample.style.fontWeight = String(Math.round(min + (max - min) * x));
+  });
+  specimen.addEventListener("pointerleave", () => (sample.style.fontWeight = rest));
+}
+
 document.querySelector("[data-copy-page]")?.addEventListener("click", () => copyText(location.href, "Page link copied"));

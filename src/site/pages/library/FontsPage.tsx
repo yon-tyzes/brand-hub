@@ -33,7 +33,11 @@ function FamilyCard({ font: f, sample }: { font: FontAsset; sample: string }) {
   const { computer, web } = fontDownloads(f);
   return (
     <article className="font-card" id={f.id} aria-labelledby={`${f.id}-name`}>
-      <div className="font-card-specimen" style={{ fontFamily: family }}>
+      <div
+        className="font-card-specimen"
+        style={{ fontFamily: family }}
+        {...(f.files.variable.length ? { "data-weight-range": `${Math.min(...f.weights)} ${Math.max(...f.weights)}` } : {})}
+      >
         <p className="font-sample" style={{ fontWeight: sampleWeight(f) }} data-font-sample="">{sample}</p>
         <div className="font-weights">
           {f.weights.map((w) => <span key={w} style={{ fontWeight: w }}>{weightLabel(w)}</span>)}

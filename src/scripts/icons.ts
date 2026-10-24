@@ -1,6 +1,7 @@
 // Icons page: pick an icon and a color, filter by name, and download the selected icon as SVG or PNG in
 // that color. Markup: src/site/pages/library/IconsPage.tsx. A #icon-id in the address selects that icon.
 import { downloadBlob } from "./client.ts";
+import { flip } from "./flip.ts";
 
 const root = document.querySelector<HTMLElement>("[data-icons-root]");
 if (root) {
@@ -66,12 +67,15 @@ if (root) {
   filter?.addEventListener("input", () => {
     const q = filter.value.trim().toLowerCase();
     let shown = 0;
-    for (const item of root.querySelectorAll<HTMLElement>("[data-icon-item]")) {
-      const ok = !q || (item.dataset.text ?? "").includes(q);
-      item.hidden = !ok;
-      if (ok) shown++;
-    }
-    for (const g of root.querySelectorAll<HTMLElement>("[data-icon-group]")) g.hidden = !g.querySelector("[data-icon-item]:not([hidden])");
+    const items = [...root.querySelectorAll<HTMLElement>("[data-icon-item]")];
+    flip(items, () => {
+      for (const item of items) {
+        const ok = !q || (item.dataset.text ?? "").includes(q);
+        item.hidden = !ok;
+        if (ok) shown++;
+      }
+      for (const g of root.querySelectorAll<HTMLElement>("[data-icon-group]")) g.hidden = !g.querySelector("[data-icon-item]:not([hidden])");
+    });
     if (count) count.textContent = `${shown} of ${count.dataset.total} icons`;
   });
 
