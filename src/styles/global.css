@@ -526,6 +526,13 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .hero-search > svg { flex: none; color: var(--text-secondary); }
 .hero-search input { flex: 1; min-width: 0; height: 48px; border: 0; background: transparent; font: 400 var(--body-size) var(--font-sans); color: var(--text); }
 .hero-search input::placeholder { color: var(--text-muted); }
+/* The typed hint (src/scripts/hero-typing.ts) sits where the placeholder would be. */
+.hero-search { position: relative; }
+.hero-hint {
+  position: absolute; left: 46px; right: 48px; top: 50%; transform: translateY(-50%);
+  font-size: var(--body-size); color: var(--text-muted); white-space: nowrap; overflow: hidden; pointer-events: none;
+}
+@media (max-width: 767.98px) { .hero-hint { left: 44px; right: 14px; } }
 .hero-search input:focus-visible { outline: none; }
 .hero-search:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
 .hero-search kbd { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 6px; }

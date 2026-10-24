@@ -12,16 +12,20 @@ function logoImage(l: LogoAsset) {
   return logoFile(l, "svg") ?? logoFile(l, "png");
 }
 
-/** First words of the search hint: a real asset name from the brand's data. */
-function searchHint(assets: Asset[]): string {
-  const a = assets.find((x) => x.type === "logo") ?? assets[0];
-  return a ? `Try "${a.label.toLowerCase()}"` : "Search the brand";
+/** Real asset names from the brand's data for the search hint: a logo first, then a color, font, and template. */
+function hintNames(assets: Asset[]): string[] {
+  const order = ["logo", "color", "font", "template", "icon"];
+  const byType = order.map((type) => assets.filter((a) => a.type === type));
+  // One of each type first, then a second of each.
+  const picks = [0, 1].flatMap((i) => byType.flatMap((list) => (list[i] ? [list[i]] : [])));
+  return [...new Set(picks.map((a) => a.label.toLowerCase()))].slice(0, 6);
 }
 
 function Hero() {
   const site = useSite();
   const picks = site.brand.quickDownloads.map((id) => site.findAsset(id)).filter((a): a is Asset => !!a).slice(0, 4);
   const slash = site.config.search.shortcut.includes("/");
+  const hints = hintNames(site.assets);
   return (
     <section className="hero" aria-labelledby="hero-title" data-hero="" data-hero-preset={site.config.hero.preset} data-hero-state="static">
       <div className="hero-mesh" aria-hidden="true" />
@@ -34,7 +38,7 @@ function Hero() {
         <div className="hero-search" role="search">
           <Icon name="search" size={20} />
           <label className="visually-hidden" htmlFor="hero-q">Search the brand</label>
-          <input id="hero-q" type="search" placeholder={searchHint(site.assets)} autoComplete="off" spellCheck={false} data-hero-search="" />
+          <input id="hero-q" type="search" placeholder={hints[0] ? `Try "${hints[0]}"` : "Search the brand"} autoComplete="off" spellCheck={false} data-hero-search="" data-hints={JSON.stringify(hints)} />
           {slash && <kbd aria-hidden="true">/</kbd>}
         </div>
         {picks.length > 0 && <div className="chips hero-chips">{picks.map((a) => <QuickPick key={a.id} asset={a} />)}</div>}
