@@ -4,6 +4,8 @@
 export const UI_ICONS: Record<string, string> = {
   home: '<path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/>',
   monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-1"/>',
+  redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h1"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   "chevron-down": '<path d="m6 9 6 6 6-6"/>',
   "arrow-right": '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',

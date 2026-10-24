@@ -1,0 +1,11 @@
+---
+// /admin/<section>: a module workspace or Brand settings. The same app as /admin; one page per section so a
+// static host serves each address.
+import type { GetStaticPaths } from "astro";
+import { EDITOR_SECTIONS } from "./editor/modules.ts";
+import EditorPage from "./EditorPage.astro";
+
+export const getStaticPaths = (() => EDITOR_SECTIONS.map((section) => ({ params: { section } }))) satisfies GetStaticPaths;
+---
+
+<EditorPage />

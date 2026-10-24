@@ -11,7 +11,7 @@ import type { PageId } from "../../site/Page.tsx";
 import { changes as listChanges, rebase, serializeDraft, today, type SerializeError } from "../editor/changeset.ts";
 import { extension } from "../editor/files.ts";
 import { accepts, ingest, recordsFromUploads, type Upload } from "../editor/ingest.ts";
-import { EDITOR_MODULES } from "../editor/modules.ts";
+import { EDITOR_MODULES, pathForView, SETTINGS, viewFromPath, type EditorView } from "../editor/modules.ts";
 import { addRecord, attachFiles, reducer, restoreStatuses, retire, type EditorAction, type EditorState, type StoredFile } from "../editor/state.ts";
 import { clearSaved, loadSaved, save } from "../editor/storage.ts";
 import type { PreviewData } from "../preview/protocol.ts";
@@ -21,7 +21,7 @@ import { issuesById } from "./explain.ts";
 import { Grid, type StatusFilter } from "./Grid.tsx";
 import { Inspector } from "./Inspector.tsx";
 import { PreviewPanel } from "./PreviewPanel.tsx";
-import { Rail } from "./Rail.tsx";
+import { Sidebar } from "./Sidebar.tsx";
 import { ConflictDialog, FailureDialog, HistoryDialog, ProblemsDialog } from "./SaveDialogs.tsx";
 import { Toasts, useToasts } from "./Toasts.tsx";
 import { TopBar } from "./TopBar.tsx";
@@ -99,11 +99,21 @@ function takeReloadNote(): AfterReload | undefined {
   }
 }
 
+/** Placeholder for views built in later steps. */
+function PlaceholderView({ title }: { title: string }) {
+  return (
+    <div className="ed-page">
+      <h1 className="ed-title">{title}</h1>
+    </div>
+  );
+}
+
 export default function AdminApp() {
   const [state, dispatch] = useReducer(rootReducer, null);
   const [session, setSession] = useState<Session | null>(null);
   const [failed, setFailed] = useState<string>();
-  const [moduleId, setModuleId] = useState(EDITOR_MODULES[0]!.id);
+  const [view, setView] = useState<EditorView>(() => (typeof location === "undefined" ? "overview" : viewFromPath(location.pathname)));
+  const [moduleId, setModuleId] = useState(() => (EDITOR_MODULES.some((m) => m.id === view) ? view : EDITOR_MODULES[0]!.id));
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -132,7 +142,7 @@ export default function AdminApp() {
       const saved = await loadSaved(loaded.data.slug);
       const note = takeReloadNote();
       if (note) {
-        setModuleId(note.moduleId);
+        if (EDITOR_MODULES.some((m) => m.id === note.moduleId)) setModuleId(note.moduleId);
         setSelectedId(note.selectedId);
         show({ message: note.message });
       }
@@ -207,6 +217,25 @@ export default function AdminApp() {
   }, []);
 
   useEffect(() => () => urls.current.forEach((u) => URL.revokeObjectURL(u)), []);
+
+  // Back and forward move between views.
+  useEffect(() => {
+    const onPop = () => {
+      const v = viewFromPath(location.pathname);
+      setView(v);
+      if (EDITOR_MODULES.some((m) => m.id === v)) setModuleId(v);
+      setSelectedId(null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  const go = useCallback((next: EditorView) => {
+    if (location.pathname !== pathForView(next)) history.pushState(null, "", pathForView(next));
+    setView(next);
+    if (EDITOR_MODULES.some((m) => m.id === next)) setModuleId(next);
+    setSelectedId(null);
+  }, []);
 
   const apply = useCallback((edit: Parameters<EditorApi["apply"]>[0], key?: string) => dispatch({ type: "apply", edit, key }), []);
 
@@ -298,7 +327,7 @@ export default function AdminApp() {
       dispatch({ type: "load", revision: res.revision, base, present: { records: result.records, files } });
       await clearSaved(from.base.slug);
       setUnpublished(true);
-      if (!res.previewUrl) rememberForReload({ message: "Draft saved.", moduleId, selectedId });
+      if (!res.previewUrl) rememberForReload({ message: "Draft saved.", moduleId: view, selectedId });
       show({
         message: res.previewUrl ? "Draft saved. A preview link is ready." : "Draft saved.",
         action: res.previewUrl ? { label: "Open preview link", run: () => window.open(res.previewUrl, "_blank", "noopener") } : undefined,
@@ -366,7 +395,7 @@ export default function AdminApp() {
   const showItem = (id: string) => {
     const r = records.find((x) => x.id === id);
     if (!r) return;
-    setModuleId(EDITOR_MODULES.find((m) => m.type === r.type)!.id);
+    go(EDITOR_MODULES.find((m) => m.type === r.type)!.id);
     setFilter("all");
     setSelectedId(id);
     setDialog(null);
@@ -374,10 +403,9 @@ export default function AdminApp() {
 
   const api: EditorApi = {
     state, dispatch, apply, session, module: mod, records,
-    setModule: (id) => {
-      setModuleId(id);
-      setSelectedId(null);
-    },
+    setModule: (id) => go(id),
+    view, go,
+    brand: state.base.brand,
     selectedId, select: setSelectedId,
     edit: (id) => {
       openedFrom.current = id;
@@ -413,11 +441,21 @@ export default function AdminApp() {
           onPreview={() => setDialog({ kind: "preview" })}
           onSave={() => void saveDraft()}
           onPublish={() => void publish()}
-          onHistory={() => setDialog({ kind: "history" })}
         />
-        <Rail filter={filter} setFilter={setFilter} />
+        <div className="ed-body" data-view={view === "overview" ? "overview" : view === SETTINGS ? "settings" : "module"}>
+          <Sidebar onHistory={() => setDialog({ kind: "history" })} onSignOut={() => void auth.signOut().then(() => location.reload())} />
+          {view === "overview" ? (
+            <main className="ed-main" id="main">
+              <PlaceholderView title="Overview" />
+            </main>
+          ) : view === SETTINGS ? (
+            <main className="ed-main" id="main">
+              <PlaceholderView title="Brand settings" />
+            </main>
+          ) : (
+            <>
         <main className="admin-main" id="main">
-          <Grid filter={filter} key={mod.id} />
+          <Grid filter={filter} setFilter={setFilter} key={mod.id} />
         </main>
         {wide ? (
           <aside
@@ -437,6 +475,9 @@ export default function AdminApp() {
             <Inspector inSheet />
           </Sheet>
         )}
+            </>
+          )}
+        </div>
       </div>
       {dialog?.kind === "changes" && <ChangesDialog changes={changes} onClose={() => setDialog(null)} />}
       {dialog?.kind === "preview" && <PreviewPanel data={previewData()} startPage={previewStart} onClose={() => setDialog(null)} />}

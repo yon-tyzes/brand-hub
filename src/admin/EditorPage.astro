@@ -1,0 +1,30 @@
+---
+// The editor's page shell, shared by /admin and /admin/<section>. A full-screen React app; never indexed.
+// Needs JavaScript. The app reads the section from the address.
+import "../styles/global.css";
+import "./admin.css";
+import { brand, fontCss, heroCss, themeCss } from "virtual:brand-hub";
+import AdminApp from "./ui/AdminApp.tsx";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Editor | {brand.shortName}</title>
+    <style is:inline set:html={themeCss}></style>
+    <style is:inline set:html={heroCss}></style>
+    {fontCss && <style is:inline set:html={fontCss}></style>}
+  </head>
+  <body class="admin-body">
+    <AdminApp client:only="react">
+      <main slot="fallback" class="admin-message">
+        <h1 class="h3">Editor</h1>
+        <p role="status">Loading the editor</p>
+      </main>
+    </AdminApp>
+    <noscript><p class="admin-message">The editor needs JavaScript. Turn it on in your browser settings and reload.</p></noscript>
+  </body>
+</html>

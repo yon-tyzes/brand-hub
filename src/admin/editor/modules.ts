@@ -25,6 +25,20 @@ export const EDITOR_MODULES: EditorModule[] = [
   { id: "rules", label: "Rules", noun: "rule", type: "rule", dataFile: "rules.json", accept: [], folder: "rules" },
 ];
 
+/** Editor addresses below /admin: each module, then Brand settings. */
+export const SETTINGS = "settings";
+export const EDITOR_SECTIONS = [...EDITOR_MODULES.map((m) => m.id), SETTINGS];
+
+export type EditorView = "overview" | typeof SETTINGS | string;
+
+/** The view an address shows: /admin is the Overview, /admin/<id>/ a module or Brand settings. */
+export function viewFromPath(pathname: string): EditorView {
+  const id = pathname.replace(/^\/admin\/?/, "").replace(/\/$/, "");
+  return EDITOR_SECTIONS.includes(id) ? id : "overview";
+}
+
+export const pathForView = (view: EditorView) => (view === "overview" ? "/admin/" : `/admin/${view}/`);
+
 export const moduleForType = (type: AnyRecord["type"]) => EDITOR_MODULES.find((m) => m.type === type)!;
 
 export const STATUS_LABEL = { draft: "Draft", pending: "Pending", locked: "Live", retired: "Retired" } as const;

@@ -2,7 +2,8 @@
 import { createContext, useContext } from "react";
 import type { AnyRecord } from "../../../schemas/asset.ts";
 import type { Session } from "../../adapters/types.ts";
-import type { EditorModule } from "../editor/modules.ts";
+import type { Brand } from "../../../schemas/brand.ts";
+import type { EditorModule, EditorView } from "../editor/modules.ts";
 import type { Edit, EditorAction, EditorState } from "../editor/state.ts";
 
 export interface ToastInput {
@@ -18,6 +19,12 @@ export interface EditorApi {
   session: Session;
   module: EditorModule;
   setModule: (id: string) => void;
+  /** What the editor shows: the Overview, a module, or Brand settings. */
+  view: EditorView;
+  /** Shows a view and puts it in the address. */
+  go: (view: EditorView) => void;
+  /** The brand settings as edited in this draft. */
+  brand: Brand;
   selectedId: string | null;
   select: (id: string | null) => void;
   toast: (t: ToastInput) => void;

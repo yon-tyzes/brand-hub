@@ -12,6 +12,7 @@ import { Icon } from "./Menu.tsx";
 const FILE_FIRST = new Set(["logos", "icons", "fonts"]);
 
 export type StatusFilter = "all" | Status;
+const FILTERS: StatusFilter[] = ["all", "locked", "pending", "draft", "retired"];
 
 const DROP_HINT: Record<string, string> = {
   logos: "Drop logo files here to add them, or drop a file on a card to replace it.",
@@ -21,7 +22,7 @@ const DROP_HINT: Record<string, string> = {
   templates: "Drop thumbnail images here to add templates, or drop one on a card to replace it.",
 };
 
-export function Grid({ filter }: { filter: StatusFilter }) {
+export function Grid({ filter, setFilter }: { filter: StatusFilter; setFilter: (f: StatusFilter) => void }) {
   const { module: mod, records, apply, select, addFiles, retireItems, toast } = useEditor();
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [dropping, setDropping] = useState(false);
@@ -78,6 +79,12 @@ export function Grid({ filter }: { filter: StatusFilter }) {
             {DROP_HINT[mod.id] ?? `Press Add to create a ${mod.noun}.`}
           </p>
         </div>
+        <label className="ed-filter">
+          <span>Show</span>
+          <select className="field field-sm" value={filter} onChange={(e) => setFilter(e.target.value as StatusFilter)}>
+            {FILTERS.map((f) => <option key={f} value={f}>{f === "all" ? "All" : STATUS_LABEL[f]}</option>)}
+          </select>
+        </label>
         <button type="button" className="btn btn-secondary btn-sm" onClick={add}>
           <Icon name="plus" /> Add {mod.noun}
         </button>

@@ -88,6 +88,7 @@ export function routesFor(hub: HubConfig, command: Command = "build"): { pattern
     const adapter = adapterFor(hub.admin.adapter, command);
     routes.push(page("/admin", new URL("../admin/index.astro", import.meta.url)));
     routes.push(page("/admin/preview", new URL("../admin/preview.astro", import.meta.url)));
+    routes.push(page("/admin/[section]", new URL("../admin/section.astro", import.meta.url)));
     // The demo adapter reads a snapshot of every record, drafts included: only built for the demo.
     if (adapter === "demo") routes.push(page("/admin/data.json", new URL("admin-data.json.ts", routesDir)));
     // The local adapter writes to disk through an endpoint that exists only under `astro dev`.
