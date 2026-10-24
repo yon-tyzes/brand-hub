@@ -35,7 +35,7 @@
 .ed-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 992px) {
   .ed-body { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
-  .ed-body[data-view="module"] { grid-template-columns: var(--sidebar-w) minmax(0, 1fr) minmax(340px, 380px); }
+  .ed-body[data-view="module"] { grid-template-columns: var(--sidebar-w) minmax(0, 1fr) 340px; }
   .ed-body > * { min-height: 0; overflow-y: auto; }
 }
 
@@ -65,7 +65,8 @@
 
 /* Pages without the grid: Overview and Brand settings */
 .ed-main { min-width: 0; }
-.ed-page { box-sizing: border-box; max-width: 1120px; padding: 40px 48px 72px; display: flex; flex-direction: column; gap: 40px; }
+/* 1120px of content inside the padding, as the screen draws it. */
+.ed-page { box-sizing: content-box; max-width: 1120px; padding: 40px 48px 72px; display: flex; flex-direction: column; gap: 40px; }
 @media (max-width: 767.98px) { .ed-page { padding: 24px var(--gutter) 48px; gap: 32px; } }
 .ed-title { margin: 0; font-size: var(--h1-size); line-height: var(--h1-leading); font-weight: 600; letter-spacing: var(--h1-tracking); }
 .ed-intro { margin: 8px 0 0; font-size: var(--body-size); color: var(--text-secondary); }
@@ -110,7 +111,7 @@
 @media (max-width: 767.98px) { .ov-log li { grid-template-columns: 64px minmax(0, 1fr); } .ov-log-by { display: none; } }
 
 /* Brand settings */
-.settings { max-width: 760px; gap: 24px; }
+.settings { box-sizing: border-box; max-width: 760px; gap: 24px; }
 .settings-card { display: grid; gap: 16px; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); }
 .settings-card h2 { margin: 0; font-size: 17px; line-height: 1.3; font-weight: 600; letter-spacing: 0; }
 .settings-card > .ed-help { margin-top: -10px; }
