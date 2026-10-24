@@ -21,6 +21,7 @@ async function apply(base: Snapshot, changes: ChangeSet): Promise<Snapshot> {
   let records = [...base.data.records];
   const sources = { ...base.data.sources };
   let changelog: ChangelogEntry[] = base.data.changelog;
+  let brand = base.data.brand;
   const svgs = { ...base.data.svgs };
   for (const u of changes.upserts) {
     const path = u.path.slice(root.length);
@@ -35,6 +36,10 @@ async function apply(base: Snapshot, changes: ChangeSet): Promise<Snapshot> {
       changelog = parsed;
       continue;
     }
+    if (path === "brand.json") {
+      brand = parsed;
+      continue;
+    }
     // A data file holds the full list of its records: replace them.
     records = records.filter((r) => sources[r.id] !== path);
     for (const r of parsed as AnyRecord[]) {
@@ -44,7 +49,7 @@ async function apply(base: Snapshot, changes: ChangeSet): Promise<Snapshot> {
   }
   for (const d of changes.deletes) delete files[d.slice(root.length)];
   for (const id of Object.keys(sources)) if (!records.some((r) => r.id === id)) delete sources[id];
-  return { revision: `demo-${++counter}`, data: { ...base.data, records, sources, changelog, svgs }, files };
+  return { revision: `demo-${++counter}`, data: { ...base.data, brand, records, sources, changelog, svgs }, files };
 }
 
 const content: ContentAdapter & RevisionReader = {

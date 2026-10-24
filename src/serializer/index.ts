@@ -14,10 +14,10 @@ import { byOrder, checkBrand, type ProblemCode } from "../content/check.ts";
 import { filePaths } from "../content/file-paths.ts";
 import { applyPattern, DEFAULT_PATTERNS, folderFor, type NamedType } from "./naming.ts";
 import { stableJson } from "./stable-json.ts";
-import { describeChanges, type RecordChange } from "./summary.ts";
+import { describeBrandChange, describeChanges, type RecordChange } from "./summary.ts";
 
 export { stableJson } from "./stable-json.ts";
-export { describeChanges, type RecordChange } from "./summary.ts";
+export { BRAND_CHANGE, describeBrandChange, describeChanges, type RecordChange } from "./summary.ts";
 
 export interface Upload {
   /** Provisional path the draft uses, e.g. files/logos/my-logo.svg. */
@@ -32,8 +32,11 @@ export interface SerializeInput {
   slug: string;
   /** Revision the draft started from. */
   revision: string;
+  /** Brand settings as the draft has them. */
   brand: Brand;
   base: {
+    /** Brand settings the draft started from. Omit when the draft does not change them. */
+    brand?: Brand;
     records: AnyRecord[];
     /** Data file each base record lives in, by id. */
     sources: Record<string, string>;
@@ -190,6 +193,8 @@ export function serialize(input: SerializeInput): SerializeResult {
     if (dataText(before.get(file) ?? []) !== dataText(next)) upserts.push({ path: root + file, content: dataText(next) });
   }
   if (entries.length) upserts.push({ path: `${root}changelog.json`, content: stableJson(changelog) });
+  const brandChange = base.brand ? describeBrandChange(base.brand, brand) : undefined;
+  if (brandChange) upserts.push({ path: `${root}brand.json`, content: stableJson(brand) });
   for (const [provisional, final] of Object.entries(renamed).sort(([, a], [, b]) => a.localeCompare(b))) {
     if (referenced.has(final)) upserts.push({ path: root + final, content: uploadByPath.get(provisional)!.content });
   }
@@ -197,7 +202,7 @@ export function serialize(input: SerializeInput): SerializeResult {
 
   return {
     ok: true,
-    changeSet: { base: input.revision, upserts, deletes, summary: changes.map((c) => c.line) },
+    changeSet: { base: input.revision, upserts, deletes, summary: [...(brandChange ? [brandChange.line] : []), ...changes.map((c) => c.line)] },
     records,
     sources,
     changelog,

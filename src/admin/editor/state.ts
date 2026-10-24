@@ -2,6 +2,7 @@
 // Every edit is a pure function from one draft to the next, so undo is restoring the previous draft.
 import type { AnyRecord, Status } from "../../../schemas/asset.ts";
 import type { BrandContent } from "../../adapters/types.ts";
+import type { Brand } from "../../../schemas/brand.ts";
 
 export interface StoredFile {
   /** Provisional path in the brand folder (files/<module>/<name>). The serializer may rename it. */
@@ -20,6 +21,8 @@ export interface Draft {
   records: AnyRecord[];
   /** Files uploaded in this session, by path. */
   files: Record<string, StoredFile>;
+  /** Brand settings edited in this draft. Absent until Brand settings change. */
+  brand?: Brand;
 }
 
 export interface EditorState {
@@ -95,6 +98,12 @@ export const addRecord = (record: AnyRecord, files: StoredFile[] = []): Edit => 
   records: [...d.records, { ...record, order: record.order ?? nextOrder(d.records, record.type) }],
   files: { ...d.files, ...Object.fromEntries(files.map((f) => [f.path, f])) },
 });
+
+/** Changes brand settings: name, primary color, guide chapters, Quick downloads. */
+export const updateBrand = (base: Brand, change: (b: Brand) => Brand): Edit => (d) => ({ ...d, brand: change(d.brand ?? base) });
+
+/** The brand settings a draft shows: its own edits, or the saved ones. */
+export const brandOf = (state: Pick<EditorState, "base" | "present">): Brand => state.present.brand ?? state.base.brand;
 
 export const updateRecord = (id: string, patch: Partial<AnyRecord>): Edit => (d) =>
   mapRecords(d, (r) => (r.id === id ? ({ ...r, ...patch } as AnyRecord) : r));

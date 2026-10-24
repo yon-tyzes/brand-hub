@@ -12,7 +12,7 @@ import { changes as listChanges, rebase, serializeDraft, today, type SerializeEr
 import { extension } from "../editor/files.ts";
 import { accepts, ingest, recordsFromUploads, type Upload } from "../editor/ingest.ts";
 import { EDITOR_MODULES, pathForView, SETTINGS, viewFromPath, type EditorView } from "../editor/modules.ts";
-import { addRecord, attachFiles, reducer, restoreStatuses, retire, type EditorAction, type EditorState, type StoredFile } from "../editor/state.ts";
+import { addRecord, attachFiles, brandOf, reducer, restoreStatuses, retire, type EditorAction, type EditorState, type StoredFile } from "../editor/state.ts";
 import { clearSaved, loadSaved, save } from "../editor/storage.ts";
 import type { PreviewData } from "../preview/protocol.ts";
 import { EditorContext, type EditorApi } from "./context.tsx";
@@ -21,6 +21,7 @@ import { issuesById } from "./explain.ts";
 import { Grid, type StatusFilter } from "./Grid.tsx";
 import { Inspector } from "./Inspector.tsx";
 import { PreviewPanel } from "./PreviewPanel.tsx";
+import { BrandSettings } from "./BrandSettings.tsx";
 import { Overview } from "./Overview.tsx";
 import { Sidebar } from "./Sidebar.tsx";
 import { ConflictDialog, FailureDialog, HistoryDialog, ProblemsDialog } from "./SaveDialogs.tsx";
@@ -100,15 +101,6 @@ function takeReloadNote(): AfterReload | undefined {
   }
 }
 
-/** Placeholder for views built in later steps. */
-function PlaceholderView({ title }: { title: string }) {
-  return (
-    <div className="ed-page">
-      <h1 className="ed-title">{title}</h1>
-    </div>
-  );
-}
-
 export default function AdminApp() {
   const [state, dispatch] = useReducer(rootReducer, null);
   const [session, setSession] = useState<Session | null>(null);
@@ -153,7 +145,7 @@ export default function AdminApp() {
       } else if (saved?.baseRecords) {
         // The brand changed since the draft was autosaved: replay the draft's edits on the new version.
         const old = { revision: saved.revision, base: { ...loaded.data, records: saved.baseRecords }, present: saved.draft, past: [], future: [] };
-        dispatch({ type: "load", revision: loaded.revision, base: loaded.data, present: { records: rebase(old, loaded.data), files: saved.draft.files } });
+        dispatch({ type: "load", revision: loaded.revision, base: loaded.data, present: { records: rebase(old, loaded.data), files: saved.draft.files, brand: saved.draft.brand } });
         show({ message: "The brand changed since your last edit. Your unsaved changes are kept on top of the new version." });
       } else {
         if (saved) await clearSaved(loaded.data.slug);
@@ -324,7 +316,7 @@ export default function AdminApp() {
         const f = from.present.files[provisional];
         if (f) files[final] = { ...f, path: final };
       }
-      const base: BrandContent = { ...from.base, records: result.records, sources: result.sources, changelog: result.changelog };
+      const base: BrandContent = { ...from.base, brand: brandOf(from), records: result.records, sources: result.sources, changelog: result.changelog };
       dispatch({ type: "load", revision: res.revision, base, present: { records: result.records, files } });
       await clearSaved(from.base.slug);
       setUnpublished(true);
@@ -359,7 +351,7 @@ export default function AdminApp() {
   }
 
   function resolveConflict(remote: { revision: string; data: BrandContent }, how: "reload" | "overwrite") {
-    const present = how === "reload" ? { records: rebase(state!, remote.data), files: state!.present.files } : state!.present;
+    const present = how === "reload" ? { records: rebase(state!, remote.data), files: state!.present.files, brand: state!.present.brand } : state!.present;
     dispatch({ type: "load", revision: remote.revision, base: remote.data, present });
     setDialog(null);
     if (how === "overwrite") void saveDraft({ ...state!, revision: remote.revision, base: remote.data, present, past: [], future: [] });
@@ -385,7 +377,7 @@ export default function AdminApp() {
     const byPath: Record<string, string> = {};
     for (const path of Object.keys(state!.present.files)) byPath[path] = urlFor(path);
     return {
-      brand: state!.base.brand,
+      brand: brandOf(state!),
       records: state!.present.records,
       changelog: result.ok ? result.changelog : state!.base.changelog,
       urls: byPath,
@@ -406,7 +398,7 @@ export default function AdminApp() {
     state, dispatch, apply, session, module: mod, records,
     setModule: (id) => go(id),
     view, go,
-    brand: state.base.brand,
+    brand: brandOf(state),
     selectedId, select: setSelectedId,
     edit: (id) => {
       openedFrom.current = id;
@@ -460,7 +452,7 @@ export default function AdminApp() {
             </main>
           ) : view === SETTINGS ? (
             <main className="ed-main" id="main">
-              <PlaceholderView title="Brand settings" />
+              <BrandSettings />
             </main>
           ) : (
             <>

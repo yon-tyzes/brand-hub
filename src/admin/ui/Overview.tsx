@@ -2,7 +2,8 @@
 // publish, what waits on a decision, and the recent changes.
 import type { AnyRecord } from "../../../schemas/asset.ts";
 import type { RecordChange } from "../editor/changeset.ts";
-import { EDITOR_MODULES, moduleForType } from "../editor/modules.ts";
+import { BRAND_CHANGE } from "../../serializer/summary.ts";
+import { EDITOR_MODULES, moduleForType, SETTINGS } from "../editor/modules.ts";
 import { useEditor } from "./context.tsx";
 import { Icon } from "./Menu.tsx";
 
@@ -105,8 +106,9 @@ export function Overview({ changes, unpublished, busy, onReview, onPreview, onPu
             <ul className="ov-rows" role="list">
               {changes.map((c) => {
                 const order = c.id.startsWith("order:");
-                const r = order ? undefined : byId.get(c.id);
-                const [name, what] = order ? [c.line.split(":")[0]!, "Order changed"] : [r?.label ?? c.id, c.line.replace(/^[^:]*:\s*/, "")];
+                const settings = c.id === BRAND_CHANGE;
+                const r = order || settings ? undefined : byId.get(c.id);
+                const [name, what] = order ? [c.line.split(":")[0]!, "Order changed"] : settings ? ["Brand settings", c.line.replace(/^[^:]*:\s*/, "")] : [r?.label ?? c.id, c.line.replace(/^[^:]*:\s*/, "")];
                 return (
                   <li key={c.id}>
                     <Thumb record={r} />
@@ -114,11 +116,11 @@ export function Overview({ changes, unpublished, busy, onReview, onPreview, onPu
                       <span className="ov-row-title">{name}</span>
                       <span className="ov-row-help">{what.charAt(0).toUpperCase() + what.slice(1)}</span>
                     </span>
-                    {(order || (r && c.kind !== "deleted")) && (
+                    {(order || settings || (r && c.kind !== "deleted")) && (
                       <button
                         type="button"
                         className="ov-link"
-                        onClick={() => (order ? go(moduleForTypeName(c.id.slice(6))) : onReview(c.id))}
+                        onClick={() => (settings ? go(SETTINGS) : order ? go(moduleForTypeName(c.id.slice(6))) : onReview(c.id))}
                       >
                         Review<span className="visually-hidden"> {name}</span>
                       </button>

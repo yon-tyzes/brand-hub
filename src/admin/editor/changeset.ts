@@ -1,14 +1,17 @@
 // Bridges the editor's draft and the serializer: the change list for the top bar, and the final change set.
 import type { AnyRecord } from "../../../schemas/asset.ts";
 import { filePaths } from "../../content/file-paths.ts";
-import { describeChanges, serialize, type RecordChange, type SerializeError, type SerializeResult } from "../../serializer/index.ts";
+import { describeBrandChange, describeChanges, serialize, type RecordChange, type SerializeError, type SerializeResult } from "../../serializer/index.ts";
 import type { BrandContent } from "../../adapters/types.ts";
 import type { Draft, EditorState } from "./state.ts";
 
 export type { RecordChange, SerializeError };
 
-/** One line per added, deleted, or edited record, plus one per section whose order changed. */
-export const changes = (base: BrandContent, draft: Draft): RecordChange[] => describeChanges(base.records, draft.records);
+/** One line for brand settings, one per added, deleted, or edited record, and one per section whose order changed. */
+export const changes = (base: BrandContent, draft: Draft): RecordChange[] => {
+  const brand = draft.brand && describeBrandChange(base.brand, draft.brand);
+  return [...(brand ? [brand] : []), ...describeChanges(base.records, draft.records)];
+};
 
 /** Today's date in the editor's time zone, as YYYY-MM-DD. */
 export function today(now = new Date()): string {
@@ -26,8 +29,8 @@ export function serializeDraft(state: EditorState, author: string, date: string)
   return serialize({
     slug: base.slug,
     revision: state.revision,
-    brand: base.brand,
-    base: { records: base.records, sources: base.sources, changelog: base.changelog },
+    brand: present.brand ?? base.brand,
+    base: { brand: base.brand, records: base.records, sources: base.sources, changelog: base.changelog },
     records: present.records,
     uploads,
     date,
@@ -40,7 +43,7 @@ export function serializeDraft(state: EditorState, author: string, date: string)
  * edited replace theirs, records the draft deleted stay deleted, and everything else is theirs.
  */
 export function rebase(state: EditorState, remote: BrandContent): AnyRecord[] {
-  const mine = changes(state.base, state.present);
+  const mine = changes(state.base, state.present).filter((c) => !c.id.startsWith("brand:"));
   const byId = new Map(remote.records.map((r) => [r.id, r]));
   const present = new Map(state.present.records.map((r) => [r.id, r]));
   for (const c of mine) {
