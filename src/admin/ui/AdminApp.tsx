@@ -419,6 +419,7 @@ export default function AdminApp() {
     fileLabel: (path) => state.present.files[path]?.name ?? fileName(path),
     replaceFile, addFiles, retireItems,
     issuesFor: (id) => issues.get(id) ?? [],
+    edited: new Set(changes.map((c) => c.id)),
   };
 
   const replacingRecord = replacing && records.find((r) => r.id === replacing.id);

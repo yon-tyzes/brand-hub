@@ -41,9 +41,12 @@ const uniqueValues = (ctx: FieldContext, type: AssetType, key: string) =>
 export const suggest = (type: AssetType, key: string, extra: string[] = []) => (ctx: FieldContext) =>
   [...new Set([...extra, ...uniqueValues(ctx, type, key)])];
 
-/** Fields every item has, shown after the section's own fields. */
-export const commonFields = (opts: { rules: boolean }): FieldDef[] => [
-  { key: "help", kind: "text", label: "When to use it", help: "One line shown under the name, like “For dark backgrounds.”", optional: true },
+/** One line on where the item is used, shown on its card and in search. */
+export const helpField: FieldDef = { key: "help", kind: "textarea", rows: 3, label: "Where it's used", help: "Shown on the card and in search.", optional: true };
+
+/** Fields every item has, shown after the section's own fields. `help` false leaves out helpField. */
+export const commonFields = (opts: { rules: boolean; help?: boolean }): FieldDef[] => [
+  ...(opts.help === false ? [] : [helpField]),
   { key: "keywords", kind: "chips", label: "Search words", help: "Other words people might type to find this. Press Enter after each one.", optional: true },
   {
     key: "audience",

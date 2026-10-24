@@ -9,6 +9,22 @@ import { validate } from "../editor/validate.ts";
 import { useEditor } from "./context.tsx";
 import { Menu } from "./Menu.tsx";
 
+const PROVIDER = { dropbox: "Dropbox", drive: "Google Drive", sharepoint: "SharePoint", url: "Web link" } as const;
+
+/** One line under the card's name: the value or the detail that tells similar items apart. */
+function subtitle(r: AnyRecord, chapters: { id: string; title: string }[]): string {
+  switch (r.type) {
+    case "color": return r.hex;
+    case "logo": return [r.lockup, r.colorway].filter(Boolean).join(" · ");
+    case "font": return r.family;
+    case "icon": return r.group;
+    case "template": return r.category;
+    case "rule": return chapters.find((c) => c.id === r.chapter)?.title ?? "";
+    case "photo-source": return PROVIDER[r.provider];
+    default: return "";
+  }
+}
+
 export const CARD_DRAG_TYPE = "application/x-brand-hub-item";
 const REPLACEABLE = new Set(["logo", "icon", "template"]);
 
@@ -22,11 +38,13 @@ interface Props {
 }
 
 export function ItemCard({ record: r, index, count, checked, onCheck, onReorder }: Props) {
-  const { apply, selectedId, urlFor, svgFor, replaceFile, retireItems, module, issuesFor, edit } = useEditor();
+  const { apply, selectedId, urlFor, svgFor, replaceFile, retireItems, module, issuesFor, edit, edited, brand } = useEditor();
   const [renaming, setRenaming] = useState(false);
   const [dropHint, setDropHint] = useState<"" | "file" | "before" | "after">("");
   const picker = useRef<HTMLInputElement>(null);
   const errors = Object.keys(validate(r)).length > 0 || issuesFor(r.id).length > 0;
+
+  const sub = subtitle(r, brand.guide.chapters);
 
   const save = (value: string) => {
     const label = value.trim();
@@ -78,49 +96,54 @@ export function ItemCard({ record: r, index, count, checked, onCheck, onReorder 
         }
       }}
     >
-      <div className="admin-card-top">
-        <label className="admin-check">
-          <input type="checkbox" checked={checked} onChange={(e) => onCheck(e.target.checked)} />
-          <span className="visually-hidden">Select {r.label}</span>
-        </label>
-        <span className={`status-badge status-${r.status}`}>{STATUS_LABEL[r.status]}</span>
-        {errors && <span className="status-badge status-attention">Needs details</span>}
-      </div>
+      <label className="admin-check">
+        <input type="checkbox" checked={checked} onChange={(e) => onCheck(e.target.checked)} />
+        <span className="visually-hidden">Select {r.label}</span>
+      </label>
       <button className="admin-card-preview" type="button" tabIndex={-1} aria-hidden="true" onClick={() => edit(r.id)}>
-        <AssetPreview record={r} urlFor={urlFor} svgFor={svgFor} alt="" />
+        {r.type === "color" ? <span className="admin-card-swatch" style={{ background: r.hex }} /> : <AssetPreview record={r} urlFor={urlFor} svgFor={svgFor} alt="" />}
       </button>
-      <div className="admin-card-name">
-        {renaming ? (
-          <input
-            className="field field-sm"
-            aria-label={`Name for ${r.label}`}
-            defaultValue={r.label}
-            autoFocus
-            onFocus={(e) => e.currentTarget.select()}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") save(e.currentTarget.value);
-              if (e.key === "Escape") (e.preventDefault(), e.stopPropagation(), setRenaming(false));
-            }}
-            onBlur={(e) => renaming && save(e.currentTarget.value)}
+      <div className="admin-card-body">
+        <div className="admin-card-name">
+          {renaming ? (
+            <input
+              className="field field-sm"
+              aria-label={`Name for ${r.label}`}
+              defaultValue={r.label}
+              autoFocus
+              onFocus={(e) => e.currentTarget.select()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") save(e.currentTarget.value);
+                if (e.key === "Escape") (e.preventDefault(), e.stopPropagation(), setRenaming(false));
+              }}
+              onBlur={(e) => renaming && save(e.currentTarget.value)}
+            />
+          ) : (
+            <button type="button" className="admin-card-title" onClick={() => edit(r.id)} onDoubleClick={() => setRenaming(true)} aria-label={`Edit ${r.label}`}>
+              {r.label}
+            </button>
+          )}
+          <Menu
+            label={`More actions for ${r.label}`}
+            buttonProps={{ "data-card-menu": r.id }}
+            items={[
+              { label: "Rename", run: () => setRenaming(true) },
+              { label: "Move up", run: () => apply(moveBy(r.id, -1)), disabled: index === 0 },
+              { label: "Move down", run: () => apply(moveBy(r.id, 1)), disabled: index === count - 1 },
+              ...(REPLACEABLE.has(r.type) ? [{ label: "Replace file", run: () => picker.current?.click() }] : []),
+              r.status === "retired"
+                ? { label: "Restore as draft", run: () => apply(setStatus([r.id], "draft")) }
+                : { label: "Retire", run: () => retireItems([r.id]) },
+            ]}
           />
-        ) : (
-          <button type="button" className="admin-card-title" onClick={() => edit(r.id)} onDoubleClick={() => setRenaming(true)} aria-label={`Edit ${r.label}`}>
-            {r.label}
-          </button>
-        )}
-        <Menu
-          label={`More actions for ${r.label}`}
-          buttonProps={{ "data-card-menu": r.id }}
-          items={[
-            { label: "Rename", run: () => setRenaming(true) },
-            { label: "Move up", run: () => apply(moveBy(r.id, -1)), disabled: index === 0 },
-            { label: "Move down", run: () => apply(moveBy(r.id, 1)), disabled: index === count - 1 },
-            ...(REPLACEABLE.has(r.type) ? [{ label: "Replace file", run: () => picker.current?.click() }] : []),
-            r.status === "retired"
-              ? { label: "Restore as draft", run: () => apply(setStatus([r.id], "draft")) }
-              : { label: "Retire", run: () => retireItems([r.id]) },
-          ]}
-        />
+        </div>
+        {sub && <span className={r.type === "color" ? "admin-card-sub value" : "admin-card-sub"}>{sub}</span>}
+        <span className="admin-card-status">
+          <span className={`status-dot status-${r.status}`} aria-hidden="true" />
+          <span className="status-badge">{STATUS_LABEL[r.status]}</span>
+          {errors && <span className="admin-attention">Needs details</span>}
+          {edited.has(r.id) && <span className="admin-edited">Edited</span>}
+        </span>
       </div>
       <input
         ref={picker}

@@ -39,6 +39,8 @@ export interface EditorApi {
   /** Adds files to the current section, or to the given one. */
   addFiles: (files: File[], moduleId?: string) => void;
   retireItems: (ids: string[]) => void;
+  /** Ids of items changed since the last save: their cards show "Edited". */
+  edited: Set<string>;
   /** Problems the last save attempt found for an item, in plain words. */
   issuesFor: (id: string) => string[];
   /** Opens an item in the inspector and moves focus to its first field. */

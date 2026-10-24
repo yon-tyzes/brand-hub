@@ -2,6 +2,7 @@
 // and permanent delete. Validation runs on each change.
 import { useState } from "react";
 import type { Status } from "../../../schemas/asset.ts";
+import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
 import { FIELDS } from "../fields/index.ts";
 import { moduleForType, STATUS_LABEL } from "../editor/modules.ts";
 import { deleteRecord, restoreRecord, setStatus, updateRecord } from "../editor/state.ts";
@@ -18,7 +19,7 @@ const STATUSES: { value: Exclude<Status, "retired">; help: string }[] = [
 
 /** In a sheet, the sheet supplies the title and close button. */
 export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
-  const { records, selectedId, select, apply, toast, issuesFor, closeInspector } = useEditor();
+  const { records, selectedId, select, apply, toast, issuesFor, closeInspector, urlFor, svgFor } = useEditor();
   const [confirming, setConfirming] = useState(false);
   const record = records.find((r) => r.id === selectedId);
   if (!record) {
@@ -36,7 +37,10 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
     <div className={inSheet ? "inspector inspector-in-sheet" : "inspector"} key={record.id}>
       {!inSheet && (
         <div className="inspector-head">
-          <h2 className="h4">{record.label}</h2>
+          <span className="inspector-thumb" aria-hidden="true" style={record.type === "color" ? { background: record.hex } : undefined}>
+            {record.type !== "color" && <AssetPreview record={record} urlFor={urlFor} svgFor={svgFor} alt="" />}
+          </span>
+          <h2 className="inspector-title">{record.label}</h2>
           <button type="button" className="btn btn-text btn-sm" onClick={closeInspector}>
             Close<span className="visually-hidden"> details</span>
           </button>
@@ -49,6 +53,23 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
           <ul>{issuesFor(record.id).map((m) => <li key={m}>{m}</li>)}</ul>
         </div>
       )}
+
+      <div className="ed-field" data-invalid={nameError ? true : undefined}>
+        <label className="ed-label" htmlFor="ed-name">Name</label>
+        <input
+          id="ed-name"
+          className="field"
+          value={record.label}
+          aria-describedby={nameError ? "ed-name-error" : undefined}
+          aria-invalid={nameError ? true : undefined}
+          onChange={(e) => apply(updateRecord(record.id, { label: e.target.value }), `${record.id}.label`)}
+        />
+        {nameError && <p className="ed-error" id="ed-name-error">{nameError}</p>}
+      </div>
+
+      {FIELDS[mod.id]!.map((def) => (
+        <Field key={`${def.key}-${def.kind}`} def={def} record={record} error={errors[def.key]} />
+      ))}
 
       {record.status === "retired" ? (
         <div className="ed-retired" role="status">
@@ -72,23 +93,6 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         </fieldset>
       )}
 
-      <div className="ed-field" data-invalid={nameError ? true : undefined}>
-        <label className="ed-label" htmlFor="ed-name">Name</label>
-        <p className="ed-help" id="ed-name-help">Shown on the card and in search.</p>
-        <input
-          id="ed-name"
-          className="field"
-          value={record.label}
-          aria-describedby={`ed-name-help${nameError ? " ed-name-error" : ""}`}
-          aria-invalid={nameError ? true : undefined}
-          onChange={(e) => apply(updateRecord(record.id, { label: e.target.value }), `${record.id}.label`)}
-        />
-        {nameError && <p className="ed-error" id="ed-name-error">{nameError}</p>}
-      </div>
-
-      {FIELDS[mod.id]!.map((def) => (
-        <Field key={`${def.key}-${def.kind}`} def={def} record={record} error={errors[def.key]} />
-      ))}
 
       <div className="ed-danger">
         <button type="button" className="btn btn-text btn-sm" onClick={() => setConfirming(true)}>

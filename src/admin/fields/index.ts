@@ -10,7 +10,7 @@ import { commonFields, type FieldDef } from "./types.ts";
 
 export const FIELDS: Record<string, FieldDef[]> = {
   logos: [...logoFields, ...commonFields({ rules: true })],
-  colors: [...colorFields, ...commonFields({ rules: true })],
+  colors: [...colorFields, ...commonFields({ rules: true, help: false })],
   fonts: [...fontFields, ...commonFields({ rules: true })],
   icons: [...iconFields, ...commonFields({ rules: true })],
   photos: [...photoFields, ...commonFields({ rules: true })],

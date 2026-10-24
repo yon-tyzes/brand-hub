@@ -6,7 +6,6 @@ import { filePaths } from "../../content/file-paths.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
 import { contrastRatio } from "../../theme/color.ts";
 import { MIN_RATIO } from "../../theme/contrast.ts";
-import { SHELL_COLORS } from "../../theme/shell.ts";
 import { extension } from "../editor/files.ts";
 import { ingest } from "../editor/ingest.ts";
 import { EDITOR_MODULES } from "../editor/modules.ts";
@@ -32,8 +31,8 @@ function Shell({ def, error, id, children, group }: { def: FieldDef; error?: str
         {def.label}
         {def.optional && <span className="ed-optional"> (optional)</span>}
       </Label>
-      <p className="ed-help" id={`${id}-help`}>{def.help}</p>
       {children}
+      {def.help && <p className="ed-help" id={`${id}-help`}>{def.help}</p>}
       {error && <p className="ed-error" id={`${id}-error`}>{error}</p>}
     </Wrap>
   );
@@ -42,7 +41,7 @@ function Shell({ def, error, id, children, group }: { def: FieldDef; error?: str
 export function Field({ def, record, error }: FieldProps) {
   const { apply, records } = useEditor();
   const id = useId();
-  const described = `${id}-help${error ? ` ${id}-error` : ""}`;
+  const described = [def.help && `${id}-help`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
   const set = (value: unknown) => apply(updateRecord(record.id, { [def.key]: value } as Partial<AnyRecord>), `${record.id}.${def.key}`);
   const common = { id, "aria-describedby": described, "aria-invalid": error ? true : undefined } as const;
   const ctx: FieldContext = { records, record };
@@ -113,7 +112,7 @@ export function Field({ def, record, error }: FieldProps) {
 
 type Sub = { def: FieldDef; error?: string; id: string };
 
-function LinesField({ def, record, error, id, described }: Sub & { record: AnyRecord; described: string }) {
+function LinesField({ def, record, error, id, described }: Sub & { record: AnyRecord; described?: string }) {
   const { apply } = useEditor();
   const value = (get(record, def.key) as string[] | undefined) ?? [];
   const [text, setText] = useState(value.join("\n"));
@@ -135,7 +134,7 @@ function LinesField({ def, record, error, id, described }: Sub & { record: AnyRe
   );
 }
 
-function ChipsField({ def, record, error, id, described, numeric }: Sub & { record: AnyRecord; described: string; numeric?: boolean }) {
+function ChipsField({ def, record, error, id, described, numeric }: Sub & { record: AnyRecord; described?: string; numeric?: boolean }) {
   const { apply } = useEditor();
   const values = ((get(record, def.key) as (string | number)[] | undefined) ?? []).map(String);
   const [text, setText] = useState("");
@@ -216,78 +215,57 @@ const rgbOf = (hex: string): [number, number, number] => {
   const n = parseInt(hex.slice(1), 16);
   return [n >> 16, (n >> 8) & 255, n & 255];
 };
-const verdict = (ratio: number) =>
-  ratio >= MIN_RATIO.text ? "Readable as text" : ratio >= MIN_RATIO["large-text"] ? "Large text only" : "Not readable as text";
 
-function ColorField({ def, record, error, id, described }: Sub & { record: ColorAsset; described: string }) {
+function ColorField({ def, record, error, id, described }: Sub & { record: ColorAsset; described?: string }) {
   const { apply } = useEditor();
   const [text, setText] = useState(record.hex);
   const valid = HEX.test(text);
-  const backgrounds = [
-    { label: "Page background", hex: SHELL_COLORS.bg.light },
-    { label: "Dark page background", hex: SHELL_COLORS.bg.dark },
-  ];
   return (
     <Shell def={def} error={valid ? error : "Enter a 6-digit hex like #1E5B4A."} id={id}>
-      <div className="hex-row">
-        <span className="swatch-dot" style={{ background: valid ? text : "transparent" }} aria-hidden="true" />
-        <input
-          className="field field-sm value"
-          id={id}
-          value={text}
-          maxLength={7}
-          spellCheck={false}
-          aria-describedby={described}
-          aria-invalid={!valid || undefined}
-          onChange={(e) => {
-            const v = e.target.value.trim();
-            const hex = v.startsWith("#") ? v : `#${v}`;
-            setText(hex);
-            apply(updateRecord(record.id, HEX.test(hex) ? { hex: hex.toUpperCase(), rgb: rgbOf(hex) } : { hex }), `${record.id}.hex`);
-          }}
-        />
-        <span className="small">RGB {record.rgb.join(", ")}</span>
-      </div>
-      {valid && (
-        <ul className="contrast-list" role="list" aria-label="Contrast on site backgrounds">
-          {backgrounds.map((b) => {
-            const ratio = contrastRatio(text, b.hex);
-            return (
-              <li key={b.label} style={{ background: b.hex, color: text }}>
-                {/* Visual sample only; the ratio and verdict next to it are the readable text. */}
-                <span className="contrast-sample" data-sample="Aa" aria-hidden="true" />
-                <span className="contrast-text" style={{ color: contrastRatio("#000000", b.hex) > contrastRatio("#FFFFFF", b.hex) ? "#000000" : "#FFFFFF" }}>
-                  {b.label}: {ratio.toFixed(2)} to 1. {verdict(ratio)}.
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <input
+        className="field value"
+        id={id}
+        value={text}
+        maxLength={7}
+        spellCheck={false}
+        aria-describedby={described}
+        aria-invalid={!valid || undefined}
+        onChange={(e) => {
+          const v = e.target.value.trim();
+          const hex = v.startsWith("#") ? v : `#${v}`;
+          setText(hex);
+          apply(updateRecord(record.id, HEX.test(hex) ? { hex: hex.toUpperCase(), rgb: rgbOf(hex) } : { hex }), `${record.id}.hex`);
+        }}
+      />
+      {valid && <p className="ed-help" aria-live="polite">RGB {record.rgb.join(" ")}</p>}
     </Shell>
   );
 }
 
+/** Four numbers from 0 to 100 in one field, like "67 0 19 64". Empty clears the value. */
 function CmykField({ def, record, error, id }: Sub & { record: ColorAsset }) {
   const { apply } = useEditor();
-  const values = record.cmyk ?? [undefined, undefined, undefined, undefined];
-  const set = (i: number, v: string) => {
-    const next = [...values] as (number | undefined)[];
-    next[i] = v === "" ? undefined : Math.max(0, Math.min(100, Number(v)));
-    const filled = next.every((n) => n !== undefined);
-    const empty = next.every((n) => n === undefined);
-    apply(updateRecord(record.id, { cmyk: empty ? undefined : filled ? (next as [number, number, number, number]) : (next.map((n) => n ?? 0) as [number, number, number, number]) }), `${record.id}.cmyk`);
-  };
+  const [text, setText] = useState(record.cmyk?.join(" ") ?? "");
+  const parts = text.trim() ? text.trim().split(/[\s,]+/).map(Number) : [];
+  const valid = parts.length === 0 || (parts.length === 4 && parts.every((n) => Number.isFinite(n) && n >= 0 && n <= 100));
   return (
-    <Shell def={def} error={error} id={id} group>
-      <div className="cmyk">
-        {["C", "M", "Y", "K"].map((l, i) => (
-          <label key={l}>
-            <span>{l}</span>
-            <input className="field field-sm" type="number" min={0} max={100} value={values[i] ?? ""} onChange={(e) => set(i, e.target.value)} />
-          </label>
-        ))}
-      </div>
+    <Shell def={def} error={valid ? error : "Enter four numbers from 0 to 100, like 67 0 19 64."} id={id}>
+      <input
+        className="field value"
+        id={id}
+        value={text}
+        spellCheck={false}
+        aria-invalid={!valid || undefined}
+        aria-describedby={valid ? undefined : `${id}-error`}
+        onChange={(e) => {
+          setText(e.target.value);
+          const next = e.target.value.trim() ? e.target.value.trim().split(/[\s,]+/).map(Number) : [];
+          if (next.length === 0) apply(updateRecord(record.id, { cmyk: undefined }), `${record.id}.cmyk`);
+          else if (next.length === 4 && next.every((n) => Number.isFinite(n) && n >= 0 && n <= 100)) {
+            apply(updateRecord(record.id, { cmyk: next as [number, number, number, number] }), `${record.id}.cmyk`);
+          }
+        }}
+      />
     </Shell>
   );
 }

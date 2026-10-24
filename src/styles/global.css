@@ -297,11 +297,14 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 /* ---------- Fields ---------- */
 
 .field {
-  width: 100%; min-height: 48px; padding: 12px 16px;
-  background: var(--surface-raised); color: var(--text);
-  border: 1px solid var(--border-strong); border-radius: var(--radius-md);
+  width: 100%; box-sizing: border-box; min-height: 40px; padding: 8px 12px;
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--border-control); border-radius: var(--radius-md);
+  font: 400 15px/1.4 var(--font-sans);
 }
-.field::placeholder { color: var(--text-secondary); }
+textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertical; }
+.field.value { font-family: var(--font-mono); font-size: var(--label-size); }
+.field::placeholder { color: var(--text-muted); }
 .kbd { display: inline-flex; align-items: center; min-width: 24px; min-height: 24px; padding: 0 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: var(--caption-size); font-family: var(--font-sans); color: var(--text-secondary); background: var(--surface-raised); }
 
 /* ---------- Changelog entry ---------- */

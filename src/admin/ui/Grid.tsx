@@ -18,7 +18,7 @@ const DROP_HINT: Record<string, string> = {
   logos: "Drop logo files here to add them, or drop a file on a card to replace it.",
   icons: "Drop SVG icons here to add them, or drop a file on a card to replace it.",
   fonts: "Drop the font files of one family here to add it.",
-  colors: "Drop an SVG here to add the colors it uses, or press Add.",
+  colors: "Drop an SVG here to add the colors it uses, or press Add color.",
   templates: "Drop thumbnail images here to add templates, or drop one on a card to replace it.",
 };
 
@@ -73,12 +73,8 @@ export function Grid({ filter, setFilter }: { filter: StatusFilter; setFilter: (
       }}
     >
       <div className="admin-grid-head">
-        <div>
-          <h1 id="section-title" className="h3">{mod.label}</h1>
-          <p className="small">
-            {DROP_HINT[mod.id] ?? `Press Add to create a ${mod.noun}.`}
-          </p>
-        </div>
+        <h1 id="section-title" className="admin-grid-title">{mod.label}</h1>
+        <span className="admin-grid-count">{all.length} {all.length === 1 ? mod.noun : mod.label.toLowerCase()}</span>
         <label className="ed-filter">
           <span>Show</span>
           <select className="field field-sm" value={filter} onChange={(e) => setFilter(e.target.value as StatusFilter)}>
@@ -102,6 +98,10 @@ export function Grid({ filter, setFilter }: { filter: StatusFilter; setFilter: (
           }}
         />
       </div>
+
+      <p className="admin-drop-hint">
+        {DROP_HINT[mod.id] ?? `Press Add ${mod.noun} to create one.`} Drag cards to change their order on the site.
+      </p>
 
       {selected.length > 0 && (
         <div className="bulk-bar" role="region" aria-label="Selected items">
