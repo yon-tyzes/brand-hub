@@ -178,7 +178,7 @@ test("delete permanently asks first, names the item, and can be undone", async (
   await expect(card(page, "Stacked logo")).toBeVisible();
 });
 
-test("module editors: hex updates RGB live, Canva edit links get a warning, icons add from the picker", async ({ page }) => {
+test("module editors: hex updates the card live, Canva edit links get a warning, icons add from the picker", async ({ page }) => {
   await open(page);
   await page.locator(".ed-side-item", { hasText: "Colors" }).click();
   await page.getByRole("button", { name: "Edit Copper" }).click();
@@ -187,7 +187,7 @@ test("module editors: hex updates RGB live, Canva edit links get a warning, icon
   await hex.fill("#12");
   await expect(details.getByText("Enter a 6-digit hex like #1E5B4A.")).toBeVisible();
   await hex.fill("#336699");
-  await expect(details.getByText("RGB 51 102 153")).toBeVisible();
+  await expect(card(page, "Copper")).toContainText("#336699");
   await expect(card(page, "Copper")).toContainText("Edited");
 
   await page.locator(".ed-side-item", { hasText: "Templates" }).click();

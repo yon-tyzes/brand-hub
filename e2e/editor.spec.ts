@@ -14,6 +14,8 @@ test("the Overview loads with live counts, add tiles, decisions, and recent chan
   await expect(page.getByRole("link", { name: /Add a color/ })).toHaveAttribute("href", "/admin/colors/");
   await expect(page.getByRole("heading", { name: "Ready to publish" })).toBeVisible();
   await expect(page.getByText("Steam is pending")).toBeVisible();
+  // The pending icon shows its own glyph, not the section icon.
+  await expect(page.getByRole("region", { name: "Waiting on a decision" }).locator(".ov-thumb-icon[style] svg")).toHaveCount(1);
   await expect(page.locator(".ov-log li")).toHaveCount(6);
   await expect(page.getByRole("navigation", { name: "Editor" }).getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
 });
@@ -25,7 +27,7 @@ test("a color edit marks the card Edited, updates the count, and is ready to pub
   await expect(card).not.toContainText("Edited");
   await page.getByRole("button", { name: "Edit Comet Green" }).click();
   await details(page).getByLabel("Web (HEX)").fill("#1E5B4B");
-  await expect(details(page).getByText("RGB 30 91 75")).toBeVisible();
+  await expect(card).toContainText("#1E5B4B");
   await expect(card).toContainText("Edited");
   await expect(page.getByRole("button", { name: /1 unsaved change/ })).toBeVisible();
 

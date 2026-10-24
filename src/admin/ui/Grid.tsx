@@ -81,7 +81,7 @@ export function Grid({ filter, setFilter }: { filter: StatusFilter; setFilter: (
             {FILTERS.map((f) => <option key={f} value={f}>{f === "all" ? "All" : STATUS_LABEL[f]}</option>)}
           </select>
         </label>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={add}>
+        <button type="button" className="btn btn-secondary" onClick={add}>
           <Icon name="plus" /> Add {mod.noun}
         </button>
         <input

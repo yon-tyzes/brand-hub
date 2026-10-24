@@ -33,7 +33,7 @@ export function Sidebar({ onHistory, onSignOut }: { onHistory: () => void; onSig
   return (
     <nav className="ed-side" aria-label="Editor">
       <ul role="list">
-        <li>{link("overview", <><Icon name="home" size={18} />Overview</>)}</li>
+        <li>{link("overview", <><Icon name="overview" size={18} />Overview</>)}</li>
       </ul>
       <hr />
       <ul role="list" aria-label="Sections">

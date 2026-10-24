@@ -249,7 +249,6 @@ function ColorField({ def, record, error, id, described }: Sub & { record: Color
           apply(updateRecord(record.id, HEX.test(hex) ? { hex: hex.toUpperCase(), rgb: rgbOf(hex) } : { hex }), `${record.id}.hex`);
         }}
       />
-      {valid && <p className="ed-help" aria-live="polite">RGB {record.rgb.join(" ")}</p>}
     </Shell>
   );
 }

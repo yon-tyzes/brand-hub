@@ -26,7 +26,11 @@ const shortDate = new Intl.DateTimeFormat("en", { month: "short", day: "numeric"
 const day = (iso: string) => shortDate.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso));
 
 function Thumb({ record }: { record?: AnyRecord }) {
+  const { svgFor, brand } = useEditor();
   if (record?.type === "color") return <span className="ov-thumb" style={{ background: record.hex }} aria-hidden="true" />;
+  // An icon shows its own glyph, drawn in the brand's main color.
+  const svg = record?.type === "icon" && record.svgPath ? svgFor(record.svgPath) : undefined;
+  if (svg) return <span className="ov-thumb ov-thumb-icon" style={{ color: brand.tokens.color.primary }} aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />;
   return (
     <span className="ov-thumb ov-thumb-icon" aria-hidden="true">
       <Icon name={(record && TYPE_ICON[record.type]) ?? "layout"} size={16} />
