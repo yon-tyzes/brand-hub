@@ -1,5 +1,5 @@
-// Site shell behavior, loaded on every page: theme toggle, frosted top bar, toasts, copy buttons, and the
-// search shortcut. The search dialog and its index load on first use.
+// Site shell behavior, loaded on every page: theme toggle, frosted top bar, the phone chip row, toasts, copy
+// buttons, and the search shortcut. The search dialog and its index load on first use.
 import { copyText, toast, type ToastDetail } from "./client.ts";
 
 const THEME_KEY = "bh-theme";
@@ -32,6 +32,15 @@ if (bar) {
   const update = () => bar.toggleAttribute("data-scrolled", window.scrollY > 0);
   window.addEventListener("scroll", update, { passive: true });
   update();
+}
+
+// ---------- Phone chip row: the current page's chip starts in view ----------
+const chip = document.querySelector<HTMLElement>(".sidebar-items [aria-current='page']");
+const row = chip?.parentElement?.closest<HTMLElement>(".sidebar-items");
+if (chip && row && row.scrollWidth > row.clientWidth) {
+  const c = chip.getBoundingClientRect();
+  const r = row.getBoundingClientRect();
+  if (c.right > r.right || c.left < r.left) row.scrollLeft += c.left - r.left - (r.width - c.width) / 2;
 }
 
 // ---------- Toasts ----------

@@ -145,6 +145,13 @@ test.describe("phone at 390px", () => {
     await expect(page.getByRole("navigation", { name: "Library" }).getByRole("link", { name: /^Logos/ })).toHaveAttribute("aria-current", "page");
   });
 
+  test("the current chip starts in view when the row scrolls", async ({ page }) => {
+    for (const route of ["/templates/", "/icons/"]) {
+      await page.goto(route);
+      await expect(page.getByRole("navigation", { name: "Library" }).locator("[aria-current=page]"), route).toBeInViewport({ ratio: 1 });
+    }
+  });
+
   test("the chip row keeps its height on a page shorter than the window", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 2400 });
     await page.goto("/guide/headshots/");
