@@ -7,3 +7,10 @@ import { PageBody } from "../../site/Page.tsx";
 <Layout title={site.brand.name}>
   <PageBody site={site} page="home" />
 </Layout>
+
+<script>
+  // The hero gradient loads after the page renders and never blocks search.
+  const load = () => setTimeout(() => import("../../scripts/hero.ts"), 0);
+  if (document.readyState === "complete") requestAnimationFrame(load);
+  else addEventListener("load", () => requestAnimationFrame(load), { once: true });
+</script>

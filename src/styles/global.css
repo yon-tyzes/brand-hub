@@ -507,6 +507,9 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
     radial-gradient(38% 60% at 58% 105%, var(--hero-3) 0%, transparent 70%),
     var(--bg);
 }
+/* The WebGL mesh (src/scripts/hero.ts) fades in over the static gradient once its first frame is drawn. */
+.hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity var(--duration-slow) var(--ease-out); }
+.hero-canvas.is-ready { opacity: 1; }
 .hero-content { position: relative; box-sizing: border-box; max-width: var(--content-max); padding: 64px 48px 0; }
 .hero-title { margin: 0; font-size: var(--display-xl-size); line-height: var(--display-xl-leading); font-weight: 600; letter-spacing: var(--display-xl-tracking); }
 .hero-search {

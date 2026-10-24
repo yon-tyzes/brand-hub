@@ -23,7 +23,7 @@ function Hero() {
   const picks = site.brand.quickDownloads.map((id) => site.findAsset(id)).filter((a): a is Asset => !!a).slice(0, 4);
   const slash = site.config.search.shortcut.includes("/");
   return (
-    <section className="hero" aria-labelledby="hero-title">
+    <section className="hero" aria-labelledby="hero-title" data-hero="" data-hero-state="static">
       <div className="hero-mesh" aria-hidden="true" />
       <div className="hero-content">
         <h1 className="hero-title" id="hero-title">
