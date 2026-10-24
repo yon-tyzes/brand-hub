@@ -170,9 +170,7 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .chip-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 /* Frosted quick picks over the hero mesh (DESIGN_SYSTEM.md, section 8). */
 .chip-glass {
-  background: var(--glass-fill); border-color: var(--glass-border);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-color: var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 .chip-glass:hover { background: var(--glass-fill-strong); }
@@ -345,16 +343,9 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   border-bottom: 1px solid var(--border);
   transition: background-color var(--duration-base) var(--ease-out);
 }
-/* Frosted once the page scrolls under it; solid where blur is unsupported or reduced transparency is asked for. */
+/* Frosted once the page scrolls under it (see Frosted glass below). */
 .topbar[data-scrolled] {
-  background: var(--glass-fill-strong);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   box-shadow: inset 0 1px 0 var(--glass-highlight);
-}
-@supports not (backdrop-filter: blur(1px)) { .topbar[data-scrolled] { background: var(--surface-raised); } }
-@media (prefers-reduced-transparency: reduce) {
-  .topbar[data-scrolled] { background: var(--surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 
 .topbar-brand {
@@ -518,9 +509,7 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .hero-search {
   position: relative; margin-top: 28px; max-width: 520px; height: 52px; box-sizing: border-box;
   display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: var(--radius-md);
-  background: var(--glass-fill); border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight), 0 1px 2px color-mix(in srgb, var(--fill-primary) 5%, transparent);
 }
 .hero-search > svg { flex: none; color: var(--text-secondary); }
@@ -537,10 +526,6 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .hero-search:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
 .hero-search kbd { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 6px; }
 .hero-chips { margin-top: 14px; }
-@supports not (backdrop-filter: blur(1px)) { .hero-search, .chip-glass { background: var(--surface-raised); } }
-@media (prefers-reduced-transparency: reduce) {
-  .hero-search, .chip-glass { background: var(--surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none; }
-}
 @media (max-width: 991.98px) {
   .hero-title { font-size: var(--display-size); line-height: var(--display-leading); }
 }
@@ -815,9 +800,6 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   .icon-panel {
     position: sticky; top: auto; bottom: 0; max-width: none; margin: 16px calc(-1 * var(--gutter)) -24px;
     border: 0; border-top: 1px solid var(--border); border-radius: 0;
-    background: var(--glass-fill-strong);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
     box-shadow: inset 0 1px 0 var(--glass-highlight);
   }
   .icon-panel-preview, .icon-panel-source { display: none; }
@@ -828,8 +810,6 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   .icon-panel-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
   .icon-panel-actions .btn svg { display: none; }
 }
-@media (max-width: 767.98px) and (prefers-reduced-transparency: reduce) { .icon-panel { background: var(--surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none; } }
-@supports not (backdrop-filter: blur(1px)) { .icon-panel { background: var(--surface-raised); } }
 
 /* ---------- Templates ---------- */
 
@@ -953,9 +933,7 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   display: flex; align-items: center; gap: 10px;
   min-height: 44px; max-width: 420px; padding: 10px 14px; box-sizing: border-box;
   border-radius: var(--radius-md); border: 1px solid var(--glass-border);
-  background: var(--glass-fill-strong); color: var(--text);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  color: var(--text);
   box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-popover);
   font-size: var(--small-size); pointer-events: auto;
   animation: toast-in var(--duration-base) var(--ease-out);
@@ -963,8 +941,6 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .toast svg { flex: none; color: var(--success); }
 .toast-value { font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
 @media (max-width: 767.98px) { .toast { width: 100%; max-width: none; min-height: 48px; } }
-@supports not (backdrop-filter: blur(1px)) { .toast { background: var(--surface-raised); } }
-@media (prefers-reduced-transparency: reduce) { .toast { background: var(--surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @keyframes toast-in { from { opacity: 0; transform: translateY(4px); } }
 
 /* ---------- Dialog, sheet ---------- */
@@ -1003,16 +979,11 @@ dialog:not([open]) { display: none !important; }
     inset: 96px auto auto 50%; transform: translateX(-50%);
     width: min(640px, 100% - 2 * var(--gutter)); height: auto; max-height: calc(100vh - 192px); overflow: hidden;
     border-radius: var(--radius-lg); border: 1px solid var(--glass-border);
-    background: var(--glass-fill-strong);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
     box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-popover);
   }
   .search-dialog[open] { animation: dialog-in-center var(--duration-base) var(--ease-out); }
   @keyframes dialog-in-center { from { opacity: 0; transform: translate(-50%, -4px); } }
 }
-@supports not (backdrop-filter: blur(1px)) { .search-dialog { background: var(--surface-raised); } }
-@media (prefers-reduced-transparency: reduce) { .search-dialog { background: var(--surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none; } }
 
 .search-head { display: flex; align-items: center; }
 .search-input-row { flex: 1; display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 20px; border-bottom: 1px solid var(--border); }
@@ -1056,9 +1027,6 @@ dialog:not([open]) { display: none !important; }
 @media (max-width: 767.98px) {
   .search-head {
     gap: 8px; padding: 10px 8px 10px 16px; border-bottom: 1px solid var(--border);
-    background: var(--glass-fill-strong);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   }
   .search-input-row { height: 48px; padding: 0 12px; gap: 10px; border: 1px solid var(--border-control); border-radius: var(--radius-md); background: var(--bg); }
   .search-input { font-size: 16px; }
@@ -1080,6 +1048,46 @@ dialog:not([open]) { display: none !important; }
   .search-result-actions.is-values .btn svg { display: none; }
   .search-result-actions .label-short { display: inline; }
   .search-foot { display: none; }
+}
+
+/* ---------- Frosted glass (DESIGN_SYSTEM.md, section 8) ---------- */
+/* Only where something sits or moves behind: the hero search field and quick picks over the mesh; the top bar
+   once the page scrolls; the search dialog and toasts; and the bar docked over content on phones (the Icons
+   panel). Same build everywhere: fill, blur and saturate, a glass edge, and a 1px inset top line. */
+
+.hero-search, .chip-glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+.topbar[data-scrolled], .toast {
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+}
+@media (min-width: 768px) {
+  .search-dialog {
+    background: var(--glass-fill-strong);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  }
+}
+@media (max-width: 767.98px) {
+  .search-head, .icon-panel {
+    background: var(--glass-fill-strong);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  }
+}
+/* Solid where blur is unsupported or reduced transparency is asked for. */
+@supports not (backdrop-filter: blur(1px)) {
+  .hero-search, .chip-glass, .topbar[data-scrolled], .toast, .search-dialog, .search-head, .icon-panel { background: var(--surface-raised); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .hero-search, .chip-glass, .chip-glass:hover, .topbar[data-scrolled], .toast, .search-dialog, .search-head, .icon-panel {
+    background: var(--surface-raised); -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .hero-search, .chip-glass { border-color: var(--border-control); }
 }
 
 /* ---------- Module specifics shared by pages ---------- */
