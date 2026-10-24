@@ -11,7 +11,8 @@ import { FontsPage } from "./pages/library/FontsPage.tsx";
 import { ColorsPage } from "./pages/library/ColorsPage.tsx";
 import { LogosPage } from "./pages/library/LogosPage.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
-import { ChangesPage, ChapterPage, GuidePage, PlaceholderPage } from "./pages/OtherPages.tsx";
+import { ChangesPage, GuidePage, PlaceholderPage } from "./pages/OtherPages.tsx";
+import { ChapterPage } from "./pages/guide/ChapterPage.tsx";
 import { chapterHref, guideChapters } from "./nav.ts";
 import { SiteContext } from "./ui.tsx";
 

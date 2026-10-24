@@ -130,7 +130,11 @@ export function ruleStrip(site: Site, module: ModuleId, items: Asset[]): RuleStr
   const rules = rulesForItems(site, items);
   if (!rules.length) return undefined;
   const noun = STRIP_LABEL[module] ?? "Brand";
-  const chapter = site.isEnabled("guide") ? rules[0]!.chapter : undefined;
+  // The chapter whose rule covers the most of the page's items; ties go to the earlier chapter.
+  const order = site.brand.guide.chapters.map((c) => c.id);
+  const covered = (r: RuleAsset) => items.filter((a) => r.appliesTo.includes(a.id) || a.governedBy?.includes(r.id)).length;
+  const best = [...rules].sort((a, b) => covered(b) - covered(a) || order.indexOf(a.chapter) - order.indexOf(b.chapter))[0]!;
+  const chapter = site.isEnabled("guide") ? best.chapter : undefined;
   return {
     label: `${noun} rules`,
     lines: rules.slice(0, 3).map((r) => sentence(r.title)),

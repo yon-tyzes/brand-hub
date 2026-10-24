@@ -842,6 +842,77 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .photo-guidelines { margin: 8px 0 0; padding-left: 1.25em; display: grid; gap: 4px; font-size: var(--small-size); color: var(--text-secondary); }
 .photo-rule .stack-lg { max-width: var(--reading-max); }
 
+/* ---------- Brand guide (GuideLogo.dc.html, GuideMobile.dc.html) ---------- */
+
+.guide-chapter { box-sizing: border-box; max-width: 880px; padding: 48px 48px 96px; }
+.guide-crumbs { margin: 0 0 8px; font-size: var(--small-size); color: var(--text-secondary); }
+.guide-crumbs a { color: var(--text-secondary); }
+.guide-title { margin: 0; font-size: var(--h1-size); line-height: var(--h1-leading); font-weight: 600; letter-spacing: var(--h1-tracking); }
+.guide-rule + .guide-rule { margin-top: 64px; }
+.guide-rule-title { margin: 32px 0 0; font-size: var(--h2-size); line-height: var(--h2-leading); font-weight: 600; letter-spacing: var(--h2-tracking); }
+.guide-body { max-width: var(--reading-max); }
+.guide-body p { margin: 16px 0 0; font-size: 17px; line-height: 1.6; }
+.guide-body p + p { margin-top: 12px; }
+.guide-body ul, .guide-body ol { margin: 12px 0 0; padding-left: 1.25em; font-size: 17px; line-height: 1.6; }
+
+.guide-figure {
+  margin: 32px 0 0; padding: 48px; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-subtle); display: grid; place-items: center;
+}
+.clear-space { position: relative; padding: 28px; border: 1px dashed var(--text-muted); border-radius: 4px; background: var(--logo-ground-light); }
+.clear-space img { display: block; height: 72px; width: auto; }
+.clear-space-v { position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 1px; height: 28px; background: var(--focus); }
+.clear-space-h { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 28px; height: 1px; background: var(--focus); }
+.clear-space-x { position: absolute; right: -36px; top: 0; font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
+.guide-figure figcaption { margin-top: 20px; font-size: 13px; color: var(--text-secondary); }
+
+.do-dont-grid { margin-top: 32px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.do-dont-card { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.example-well { height: 180px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.example-well > div { display: grid; place-items: center; overflow: hidden; }
+.example-well img { width: 70%; height: auto; }
+.example-well img.example-stretched { width: 60%; transform: scaleX(1.5); }
+.do-dont-body { padding: 16px 20px 20px; }
+.do-title, .dont-title { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 16px; line-height: 1.3; font-weight: 600; letter-spacing: 0; }
+.do-title { color: var(--success); }
+.dont-title { color: var(--danger); }
+.do-dont-body ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.6; }
+
+.guide-files {
+  margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px;
+}
+.guide-next { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+.guide-next a { display: block; min-height: 44px; text-align: right; text-decoration: none; color: var(--text); }
+.guide-next-label { display: block; font-size: 13px; color: var(--text-secondary); }
+.guide-next-title { display: block; font-size: 16px; font-weight: 600; }
+.guide-next a:hover .guide-next-title { text-decoration: underline; }
+
+@media (max-width: 991.98px) { .guide-chapter { padding: 32px var(--gutter) 64px; } }
+@media (max-width: 767.98px) {
+  .guide-chapter { padding: 24px var(--gutter) 48px; }
+  .guide-crumbs { display: none; }
+  .guide-title { font-size: 28px; line-height: 1.12; }
+  .guide-body p { margin-top: 14px; font-size: 16px; }
+  .guide-body p + p { margin-top: 10px; }
+  .guide-figure { margin-top: 24px; padding: 32px 16px 20px; }
+  .clear-space { padding: 18px; }
+  .clear-space img { height: 44px; }
+  .clear-space-v { height: 18px; }
+  .clear-space-h { width: 18px; }
+  .clear-space-x { display: none; }
+  .guide-figure figcaption { margin-top: 16px; }
+  .do-dont-grid { margin-top: 20px; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .example-well { height: 120px; }
+  .example-well img { width: 76%; }
+  .example-well img.example-stretched { width: 62%; }
+  .do-dont-body { padding: 14px 16px 16px; }
+  .do-title, .dont-title { margin-bottom: 8px; }
+  .guide-files { margin-top: 20px; padding: 0; border: 0; }
+  .guide-files .btn { width: 100%; min-height: 48px; font-size: 15px; }
+  .guide-next { margin-top: 32px; padding-top: 20px; }
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer { border-top: 1px solid var(--border); padding-block: var(--space-5); margin-top: var(--space-7); }

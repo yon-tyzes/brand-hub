@@ -1,10 +1,8 @@
 // Page bodies for the change log, the Brand guide, and modules not built yet.
 import { MODULES } from "../../modules/registry.ts";
-import type { RuleAsset } from "../../../schemas/asset.ts";
-import type { GuideChapter } from "../../../schemas/brand.ts";
 import { chapterHref, guideChapters } from "../nav.ts";
 import { formatDate, TYPE_LABEL } from "../data.ts";
-import { Card, ChangelogEntry, RuleBody, useSite } from "../ui.tsx";
+import { Card, ChangelogEntry, useSite } from "../ui.tsx";
 
 const CHANGE_TAG = { added: "Added", updated: "Updated", retired: "Retired" } as const;
 
@@ -64,48 +62,6 @@ export function GuidePage() {
         </div>
       </section>
     </>
-  );
-}
-
-/** A Brand guide chapter: each of its rules with do and don't, and the assets it applies to. */
-export function ChapterPage({ chapter }: { chapter: GuideChapter }) {
-  const site = useSite();
-  const rules = site.rules.filter((r) => r.chapter === chapter.id);
-  return (
-    <>
-      <div className="frame page-head">
-        <h1>{chapter.title}</h1>
-      </div>
-      <div className="frame section stack-lg">
-        {rules.map((rule) => <ChapterRule key={rule.id} rule={rule} />)}
-      </div>
-    </>
-  );
-}
-
-function ChapterRule({ rule }: { rule: RuleAsset }) {
-  const site = useSite();
-  const applies = rule.appliesTo
-    .map((id) => site.findAsset(id))
-    .filter((a) => !!a)
-    .map((a) => ({ id: a.id, label: a.label, type: TYPE_LABEL[a.type], href: site.assetHref(a) }));
-  return (
-    <section className="stack-lg" id={rule.id} aria-labelledby={`${rule.id}-title`}>
-      <h2 id={`${rule.id}-title`}>{rule.title}</h2>
-      <RuleBody rule={rule} level={3} />
-      {applies.length > 0 && (
-        <div className="stack">
-          <h3 className="h4">Applies to</h3>
-          <ul className="stack" role="list">
-            {applies.map((a) => (
-              <li key={a.id}>
-                {a.href ? <a href={a.href}>{a.label}</a> : a.label} <span className="small">{a.type}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </section>
   );
 }
 

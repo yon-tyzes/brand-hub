@@ -70,6 +70,14 @@ describe("rules strip", () => {
     });
   });
 
+  it("links to the chapter whose rule covers the most of the page's items", () => {
+    const s = site();
+    const colors = s.assetsOfType("color");
+    const backgrounds = { ...s.rules[0]!, id: "backgrounds-rule", title: "Use light grounds", chapter: "backgrounds", appliesTo: [colors[1]!.id] };
+    const withTwo = { ...s, rules: [backgrounds, ...s.rules] } as typeof s;
+    expect(ruleStrip(withTwo, "colors", colors)?.link?.href).toBe("/guide/color-use/");
+  });
+
   it("has no strip when no rule applies, and no link when the guide is off", () => {
     const s = site(["colors", "fonts"]);
     expect(ruleStrip(s, "fonts", s.assetsOfType("font"))).toBeUndefined();
