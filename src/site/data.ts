@@ -11,7 +11,7 @@ import { MODULES, type ModuleDef } from "../modules/registry.ts";
 
 export interface SiteInput {
   brand: Brand;
-  config: Pick<HubConfig, "modules" | "indexing" | "search">;
+  config: Pick<HubConfig, "modules" | "indexing" | "search" | "hero">;
   engineVersion: string;
   /** Locked assets and rules: what public pages show. */
   assets: Asset[];

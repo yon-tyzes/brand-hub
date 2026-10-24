@@ -26,6 +26,8 @@ export const hubConfig = z.strictObject({
     .refine((m) => new Set(m).size === m.length, { message: "lists a module more than once" })
     .default([...MODULE_IDS]),
   search: z.strictObject({ shortcut: z.array(z.string().min(1)).default(["mod+k", "/"]) }).default({ shortcut: ["mod+k", "/"] }),
+  /** Home hero gradient: the grain mesh, or contour lines for very loud or nearly monochrome palettes. */
+  hero: z.strictObject({ preset: z.enum(["mesh", "contour"]).default("mesh") }).default({ preset: "mesh" }),
   /** When false, every page gets a noindex meta tag. */
   indexing: z.boolean().default(false),
   analytics: z.strictObject({ provider: z.literal("plausible"), domain: z.string().min(1) }).optional(),

@@ -9,7 +9,7 @@ import { demoCopy } from "./helpers.ts";
 function site(modules: ModuleId[] = ["colors", "guide"]) {
   const c = loadBrand(demoCopy().brandDir);
   return createSite({
-    brand: c.brand, config: { modules, indexing: false, search: { shortcut: [] } }, engineVersion: "0.2.0",
+    brand: c.brand, config: { modules, indexing: false, search: { shortcut: [] }, hero: { preset: "mesh" } }, engineVersion: "0.2.0",
     assets: c.assets, rules: c.rules, changelog: c.changelog, urlFor: (p) => `/files/${p}`, svgFor: () => undefined,
   });
 }

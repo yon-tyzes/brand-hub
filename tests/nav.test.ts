@@ -14,7 +14,7 @@ function siteWith(modules: ModuleId[], change?: (brandDir: string) => void) {
   change?.(brandDir);
   const c = loadBrand(brandDir);
   return createSite({
-    brand: c.brand, config: { modules, indexing: false, search: { shortcut: ["mod+k"] } }, engineVersion: "0.2.0",
+    brand: c.brand, config: { modules, indexing: false, search: { shortcut: ["mod+k"] }, hero: { preset: "mesh" } }, engineVersion: "0.2.0",
     assets: c.assets, rules: c.rules, changelog: c.changelog, urlFor: (p) => `/files/${p}`, svgFor: () => undefined,
   });
 }

@@ -30,6 +30,8 @@ export interface HeroTintInput {
 export interface HeroTones {
   light: string[];
   dark: string[];
+  /** The brand line in the contour preset, light and dark: the hue source itself, kept readable in dark. */
+  line: { light: string; dark: string };
   /** Where the tones came from. */
   source: "tint" | "primary" | "palette" | "neutral";
 }
@@ -51,10 +53,13 @@ function hueSource(input: HeroTintInput): { hex: string; source: "primary" | "pa
 /** Each tone moved DARK_MIX of the way toward the dark background, so the mesh stays a tint. */
 export const darkTones = (light: string[]) => light.map((t) => lower(mix(t, SHELL_COLORS.bg.dark, DARK_MIX)));
 
+/** The contour preset's brand line: the color itself in light, lifted halfway toward white in dark. */
+const lineFor = (hex: string) => ({ light: lower(hex), dark: lower(mix(hex, "#ffffff", 0.5)) });
+
 export function heroTones(input: HeroTintInput): HeroTones {
   if (input.tint?.length) {
     const light = input.tint.slice(0, 3).map(lower);
-    return { light, dark: darkTones(light), source: "tint" };
+    return { light, dark: darkTones(light), line: lineFor(input.primary ?? light[0]!), source: "tint" };
   }
   const from = hueSource(input);
   let light: string[];
@@ -66,15 +71,16 @@ export function heroTones(input: HeroTintInput): HeroTones {
   } else {
     light = TONES.map((t) => lower(oklchToHex({ l: t.l, c: NEUTRAL.chroma, h: NEUTRAL.hue })));
   }
-  return { light, dark: darkTones(light), source: from?.source ?? "neutral" };
+  return { light, dark: darkTones(light), line: lineFor(from?.hex ?? light[0]!), source: from?.source ?? "neutral" };
 }
 
-/** --hero-1 to --hero-3 for the static hero gradient, light on :root and dark where the shell turns dark. */
+/** --hero-1 to --hero-3 for the hero gradient and --hero-line for the contour preset, light on :root and dark where the shell turns dark. */
 export function heroCss(tones: HeroTones): string {
-  const vars = (list: string[]) => [0, 1, 2].map((i) => `--hero-${i + 1}: ${list[i] ?? list[list.length - 1]};`).join(" ");
+  const vars = (list: string[], line: string) =>
+    [0, 1, 2].map((i) => `--hero-${i + 1}: ${list[i] ?? list[list.length - 1]};`).join(" ") + ` --hero-line: ${line};`;
   return [
-    `:root { ${vars(tones.light)} }`,
-    `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${vars(tones.dark)} } }`,
-    `:root[data-theme="dark"] { ${vars(tones.dark)} }`,
+    `:root { ${vars(tones.light, tones.line.light)} }`,
+    `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${vars(tones.dark, tones.line.dark)} } }`,
+    `:root[data-theme="dark"] { ${vars(tones.dark, tones.line.dark)} }`,
   ].join("\n");
 }

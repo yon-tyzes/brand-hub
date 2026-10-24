@@ -11,7 +11,7 @@ import type { FromPreview, PreviewData, ToPreview } from "./protocol.ts";
 
 const post = (m: FromPreview) => window.parent.postMessage(m, window.location.origin);
 
-export default function PreviewApp({ config, engineVersion }: { config: Pick<HubConfig, "modules" | "indexing" | "search">; engineVersion: string }) {
+export default function PreviewApp({ config, engineVersion }: { config: Pick<HubConfig, "modules" | "indexing" | "search" | "hero">; engineVersion: string }) {
   const [msg, setMsg] = useState<{ page: PageId; data: PreviewData } | null>(null);
 
   useEffect(() => {
