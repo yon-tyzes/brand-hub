@@ -94,6 +94,9 @@ function takeReloadNote(): AfterReload | undefined {
   try {
     const raw = sessionStorage.getItem(AFTER_RELOAD);
     sessionStorage.removeItem(AFTER_RELOAD);
+    // Only the dev server's reload brings the note back, not a later visit to another editor page.
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    if (nav?.type !== "reload") return undefined;
     const note = raw ? (JSON.parse(raw) as AfterReload) : undefined;
     return note && Date.now() - note.at < 15_000 ? note : undefined;
   } catch {
