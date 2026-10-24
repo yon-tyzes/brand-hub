@@ -43,6 +43,14 @@ export const moduleForType = (type: AnyRecord["type"]) => EDITOR_MODULES.find((m
 
 export const STATUS_LABEL = { draft: "Draft", pending: "Pending", locked: "Live", retired: "Retired" } as const;
 
+/** Statuses in the inspector's order, with their help text (ENGINE_SPEC.md, section 8, Statuses). */
+export const STATUS_OPTIONS = [
+  { value: "locked", help: "On the site after you publish." },
+  { value: "pending", help: "Not on the site yet. Waiting for approval." },
+  { value: "draft", help: "Only in the editor." },
+  { value: "retired", help: "It leaves the site when you publish. You can restore it later." },
+] as const;
+
 export function slugify(text: string): string {
   return (
     text

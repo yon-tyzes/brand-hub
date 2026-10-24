@@ -1,21 +1,14 @@
 // Right panel: every field of the selected item, generated from the section's field config, with status
 // and permanent delete. Validation runs on each change.
 import { useState } from "react";
-import type { Status } from "../../../schemas/asset.ts";
 import { AssetPreview } from "../../components/previews/AssetPreview.tsx";
 import { FIELDS } from "../fields/index.ts";
-import { moduleForType, STATUS_LABEL } from "../editor/modules.ts";
+import { moduleForType, STATUS_LABEL, STATUS_OPTIONS } from "../editor/modules.ts";
 import { deleteRecord, restoreRecord, setStatus, updateRecord } from "../editor/state.ts";
 import { validate } from "../editor/validate.ts";
 import { useEditor } from "./context.tsx";
 import { Field } from "./Fields.tsx";
 import { Modal } from "./Modal.tsx";
-
-const STATUSES: { value: Exclude<Status, "retired">; help: string }[] = [
-  { value: "draft", help: "Only in the editor." },
-  { value: "pending", help: "Listed as in progress on What's new." },
-  { value: "locked", help: "On the site after you publish." },
-];
 
 /** In a sheet, the sheet supplies the title and close button. */
 export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
@@ -71,28 +64,18 @@ export function Inspector({ inSheet = false }: { inSheet?: boolean }) {
         <Field key={`${def.key}-${def.kind}`} def={def} record={record} error={errors[def.key]} />
       ))}
 
-      {record.status === "retired" ? (
-        <div className="ed-retired" role="status">
-          <p>This {mod.noun} is retired. It leaves the site when you publish.</p>
-          <button type="button" className="btn btn-secondary btn-sm" onClick={() => apply(setStatus([record.id], "draft"))}>
-            Restore as draft
-          </button>
+      <fieldset className="ed-field">
+        <legend className="ed-label">Status</legend>
+        <div className="segmented" role="radiogroup" aria-label="Status">
+          {STATUS_OPTIONS.map((s) => (
+            <label key={s.value}>
+              <input type="radio" name={`status-${record.id}`} value={s.value} checked={record.status === s.value} onChange={() => apply(setStatus([record.id], s.value))} />
+              <span>{STATUS_LABEL[s.value]}</span>
+            </label>
+          ))}
         </div>
-      ) : (
-        <fieldset className="ed-field">
-          <legend className="ed-label">Status</legend>
-          <div className="segmented" role="radiogroup" aria-label="Status">
-            {STATUSES.map((s) => (
-              <label key={s.value}>
-                <input type="radio" name={`status-${record.id}`} value={s.value} checked={record.status === s.value} onChange={() => apply(setStatus([record.id], s.value))} />
-                <span>{STATUS_LABEL[s.value]}</span>
-              </label>
-            ))}
-          </div>
-          <p className="ed-help">{STATUSES.find((s) => s.value === record.status)?.help}</p>
-        </fieldset>
-      )}
-
+        <p className="ed-status-help" aria-live="polite">{STATUS_OPTIONS.find((s) => s.value === record.status)?.help}</p>
+      </fieldset>
 
       <div className="ed-danger">
         <button type="button" className="btn btn-text btn-sm" onClick={() => setConfirming(true)}>

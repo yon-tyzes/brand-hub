@@ -228,13 +228,14 @@
 .ed-retired { display: grid; gap: var(--space-3); padding: var(--space-4); background: var(--surface-subtle); border-radius: var(--radius-md); }
 .ed-danger { padding-top: var(--space-4); border-top: 1px solid var(--border); }
 
-/* Segmented status control */
-.segmented { display: inline-flex; padding: 4px; gap: 2px; background: var(--surface-subtle); border-radius: var(--radius-md); justify-self: start; }
-.segmented label { position: relative; }
+/* Segmented status control (EditorColors.dc.html) */
+.segmented { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: var(--radius-md); background: var(--surface-subtle); border: 1px solid var(--border); }
+.segmented label { position: relative; display: grid; }
 .segmented input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-.segmented span { display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: var(--radius-sm); color: var(--text-secondary); font-size: var(--small-size); font-weight: 500; }
-.segmented input:checked + span { background: var(--surface-raised); color: var(--text); box-shadow: none; }
+.segmented span { display: grid; place-items: center; height: 34px; border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; }
+.segmented input:checked + span { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px color-mix(in srgb, var(--fill-primary) 8%, transparent), inset 0 0 0 1px var(--border); }
 .segmented input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+.ed-status-help { margin: 8px 0 0; font-size: 13px; color: var(--text-secondary); }
 
 /* Modal */
 .modal {
