@@ -843,13 +843,15 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 
 /* ---------- Brand guide (GuideLogo.dc.html, GuideMobile.dc.html) ---------- */
 
-.guide-chapter { box-sizing: border-box; max-width: 880px; padding: 48px 48px 96px; }
+/* 880px of content inside the padding, as the screen draws it. */
+.guide-chapter { box-sizing: content-box; max-width: 880px; padding: 48px 48px 96px; }
 .guide-crumbs { margin: 0 0 8px; font-size: var(--small-size); color: var(--text-secondary); }
 .guide-crumbs a { color: var(--text-secondary); }
 .guide-title { margin: 0; font-size: var(--h1-size); line-height: var(--h1-leading); font-weight: 600; letter-spacing: var(--h1-tracking); }
 .guide-rule + .guide-rule { margin-top: 64px; }
 .guide-rule-title { margin: 32px 0 0; font-size: var(--h2-size); line-height: var(--h2-leading); font-weight: 600; letter-spacing: var(--h2-tracking); }
-.guide-body { max-width: var(--reading-max); }
+/* The line length is measured in the body text's own size. */
+.guide-body { max-width: var(--reading-max); font-size: 17px; }
 .guide-body p { margin: 16px 0 0; font-size: 17px; line-height: 1.6; }
 .guide-body p + p { margin-top: 12px; }
 .guide-body ul, .guide-body ol { margin: 12px 0 0; padding-left: 1.25em; font-size: 17px; line-height: 1.6; }
