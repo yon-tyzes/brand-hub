@@ -181,32 +181,6 @@ export function LibraryHead({ title, intro, introShort, action }: { title: strin
   );
 }
 
-interface CardProps {
-  title: string;
-  description?: string;
-  href?: string;
-  id?: string;
-  headingLevel?: 2 | 3;
-  preview?: ReactNode;
-  meta?: ReactNode;
-  footer?: ReactNode;
-  children?: ReactNode;
-}
-
-export function Card({ title, description, href, id, headingLevel = 3, preview, meta, footer, children }: CardProps) {
-  const H = `h${headingLevel}` as "h2" | "h3";
-  return (
-    <article className="card" id={id}>
-      {preview && <div className="card-preview">{preview}</div>}
-      {meta && <div className="row">{meta}</div>}
-      <H className="card-title">{href ? <a className="card-link" href={href}>{title}</a> : title}</H>
-      {description && <p className="card-description">{description}</p>}
-      {children}
-      {footer && <div className="card-footer above-link">{footer}</div>}
-    </article>
-  );
-}
-
 export function ChangelogEntry({ date, dateLabel, tag, title, detail, href, muted }: { date?: string; dateLabel?: string; tag: string; title: string; detail?: string; href?: string; muted?: boolean }) {
   return (
     <li className="changelog-entry">

@@ -11,7 +11,8 @@ import { FontsPage } from "./pages/library/FontsPage.tsx";
 import { ColorsPage } from "./pages/library/ColorsPage.tsx";
 import { LogosPage } from "./pages/library/LogosPage.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
-import { ChangesPage, GuidePage, PlaceholderPage } from "./pages/OtherPages.tsx";
+import { ChangesPage, PlaceholderPage } from "./pages/OtherPages.tsx";
+import { GuideIndex } from "./pages/guide/GuideIndex.tsx";
 import { ChapterPage } from "./pages/guide/ChapterPage.tsx";
 import { chapterHref, guideChapters } from "./nav.ts";
 import { SiteContext } from "./ui.tsx";
@@ -27,7 +28,7 @@ const BODIES: Partial<Record<ModuleId | "home", () => ReactNode>> = {
   photos: PhotosPage,
   templates: TemplatesPage,
   changes: ChangesPage,
-  guide: GuidePage,
+  guide: GuideIndex,
 };
 
 /** Path a page lives at on the site. */

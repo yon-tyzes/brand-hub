@@ -882,6 +882,10 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
   padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px;
 }
+.guide-index { margin: 32px 0 0; border-top: 1px solid var(--border); }
+.guide-index li { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.guide-index a { display: inline-flex; align-items: center; min-height: 32px; font-size: 18px; font-weight: 600; color: var(--text); }
+.guide-index p { margin: 2px 0 0; font-size: var(--small-size); color: var(--text-secondary); }
 .guide-next { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
 .guide-next a { display: block; min-height: 44px; text-align: right; text-decoration: none; color: var(--text); }
 .guide-next-label { display: block; font-size: 13px; color: var(--text-secondary); }

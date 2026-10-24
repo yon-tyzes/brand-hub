@@ -1,8 +1,7 @@
-// Page bodies for the change log, the Brand guide, and modules not built yet.
+// Page bodies for the change log and modules not built yet.
 import { MODULES } from "../../modules/registry.ts";
-import { chapterHref, guideChapters } from "../nav.ts";
 import { formatDate, TYPE_LABEL } from "../data.ts";
-import { Card, ChangelogEntry, useSite } from "../ui.tsx";
+import { ChangelogEntry, useSite } from "../ui.tsx";
 
 const CHANGE_TAG = { added: "Added", updated: "Updated", retired: "Retired" } as const;
 
@@ -41,26 +40,6 @@ export function ChangesPage() {
           </section>
         ))}
       </div>
-    </>
-  );
-}
-
-export function GuidePage() {
-  const site = useSite();
-  const chapters = guideChapters(site);
-  const count = (id: string) => site.rules.filter((r) => r.chapter === id).length;
-  return (
-    <>
-      <div className="frame page-head">
-        <h1>{MODULES.guide.label}</h1>
-      </div>
-      <section className="section frame" aria-label="Chapters">
-        <div className="grid cards-3">
-          {chapters.map((c) => (
-            <Card key={c.id} headingLevel={2} title={c.title} description={`${count(c.id)} ${count(c.id) === 1 ? "rule" : "rules"}`} href={chapterHref(c.id)} id={c.id} />
-          ))}
-        </div>
-      </section>
     </>
   );
 }
