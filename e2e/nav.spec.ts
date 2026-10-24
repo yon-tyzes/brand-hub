@@ -140,6 +140,29 @@ test.describe("phone at 390px", () => {
     expect(small).toEqual([]);
   });
 
+  test("page controls have a touch target of at least 44px", async ({ page }) => {
+    const pages: [string, string][] = [
+      ["/", ".hero-chips .chip, .quick-grid .asset-actions > .btn, .quick-color .value-row"],
+      ["/icons/", ".icon-colors .chip"],
+      ["/templates/", ".filter-chips .chip"],
+      ["/guide/", ".guide-index a"],
+    ];
+    for (const [route, selector] of pages) {
+      await page.goto(route);
+      const small = await page.locator(selector).evaluateAll((els) =>
+        els.flatMap((el) => {
+          if (!el.getClientRects().length) return [];
+          const r = el.getBoundingClientRect();
+          // Controls extend their hit area with ::before or ::after.
+          const pseudo = [getComputedStyle(el, "::before"), getComputedStyle(el, "::after")].find((p) => p.content !== "none" && p.position === "absolute");
+          const extra = pseudo ? -2 * parseFloat(pseudo.top) : 0;
+          return r.height + extra < 44 ? [`${el.textContent?.trim()}: ${r.height + extra}px`] : [];
+        }),
+      );
+      expect(small, route).toEqual([]);
+    }
+  });
+
   test("the chip row marks the current page", async ({ page }) => {
     await page.goto("/logos/");
     await expect(page.getByRole("navigation", { name: "Library" }).getByRole("link", { name: /^Logos/ })).toHaveAttribute("aria-current", "page");

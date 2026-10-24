@@ -548,8 +548,9 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   .hero-search { margin-top: 20px; max-width: none; padding: 0 14px; }
   .hero-search kbd { display: none; }
   .hero-chips { margin-top: 12px; }
-  .hero-chips .chip { position: relative; }
-  .hero-chips .chip::before { content: ""; position: absolute; inset: -6px 0; }
+  /* 36px chips, as HomeMobile draws them, with a 44px touch target that stops at the next row. */
+  .hero-chips .chip { position: relative; height: 36px; }
+  .hero-chips .chip::before { content: ""; position: absolute; inset: -4px 0; }
 }
 
 .home-sections { gap: 64px; }
@@ -618,6 +619,9 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   .quick-color .value-rows li:not(:first-child) { display: none; }
   .quick-color .value-row { width: auto; margin: 8px 0 0; padding: 0; height: auto; min-height: 32px; justify-content: flex-start; gap: 6px; }
   .quick-color .value-row-use { display: none; }
+  /* 44px touch target around the 32px link and value. */
+  .quick-grid .asset-actions > .btn, .quick-color .value-row { position: relative; }
+  .quick-grid .asset-actions > .btn::after, .quick-color .value-row::after { content: ""; position: absolute; inset: -6px 0; }
   .quick-color .value-row-icon { display: inline-flex; }
 }
 
@@ -795,7 +799,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   .icons-page { gap: 16px; padding-bottom: 24px; }
   .icon-toolbar { display: contents; }
   .icon-toolbar input[type="search"] { flex: none; width: 100%; height: 48px; font-size: 16px; }
-  .icon-colors .chip { flex: 1; justify-content: center; height: 40px; gap: 6px; }
+  .icon-colors .chip { flex: 1; justify-content: center; height: 40px; gap: 6px; position: relative; }
+  .icon-colors .chip::after { content: ""; position: absolute; inset: -2px 0; }
   .icon-count { display: none; }
   .icon-groups { gap: 16px; }
   .icon-group-title { margin: 8px 0 10px; font-size: 15px; }
@@ -828,7 +833,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 .template-category { margin: 4px 0 0; font-size: 12px; font-weight: 500; color: var(--text-muted); }
 @media (max-width: 767.98px) {
   .templates-page { gap: 18px; }
-  .filter-chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); }
+  /* The block padding keeps the chips' hit areas inside the scrolling row, which clips them. */
+  .filter-chips { flex-wrap: nowrap; overflow-x: auto; margin: -4px calc(-1 * var(--gutter)); padding: 4px var(--gutter); }
   .filter-chips .chip { height: 36px; padding: 0 14px; position: relative; }
   .filter-chips .chip::before { content: ""; position: absolute; inset: -4px 0; }
   .template-category { display: none; }
@@ -888,6 +894,10 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 .guide-index li { padding: 16px 0; border-bottom: 1px solid var(--border); }
 .guide-index a { display: inline-flex; align-items: center; min-height: 32px; font-size: 18px; font-weight: 600; color: var(--text); }
 .guide-index p { margin: 2px 0 0; font-size: var(--small-size); color: var(--text-secondary); }
+@media (max-width: 767.98px) {
+  .guide-index li { padding: 10px 0; }
+  .guide-index a { min-height: 44px; }
+}
 .guide-next { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
 .guide-next a { display: block; min-height: 44px; text-align: right; text-decoration: none; color: var(--text); }
 .guide-next-label { display: block; font-size: 13px; color: var(--text-secondary); }
