@@ -440,6 +440,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 
 /* Below 992px the sidebar is a horizontally scrolling chip row; the current item is filled. */
 @media (max-width: 991.98px) {
+  /* The chip row keeps its own height; on a short page the content row takes the spare space. */
+  .shell:has(> .sidebar) { grid-template-rows: auto 1fr; }
   .sidebar { border-bottom: 1px solid var(--border); }
   .sidebar .sidebar-items { display: flex; gap: 8px; padding: 12px var(--gutter); overflow-x: auto; }
   .sidebar-item {

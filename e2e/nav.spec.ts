@@ -144,6 +144,12 @@ test.describe("phone at 390px", () => {
     await page.goto("/logos/");
     await expect(page.getByRole("navigation", { name: "Library" }).getByRole("link", { name: /^Logos/ })).toHaveAttribute("aria-current", "page");
   });
+
+  test("the chip row keeps its height on a page shorter than the window", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 2400 });
+    await page.goto("/guide/headshots/");
+    expect((await box(page.locator("nav.sidebar"))).height).toBeLessThan(60);
+  });
 });
 
 test("every page has the top bar, the sidebar, and the footer", async ({ page }) => {
