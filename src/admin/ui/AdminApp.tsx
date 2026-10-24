@@ -21,6 +21,7 @@ import { issuesById } from "./explain.ts";
 import { Grid, type StatusFilter } from "./Grid.tsx";
 import { Inspector } from "./Inspector.tsx";
 import { PreviewPanel } from "./PreviewPanel.tsx";
+import { Overview } from "./Overview.tsx";
 import { Sidebar } from "./Sidebar.tsx";
 import { ConflictDialog, FailureDialog, HistoryDialog, ProblemsDialog } from "./SaveDialogs.tsx";
 import { Toasts, useToasts } from "./Toasts.tsx";
@@ -446,7 +447,15 @@ export default function AdminApp() {
           <Sidebar onHistory={() => setDialog({ kind: "history" })} onSignOut={() => void auth.signOut().then(() => location.reload())} />
           {view === "overview" ? (
             <main className="ed-main" id="main">
-              <PlaceholderView title="Overview" />
+              <Overview
+                changes={changes}
+                unpublished={unpublished}
+                busy={!!busy}
+                onReview={showItem}
+                onPreview={() => setDialog({ kind: "preview" })}
+                onPublish={() => void publish()}
+                onHistory={() => setDialog({ kind: "history" })}
+              />
             </main>
           ) : view === SETTINGS ? (
             <main className="ed-main" id="main">
