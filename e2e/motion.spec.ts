@@ -247,3 +247,18 @@ test("the download arrow dips on hover and drops out and back on click", async (
   await download;
   await expect(arrow).not.toHaveClass(/is-dropping/);
 });
+
+test("hovered cards: a color preview grows 10px without moving the card's text, other previews scale to 1.02", async ({ page }) => {
+  await page.goto("/");
+  const color = page.locator(".quick-color").first();
+  // The title's place inside the card, and the card's height: neither changes.
+  const layout = () => color.evaluate((card) => ({ title: card.querySelector(".asset-title")!.getBoundingClientRect().top - card.getBoundingClientRect().top, height: card.getBoundingClientRect().height }));
+  const before = await layout();
+  await color.hover();
+  await expect.poll(() => color.locator(".asset-well").evaluate((e) => e.getBoundingClientRect().height)).toBe(160);
+  expect(await layout()).toEqual(before);
+  await expect.poll(() => color.evaluate((e) => getComputedStyle(e).transform)).toBe("matrix(1, 0, 0, 1, 0, -2)");
+  const logo = page.locator(".quick-grid .asset-card", { has: page.locator(".asset-well > img") }).first();
+  await logo.hover();
+  await expect.poll(() => logo.locator(".asset-well > img").evaluate((e) => getComputedStyle(e).transform)).toBe("matrix(1.02, 0, 0, 1.02, 0, 0)");
+});

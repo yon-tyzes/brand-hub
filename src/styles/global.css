@@ -194,6 +194,14 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   background: var(--surface-subtle); border-bottom: 1px solid var(--border);
 }
 .asset-well img { max-width: 70%; max-height: 56px; object-fit: contain; }
+/* With the hover lift, a color preview grows 10px into the space above the title, so nothing around the card
+   moves; any other preview scales a little inside its well. */
+.asset-well > :is(img, .font-specimen) { transition: transform var(--duration-base) var(--ease-out); }
+.quick-color .asset-well { transition: height var(--duration-base) var(--ease-out), margin-bottom var(--duration-base) var(--ease-out); }
+@media (hover: hover) {
+  .asset-card:hover .asset-well > :is(img, .font-specimen) { transform: scale(1.02); }
+  .quick-color:hover .asset-well { height: 160px; margin-bottom: -10px; }
+}
 .asset-body { display: flex; flex-direction: column; flex: 1; padding: 14px 16px 16px; }
 .asset-title { margin: 0; font-size: var(--label-size); line-height: var(--label-leading); font-weight: 500; letter-spacing: 0; }
 .asset-title a { color: inherit; text-decoration: none; }
@@ -640,6 +648,7 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 @media (max-width: 767.98px) {
   .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .quick-grid .asset-well, .quick-color .asset-well { height: 96px; }
+  .quick-grid .quick-color:hover .asset-well { height: 106px; }
   .quick-grid .asset-well img { max-width: 76%; max-height: 32px; }
   .quick-grid .asset-well img.well-thumb { max-height: 80px; }
   .quick-grid .font-specimen-aa { font-size: 40px; }
