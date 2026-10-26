@@ -42,14 +42,13 @@ interface Props {
   changes: RecordChange[];
   /** A saved draft that is not published yet. */
   unpublished: boolean;
-  busy: boolean;
   onReview: (id: string) => void;
   onPreview: () => void;
   onPublish: () => void;
   onHistory: () => void;
 }
 
-export function Overview({ changes, unpublished, busy, onReview, onPreview, onPublish, onHistory }: Props) {
+export function Overview({ changes, unpublished, onReview, onPreview, onPublish, onHistory }: Props) {
   const { state, records, go, addFiles } = useEditor();
   const live = state.base.records.filter((r) => r.status === "locked").length;
   const log = [...state.base.changelog].sort((a, b) => b.date.localeCompare(a.date));
@@ -136,7 +135,7 @@ export function Overview({ changes, unpublished, busy, onReview, onPreview, onPu
           )}
           <div className="ov-actions">
             <button type="button" className="btn btn-secondary" onClick={onPreview}>Preview changes</button>
-            <button type="button" className="btn btn-primary" onClick={onPublish} disabled={busy || (!n && !unpublished)}>
+            <button type="button" className="btn btn-primary" onClick={onPublish}>
               {n ? `Publish ${n} ${n === 1 ? "change" : "changes"}` : "Publish"}
             </button>
           </div>

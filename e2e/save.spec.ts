@@ -23,7 +23,11 @@ test("demo mode says changes are not saved", async ({ page }) => {
 
 test("save a draft, publish it, and see both in history", async ({ page }) => {
   await open(page);
-  await expect(page.getByRole("button", { name: "Save draft" })).toBeDisabled();
+  // Never disabled: with nothing to save or publish, the buttons say so.
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "No changes to save." })).toBeVisible();
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Nothing to publish yet." })).toBeVisible();
   await rename(page, "Logo mark", "Comet mark");
   await page.getByRole("button", { name: "Save draft" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Draft saved." })).toBeVisible();
@@ -31,12 +35,20 @@ test("save a draft, publish it, and see both in history", async ({ page }) => {
 
   await page.getByRole("button", { name: "Publish" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Published in this demo" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Publish" })).toBeDisabled();
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Nothing to publish yet." })).toBeVisible();
 
   await page.getByRole("button", { name: "History" }).click();
   const history = page.getByRole("dialog", { name: "History" });
   await expect(history).toContainText('Logo, Comet mark: renamed from "Logo mark"');
   await expect(history).toContainText("Published");
+});
+
+test("the Overview's Publish says when there is nothing to publish", async ({ page }) => {
+  await page.goto("/admin/");
+  const ready = page.getByRole("region", { name: "Ready to publish" });
+  await ready.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Nothing to publish yet." })).toBeVisible();
 });
 
 test("restore an earlier version as a new draft", async ({ page }) => {

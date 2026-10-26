@@ -10,8 +10,6 @@ interface Props {
   changes: RecordChange[];
   autosave: "on" | "off";
   busy: "saving" | "publishing" | null;
-  /** True when there is something to publish: unsaved changes or a saved draft. */
-  canPublish: boolean;
   onShowChanges: () => void;
   onPreview: () => void;
   onSave: () => void;
@@ -21,7 +19,7 @@ interface Props {
 const mod = /Mac|iPhone|iPad/.test(typeof navigator === "undefined" ? "" : navigator.platform) ? "Cmd" : "Ctrl";
 const keys = (shift: boolean) => `${shift ? "Shift+" : ""}${mod === "Cmd" ? "Meta" : "Control"}+Z`;
 
-export function TopBar({ changes, autosave, busy, canPublish, onShowChanges, onPreview, onSave, onPublish }: Props) {
+export function TopBar({ changes, autosave, busy, onShowChanges, onPreview, onSave, onPublish }: Props) {
   const { state, dispatch, brand } = useEditor();
   const mark = state.present.records.find((r): r is LogoAsset => r.type === "logo" && r.status === "locked" && r.lockup.toLowerCase() === "mark" && r.background === "light");
   const markFile = mark && (mark.files.find((f) => f.ext === "svg") ?? mark.files.find((f) => f.ext === "png"));
@@ -52,8 +50,8 @@ export function TopBar({ changes, autosave, busy, canPublish, onShowChanges, onP
           <Icon name="redo" size={18} />
         </button>
         <button type="button" className="btn btn-secondary ed-top-btn" onClick={onPreview}>Preview</button>
-        <button type="button" className="btn btn-secondary ed-top-btn" onClick={onSave} disabled={!!busy || !n}>Save draft</button>
-        <button type="button" className="btn btn-primary ed-top-btn" onClick={onPublish} disabled={!!busy || !canPublish}>Publish</button>
+        <button type="button" className="btn btn-secondary ed-top-btn" onClick={onSave} aria-busy={busy === "saving" || undefined}>Save draft</button>
+        <button type="button" className="btn btn-primary ed-top-btn" onClick={onPublish} aria-busy={busy === "publishing" || undefined}>Publish</button>
       </div>
     </header>
   );

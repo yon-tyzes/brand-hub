@@ -353,6 +353,19 @@ export default function AdminApp() {
     }
   }
 
+  // Save draft and Publish are never disabled (DESIGN_SYSTEM.md, States): with nothing to do they say so.
+  function onSave() {
+    if (busy) return;
+    if (!changes.length) return show({ message: "No changes to save." });
+    void saveDraft();
+  }
+
+  function onPublish() {
+    if (busy) return;
+    if (!changes.length && !unpublished) return show({ message: "Nothing to publish yet." });
+    void publish();
+  }
+
   function resolveConflict(remote: { revision: string; data: BrandContent }, how: "reload" | "overwrite") {
     const present = how === "reload" ? { records: rebase(state!, remote.data), files: state!.present.files, brand: state!.present.brand } : state!.present;
     dispatch({ type: "load", revision: remote.revision, base: remote.data, present });
@@ -433,11 +446,10 @@ export default function AdminApp() {
           changes={changes}
           autosave={autosave}
           busy={busy}
-          canPublish={changes.length > 0 || unpublished}
           onShowChanges={() => setDialog({ kind: "changes" })}
           onPreview={() => setDialog({ kind: "preview" })}
-          onSave={() => void saveDraft()}
-          onPublish={() => void publish()}
+          onSave={onSave}
+          onPublish={onPublish}
         />
         <div className="ed-body" data-view={view === "overview" ? "overview" : view === SETTINGS ? "settings" : "module"}>
           <Sidebar onHistory={() => setDialog({ kind: "history" })} onSignOut={() => void auth.signOut().then(() => location.reload())} />
@@ -446,10 +458,9 @@ export default function AdminApp() {
               <Overview
                 changes={changes}
                 unpublished={unpublished}
-                busy={!!busy}
                 onReview={showItem}
                 onPreview={() => setDialog({ kind: "preview" })}
-                onPublish={() => void publish()}
+                onPublish={onPublish}
                 onHistory={() => setDialog({ kind: "history" })}
               />
             </main>
