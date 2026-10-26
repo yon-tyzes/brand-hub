@@ -1,9 +1,10 @@
 // Search dialog (SearchOpen.dc.html, SearchMobile.dc.html; DESIGN_SYSTEM.md, SearchField). Loads the
 // build-time MiniSearch index on first open. Results are grouped by type and carry inline actions.
 // Keys: Up and Down move between results, Enter runs the first action, Escape closes and returns focus.
+// A copy keeps the dialog open: the row flashes and its copy icon shows a check for 1.2 seconds.
 import { useEffect, useMemo, useRef, useState } from "react";
 import MiniSearch, { type SearchResult } from "minisearch";
-import { copyText } from "../../scripts/client.ts";
+import { copyText, flash } from "../../scripts/client.ts";
 import { SEARCH_INDEX_URL, searchOptions, type SearchAction, type SearchDoc } from "../../lib/search-config.ts";
 import { uiIconSvg } from "../../lib/ui-icons.ts";
 
@@ -22,8 +23,10 @@ function loadIndex() {
   return indexPromise;
 }
 
-function runAction(action: SearchAction) {
-  if (action.kind === "copy") return void copyText(action.text, action.message);
+const CHECK_MS = 1200;
+
+/** Downloads and page links; copies are handled in the dialog. */
+function runAction(action: Exclude<SearchAction, { kind: "copy" }>) {
   if (action.kind === "download") {
     const a = Object.assign(document.createElement("a"), { href: action.href, download: action.filename });
     document.body.append(a);
@@ -62,6 +65,9 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
   const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  /** "<result id> <action label>" of the copy that shows its check, and what it said. */
+  const [copied, setCopied] = useState<{ key: string; message: string } | null>(null);
+  const checkTimer = useRef(0);
 
   useEffect(() => {
     register({
@@ -87,11 +93,22 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
   useEffect(() => setActive(0), [query]);
 
   const close = () => dialog.current?.close();
-  const run = (action: SearchAction | undefined) => {
+  const run = (action: SearchAction | undefined, hit?: Hit, row?: Element | null) => {
     if (!action) return;
+    if (action.kind === "copy") {
+      void copyText(action.text, action.message).then((ok) => {
+        if (!ok || !hit) return;
+        if (row) flash(row);
+        window.clearTimeout(checkTimer.current);
+        setCopied({ key: `${hit.id} ${action.label}`, message: action.message });
+        checkTimer.current = window.setTimeout(() => setCopied(null), CHECK_MS);
+      });
+      return;
+    }
     close();
     runAction(action);
   };
+  const rowOf = (e: { currentTarget: Element }) => e.currentTarget.closest(".search-result");
   const mains = () => [...(dialog.current?.querySelectorAll<HTMLElement>("[data-result-main]") ?? [])];
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -115,12 +132,13 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
     }
     if (e.key === "Enter" && document.activeElement === input.current) {
       e.preventDefault();
-      run(ordered[active]?.actions[0]);
+      const hit = ordered[active];
+      run(hit?.actions[0], hit, dialog.current?.querySelectorAll(".search-result")[active]);
     }
   }
 
   const count = `${hits.length} ${hits.length === 1 ? "result" : "results"}`;
-  const status = !query.trim() ? "" : !index ? (failed ? "Search could not load. Reload the page and try again." : "Loading search") : count;
+  const status = copied?.message ?? (!query.trim() ? "" : !index ? (failed ? "Search could not load. Reload the page and try again." : "Loading search") : count);
 
   return (
     <dialog
@@ -180,25 +198,29 @@ export function SearchDialog({ register }: { register: (api: SearchApi) => void 
                           {body}
                         </a>
                       ) : (
-                        <button className="search-result-main" type="button" data-result-main onFocus={() => setActive(n)} onClick={() => run(first)}>
+                        <button className="search-result-main" type="button" data-result-main onFocus={() => setActive(n)} onClick={(e) => run(first, h, rowOf(e))}>
                           {body}
                         </button>
                       )}
                       {!link && h.actions.length > 0 && (
                         <span className={h.type === "color" ? "search-result-actions is-values" : "search-result-actions"}>
-                          {h.actions.filter((a) => a.kind !== "open").slice(0, 3).map((a, i) => (
+                          {h.actions.filter((a) => a.kind !== "open").slice(0, 3).map((a, i) => {
+                            const check = copied?.key === `${h.id} ${a.label}`;
+                            return (
                             <button
                               key={a.label}
                               className={["btn btn-sm", i === 0 && a.kind === "copy" ? "btn-primary" : "btn-secondary", a.kind === "copy" && a.value ? "btn-value" : ""].join(" ")}
                               type="button"
-                              onClick={() => run(a)}
+                              onClick={(e) => run(a, h, rowOf(e))}
                               aria-label={`${a.kind === "copy" ? "Copy" : "Download"} ${a.label}: ${h.label}`}
+                              data-copied={check ? "" : undefined}
                             >
-                              {i === 0 && a.kind === "copy" && <Svg markup={uiIconSvg("copy", 16)} />}
+                              {i === 0 && a.kind === "copy" && <Svg className="copy-icon" markup={uiIconSvg(check ? "check" : "copy", 16)} />}
                               {a.kind === "copy" && i === 0 && <span className="label-short">Copy&nbsp;</span>}
                               {a.label}
                             </button>
-                          ))}
+                            );
+                          })}
                         </span>
                       )}
                     </li>

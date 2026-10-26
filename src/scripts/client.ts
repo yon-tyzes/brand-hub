@@ -23,6 +23,14 @@ export async function copyText(text: string, message: string): Promise<boolean> 
   }
 }
 
+/** The copied row's success flash (DESIGN_SYSTEM.md, Motion): restarts if the row is copied again. */
+export function flash(el: Element): void {
+  el.classList.remove("is-flashing");
+  void (el as HTMLElement).offsetWidth;
+  el.classList.add("is-flashing");
+  el.addEventListener("animationend", () => el.classList.remove("is-flashing"), { once: true });
+}
+
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = Object.assign(document.createElement("a"), { href: url, download: filename });

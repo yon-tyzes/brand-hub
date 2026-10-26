@@ -207,3 +207,30 @@ test.describe("reduced motion", () => {
     await expect(last).toHaveCSS("color", "rgb(154, 74, 36)");
   });
 });
+
+test.describe("copy", () => {
+  test.use({ permissions: ["clipboard-read", "clipboard-write"] });
+
+  test("a copied color row flashes the success tint and fades back", async ({ page }) => {
+    await page.goto("/colors/");
+    const row = page.locator(".value-row").first();
+    await row.click();
+    await expect(page.locator("[data-toast-region]")).toContainText("copied");
+    expect(await row.evaluate((e) => e.getAnimations().map((a) => (a as CSSAnimation).animationName))).toContain("copy-flash");
+    await expect(row).not.toHaveClass(/is-flashing/);
+  });
+
+  test("copying from search keeps the dialog open, flashes the row, and shows a check for 1.2 seconds", async ({ page }) => {
+    await page.goto("/");
+    await page.keyboard.press("/");
+    const dialog = page.getByRole("dialog", { name: "Search the brand" });
+    await dialog.getByRole("searchbox").fill("comet green");
+    const copy = dialog.getByRole("button", { name: /^Copy .*: Comet Green$/ }).first();
+    await copy.click();
+    await expect(dialog).toBeVisible();
+    await expect(copy).toHaveAttribute("data-copied", "");
+    await expect(dialog.getByRole("status")).toHaveText(/Comet Green #1E5B4A copied/);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("#1E5B4A");
+    await expect(copy).not.toHaveAttribute("data-copied", { timeout: 2000 });
+  });
+});

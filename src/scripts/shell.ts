@@ -1,6 +1,6 @@
 // Site shell behavior, loaded on every page: theme toggle, frosted top bar, the phone chip row, toasts, copy
 // buttons, and the search shortcut. The search dialog and its index load on first use.
-import { copyText, toast, type ToastDetail } from "./client.ts";
+import { copyText, flash, toast, type ToastDetail } from "./client.ts";
 
 const THEME_KEY = "bh-theme";
 
@@ -73,7 +73,11 @@ document.addEventListener("click", (e) => {
   const btn = (e.target as Element).closest<HTMLElement>("[data-copy]");
   if (!btn) return;
   const value = btn.dataset.copy ?? "";
-  copyText(value, btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`).then((ok) => ok && checked(btn));
+  copyText(value, btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`).then((ok) => {
+    if (!ok) return;
+    checked(btn);
+    flash(btn);
+  });
 });
 
 /** A copy button's icon swaps to a check for a moment (DESIGN_SYSTEM.md, Motion). */
