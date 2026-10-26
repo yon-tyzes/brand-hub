@@ -111,6 +111,17 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 @media (min-width: 480px) { .cells-2 { grid-template-columns: repeat(2, 1fr); } }
 .cells-2 > * { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: var(--space-5); display: grid; gap: var(--space-3); align-content: start; }
 
+/* ---------- Page transitions (DESIGN_SYSTEM.md, Motion) ---------- */
+/* Cross-document view transitions, no client router: the page crossfades and the current tab's underline and
+   sidebar item's background slide to their new place. Browsers without support navigate normally. */
+
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--duration-base); }
+::view-transition-group(nav-current), ::view-transition-group(tab-current) { animation-duration: var(--duration-base); animation-timing-function: var(--ease-out); }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
 /* ---------- Skip link ---------- */
 
 .skip-link {
@@ -393,7 +404,9 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   transition: color var(--duration-fast) var(--ease-out);
 }
 .topbar-tabs a:hover { color: var(--text); }
-.topbar-tabs a[aria-current="page"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--text); }
+.topbar-tabs a { position: relative; }
+.topbar-tabs a[aria-current="page"] { color: var(--text); }
+.topbar-tabs .nav-indicator { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--text); view-transition-name: tab-current; }
 
 .topbar-tools { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 
@@ -447,7 +460,12 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   }
   /* 44px touch target: the control's padding is part of each tab. */
   .tabs-segmented a::before { content: ""; position: absolute; inset: -4px 0; }
-  .tabs-segmented a[aria-current="page"] { background: var(--bg); color: var(--text); box-shadow: 0 1px 2px color-mix(in srgb, var(--fill-primary) 8%, transparent), inset 0 0 0 1px var(--border); }
+  .tabs-segmented a { isolation: isolate; }
+  .tabs-segmented a[aria-current="page"] { color: var(--text); }
+  .tabs-segmented .nav-indicator {
+    position: absolute; inset: 0; z-index: -1; border-radius: inherit; view-transition-name: tab-current;
+    background: var(--bg); box-shadow: 0 1px 2px color-mix(in srgb, var(--fill-primary) 8%, transparent), inset 0 0 0 1px var(--border);
+  }
 }
 
 .theme-toggle .sun { display: none; }
@@ -459,6 +477,10 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 }
 
 /* ---------- Shell: sidebar beside the content column (DESIGN_SYSTEM.md, Sidebar) ---------- */
+
+/* The current item's background sits on its own element so it can slide between pages. */
+.sidebar-item { position: relative; isolation: isolate; }
+.sidebar-item .nav-indicator { position: absolute; z-index: -1; border-radius: inherit; view-transition-name: nav-current; }
 
 .shell { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr); }
 .shell-main, .sidebar { min-width: 0; }
@@ -480,7 +502,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   }
   /* 44px touch target around the 32px chip. */
   .sidebar-item::before { content: ""; position: absolute; inset: -6px 0; }
-  .sidebar-item[aria-current="page"] { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-primary); }
+  .sidebar-item[aria-current="page"] { border-color: var(--fill-primary); color: var(--on-primary); }
+  .sidebar-item .nav-indicator { inset: -1px; background: var(--fill-primary); }
   .sidebar-item > .ui-icon svg { display: none; }
   .sidebar-end { display: inline-flex; color: var(--text-muted); }
   .sidebar-item[aria-current="page"] .sidebar-end { color: inherit; }
@@ -507,7 +530,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
     transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
   }
   .sidebar-item:hover { color: var(--text); background: var(--bg); }
-  .sidebar-item[aria-current="page"] { color: var(--text); background: var(--bg); box-shadow: inset 0 0 0 1px var(--border); }
+  .sidebar-item[aria-current="page"] { color: var(--text); }
+  .sidebar-item .nav-indicator { inset: 0; background: var(--bg); box-shadow: inset 0 0 0 1px var(--border); }
   .sidebar-item svg { flex: none; }
   .sidebar-end { margin-left: auto; display: inline-flex; color: var(--text-muted); }
   .sidebar-count { font-size: var(--caption-size); font-weight: var(--caption-weight); }

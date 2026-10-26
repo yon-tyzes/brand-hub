@@ -118,8 +118,8 @@ test.describe("phone at 390px", () => {
     expect(b.y).toBe(a.y);
     expect(b.x).toBeGreaterThan(a.x);
     expect(a.height).toBe(32);
-    // The current chip is filled.
-    const fill = await chips.first().evaluate((el) => getComputedStyle(el).backgroundColor);
+    // The current chip is filled, by the indicator that slides between pages.
+    const fill = await chips.first().locator(".nav-indicator").evaluate((el) => getComputedStyle(el).backgroundColor);
     const ink = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--fill-primary").trim());
     expect(fill).toBe(ink === "#0b0d10" ? "rgb(11, 13, 16)" : fill);
     await expect(page.getByText("Brand questions")).toBeHidden();
@@ -189,4 +189,46 @@ test("every page has the top bar, the sidebar, and the footer", async ({ page })
     await expect(page.locator("nav.sidebar"), route).toHaveCount(1);
     await expect(page.locator("footer.site-footer"), route).toHaveCount(1);
   }
+});
+
+/**
+ * The @view-transition navigation value in effect, from the page's stylesheets in order, with media queries
+ * applied. Whether a browser runs a given transition varies under automation, so the tests read the rule.
+ */
+const transitionMode = (page: import("@playwright/test").Page) =>
+  page.evaluate(() => {
+    let mode = "none";
+    const walk = (rules: CSSRuleList) => {
+      for (const r of rules) {
+        if (r instanceof CSSMediaRule) {
+          if (matchMedia(r.conditionText).matches) walk(r.cssRules);
+        } else if (r.constructor.name === "CSSViewTransitionRule") mode = (r as CSSRule & { navigation: string }).navigation;
+      }
+    };
+    for (const sheet of document.styleSheets) walk(sheet.cssRules);
+    return mode;
+  });
+
+test.describe("page transitions", () => {
+  test("pages crossfade, and the current tab and sidebar item carry the sliding indicator", async ({ page }) => {
+    await page.goto("/logos/");
+    expect(await transitionMode(page)).toBe("auto");
+    await page.locator(".sidebar").getByRole("link", { name: /^Colors/ }).click();
+    await expect(page).toHaveURL(/\/colors\/?$/);
+    const current = page.locator(".sidebar-item[aria-current='page'] .nav-indicator");
+    await expect(current).toHaveCount(1);
+    expect(await current.evaluate((e) => getComputedStyle(e).viewTransitionName)).toBe("nav-current");
+    expect(await page.locator(".topbar-tabs [aria-current='page'] .nav-indicator").evaluate((e) => getComputedStyle(e).viewTransitionName)).toBe("tab-current");
+    // One element per name on screen, or the browser skips the transition.
+    const named = await page.evaluate(() => [...document.querySelectorAll(".nav-indicator")].filter((e) => e.getClientRects().length).map((e) => getComputedStyle(e).viewTransitionName));
+    expect(named.sort()).toEqual(["nav-current", "tab-current"]);
+  });
+
+  test.describe("reduced motion", () => {
+    test.use({ reducedMotion: "reduce" });
+    test("pages change without a transition", async ({ page }) => {
+      await page.goto("/logos/");
+      expect(await transitionMode(page)).toBe("none");
+    });
+  });
 });

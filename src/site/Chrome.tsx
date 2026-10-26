@@ -1,11 +1,15 @@
 // Site top bar and footer (docs/DESIGN_SYSTEM.md, TopTabs). Theme, search, and the frosted bar are wired by
-// src/scripts/shell.ts.
+// src/scripts/shell.ts. The current tab and sidebar item carry an indicator that slides to its new place
+// between pages (cross-document view transitions in global.css).
 import type { CSSProperties } from "react";
 import { MODULES } from "../modules/registry.ts";
 import { logoFile } from "./data.ts";
 import { currentTab, navTabs, sidebarFor } from "./nav.ts";
 import { uiIconSvg } from "../lib/ui-icons.ts";
 import { Icon, ThemeToggle, useSite } from "./ui.tsx";
+
+/** The current item's background or underline, named for the page transition. */
+const Indicator = () => <span className="nav-indicator" aria-hidden="true" />;
 
 export function Header({ path }: { path: string }) {
   const site = useSite();
@@ -24,7 +28,10 @@ export function Header({ path }: { path: string }) {
         </a>
         <nav className="topbar-tabs" aria-label="Main">
           {tabs.map((t) => (
-            <a key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined}>{t.label}</a>
+            <a key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined}>
+              {t.label}
+              {t.id === active && <Indicator />}
+            </a>
           ))}
         </nav>
         <div className="topbar-tools">
@@ -44,7 +51,10 @@ export function Header({ path }: { path: string }) {
       {/* Below 768px the tabs move here, as a segmented control under the bar. */}
       <nav className="tabs-segmented" aria-label="Main" style={{ "--tab-count": tabs.length } as CSSProperties}>
         {tabs.map((t) => (
-          <a key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined}>{t.label}</a>
+          <a key={t.id} href={t.href} aria-current={t.id === active ? "page" : undefined}>
+            {t.label}
+            {t.id === active && <Indicator />}
+          </a>
         ))}
       </nav>
     </>
@@ -68,6 +78,7 @@ export function Sidebar({ path }: { path: string }) {
                 aria-current={item.id === nav.current ? "page" : undefined}
                 {...(item.external ? { target: "_blank", rel: "noopener" } : {})}
               >
+                {item.id === nav.current && <Indicator />}
                 {item.icon && <Icon name={item.icon} size={18} />}
                 <span className="sidebar-label">{item.label}</span>
                 {item.external ? (
