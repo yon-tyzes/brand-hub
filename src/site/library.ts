@@ -3,7 +3,9 @@
 // Pure: shared by the build and the editor's preview.
 import type { Asset, ColorAsset, LogoAsset, RuleAsset } from "../../schemas/asset.ts";
 import type { ModuleId } from "../../schemas/hub-config.ts";
-import { hexToRgb, relativeLuminance } from "../theme/color.ts";
+import { contrastRatio, hexToRgb, relativeLuminance } from "../theme/color.ts";
+import { MIN_RATIO } from "../theme/contrast.ts";
+import { SHELL_COLORS } from "../theme/shell.ts";
 import { fileName } from "../lib/paths.ts";
 import type { Site } from "./data.ts";
 import { chapterHref } from "./nav.ts";
@@ -106,6 +108,48 @@ export function darkGround(site: Site): string {
  * darkest color for dark logos, the fixed light ground for the rest.
  */
 export const logoGround = (site: Site, l: LogoAsset): string => (l.background === "dark" ? darkGround(site) : "var(--logo-ground-light)");
+
+export interface IconPair {
+  /** "ink-on-kiln-white". */
+  id: string;
+  /** "Ink on Kiln White". */
+  label: string;
+  icon: ColorAsset;
+  ground: ColorAsset;
+  /** True when the ground is light: dark text reads better on it than light text. */
+  light: boolean;
+  /** The shell text value (light or dark theme's) that passes 4.5:1 on the ground, for labels on the panel. */
+  text: string;
+  ratio: number;
+}
+
+/**
+ * The Icons page's color choices (spec section 6, Icons): every icon color on every ground, kept when the pair
+ * reaches 3:1, ordered by icon color and then ground. Grounds default to the lightest and darkest of `colors`.
+ * Ids that are not in `colors` (not locked, or missing) are skipped.
+ */
+export function iconPairs(colors: ColorAsset[], settings: { colors: string[]; grounds?: string[] } | undefined): IconPair[] {
+  const byId = new Map(colors.map((c) => [c.id, c]));
+  const pick = (ids: string[]) => ids.flatMap((id) => byId.get(id) ?? []);
+  const byLight = [...colors].sort((a, b) => relativeLuminance(b.hex) - relativeLuminance(a.hex));
+  const grounds = settings?.grounds?.length ? pick(settings.grounds) : [...new Set([byLight[0], byLight[byLight.length - 1]])].flatMap((c) => c ?? []);
+  const [dark, light] = [SHELL_COLORS.text.light, SHELL_COLORS.text.dark];
+  return pick(settings?.colors ?? []).flatMap((icon) =>
+    grounds.flatMap((ground) => {
+      const ratio = contrastRatio(icon.hex, ground.hex);
+      if (icon.id === ground.id || ratio < MIN_RATIO.graphic) return [];
+      const onDark = contrastRatio(light, ground.hex);
+      const onLight = contrastRatio(dark, ground.hex);
+      const isLight = onLight >= onDark;
+      return [{ id: `${icon.id}-on-${ground.id}`, label: `${icon.label} on ${ground.label}`, icon, ground, light: isLight, text: isLight ? dark : light, ratio }];
+    }),
+  );
+}
+
+/** The pair each theme opens on: the first with a light ground in light, the first with a dark ground in dark. */
+export function defaultPairs(pairs: IconPair[]): { light?: IconPair; dark?: IconPair } {
+  return { light: pairs.find((p) => p.light) ?? pairs[0], dark: pairs.find((p) => !p.light) ?? pairs[0] };
+}
 
 /** True for colors light enough to need a hairline against the page. */
 export const isLight = (hex: string) => {

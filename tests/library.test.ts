@@ -3,7 +3,7 @@ import type { ColorAsset, LogoAsset } from "../schemas/asset.ts";
 import type { ModuleId } from "../schemas/hub-config.ts";
 import { loadBrand } from "../src/content/load.ts";
 import { createSite } from "../src/site/data.ts";
-import { colorPairs, colorRows, copiedMessage, logoDownloads, ruleStrip, splitColors } from "../src/site/library.ts";
+import { colorPairs, colorRows, copiedMessage, defaultPairs, iconPairs, logoDownloads, ruleStrip, splitColors } from "../src/site/library.ts";
 import { demoCopy } from "./helpers.ts";
 
 function site(modules: ModuleId[] = ["colors", "guide"]) {
@@ -82,5 +82,52 @@ describe("rules strip", () => {
     const s = site(["colors", "fonts"]);
     expect(ruleStrip(s, "fonts", s.assetsOfType("font"))).toBeUndefined();
     expect(ruleStrip(s, "colors", s.assetsOfType("color"))?.link).toBeUndefined();
+  });
+});
+
+describe("icon color pairs", () => {
+  const ink = color("ink", "text", { label: "Ink", hex: "#1C2430" });
+  const green = color("comet-green", "primary", { label: "Comet Green", hex: "#1E5B4A" });
+  const copper = color("copper", "accent", { label: "Copper", hex: "#9A4A24" });
+  const white = color("kiln-white", "background", { label: "Kiln White", hex: "#F7F6F2" });
+  const mist = color("mist", "background", { label: "Mist", hex: "#E4EFEA" });
+  const palette = [green, ink, white, copper, mist];
+
+  it("keeps only pairs at 3:1 or better, ordered by icon color, then ground", () => {
+    const pairs = iconPairs(palette, { colors: ["ink", "comet-green", "copper", "kiln-white"], grounds: ["kiln-white", "ink", "comet-green"] });
+    expect(pairs.map((p) => p.label)).toEqual([
+      "Ink on Kiln White",
+      "Comet Green on Kiln White",
+      "Copper on Kiln White",
+      "Kiln White on Ink",
+      "Kiln White on Comet Green",
+    ]);
+    for (const p of pairs) expect(p.ratio).toBeGreaterThanOrEqual(3);
+    // Copper on Ink is 2.5:1 and Ink on Comet Green 2:1: both left out.
+    expect(pairs.find((p) => p.id === "copper-on-ink")).toBeUndefined();
+    expect(pairs.find((p) => p.id === "ink-on-comet-green")).toBeUndefined();
+  });
+
+  it("uses the lightest and darkest colors as grounds by default", () => {
+    const pairs = iconPairs(palette, { colors: ["comet-green", "kiln-white"] });
+    expect(pairs.map((p) => p.id)).toEqual(["comet-green-on-kiln-white", "kiln-white-on-ink"]);
+    expect(iconPairs(palette, { colors: ["ink"], grounds: [] }).map((p) => p.ground.id)).toEqual(["kiln-white"]);
+  });
+
+  it("labels the panel with the shell text value that reads on the ground", () => {
+    const [onLight, onDark] = iconPairs(palette, { colors: ["comet-green", "kiln-white"] });
+    expect(onLight).toMatchObject({ light: true, text: "#0b0d10" });
+    expect(onDark).toMatchObject({ light: false, text: "#f2f3f5" });
+  });
+
+  it("opens light theme on the first light ground and dark theme on the first dark ground", () => {
+    const d = defaultPairs(iconPairs(palette, { colors: ["ink", "comet-green", "copper", "kiln-white"], grounds: ["kiln-white", "ink", "comet-green"] }));
+    expect(d.light?.id).toBe("ink-on-kiln-white");
+    expect(d.dark?.id).toBe("kiln-white-on-ink");
+  });
+
+  it("skips ids that are not live colors and offers nothing without icon colors", () => {
+    expect(iconPairs(palette, { colors: ["missing", "ink"], grounds: ["missing", "kiln-white"] }).map((p) => p.id)).toEqual(["ink-on-kiln-white"]);
+    expect(iconPairs(palette, undefined)).toEqual([]);
   });
 });

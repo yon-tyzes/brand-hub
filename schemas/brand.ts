@@ -58,8 +58,12 @@ export const brand = z.strictObject({
   /** Per-module settings, keyed by module id. */
   modules: z
     .looseObject({
-      /** Color asset ids offered when recoloring icons. The first is the default. */
-      icons: z.strictObject({ colors: z.array(id).default([]) }).optional(),
+      /**
+       * Icon color choices on the Icons page. Each choice is a pair, an icon color on a ground: every color in
+       * `colors` on every color in `grounds` that reaches 3:1. `grounds` defaults to the lightest and darkest
+       * locked colors.
+       */
+      icons: z.strictObject({ colors: z.array(id).default([]), grounds: z.array(id).optional() }).optional(),
     })
     .default({}),
 });

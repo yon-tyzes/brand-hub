@@ -1,39 +1,63 @@
-// Icons (Icons.dc.html, IconsMobile.dc.html): groups, a name filter, the brand's icon colors, and the
-// selected icon's panel with downloads. On phones the panel docks to the bottom. src/scripts/icons.ts does
-// the selecting, recoloring, filtering, and file export; without it every icon still shows.
+// Icons (Icons.dc.html, IconsMobile.dc.html): groups, a name filter, the brand's color pairs (an icon color on
+// a ground), and the selected icon's panel with downloads. The grid sits on one panel filled with the pair's
+// ground. On phones the detail panel docks to the bottom. src/scripts/icons.ts does the selecting, recoloring,
+// filtering, and file export; without it every icon still shows, on the pair for the current theme.
 import type { CSSProperties } from "react";
 import type { IconAsset } from "../../../../schemas/asset.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import { fileName } from "../../../lib/paths.ts";
-import { ruleStrip } from "../../library.ts";
+import { defaultPairs, iconPairs, ruleStrip, type IconPair } from "../../library.ts";
 import { Icon, LibraryHead, RuleStrip, useSite } from "../../ui.tsx";
 
 export function IconsPage() {
   const site = useSite();
   const icons = site.assetsOfType("icon");
   const groups = [...new Set(icons.map((i) => i.group))];
-  const colors = (site.brand.modules.icons?.colors ?? []).map((id) => site.findAsset(id)).flatMap((c) => (c?.type === "color" ? [c] : []));
-  const first = colors[0];
+  const pairs = iconPairs(site.assetsOfType("color"), site.brand.modules.icons);
+  const defaults = defaultPairs(pairs);
+  const first = defaults.light;
   const selected = icons[0];
   const svg = (i: IconAsset, size: number) => site.iconMarkup(i, size);
   const meta = (i: IconAsset) => [i.group, first?.label].filter(Boolean).join(" · ");
+  // Both themes' default pairs; the stylesheet picks one until the viewer chooses (src/scripts/icons.ts).
+  const vars = (theme: "light" | "dark", p: IconPair | undefined) =>
+    p ? { [`--pair-${theme}-icon`]: p.icon.hex, [`--pair-${theme}-ground`]: p.ground.hex, [`--pair-${theme}-text`]: p.text } : {};
   return (
-    <div className="library icons-page" data-icons-root="" style={{ "--icon-color": first?.hex ?? "var(--text)" } as CSSProperties}>
+    <div
+      className="library icons-page"
+      data-icons-root=""
+      data-pair-light={defaults.light?.id}
+      data-pair-dark={defaults.dark?.id}
+      style={{ ...vars("light", defaults.light), ...vars("dark", defaults.dark) } as CSSProperties}
+    >
       <LibraryHead
         title={MODULES.icons.label}
-        intro="Pick a color, then click an icon to download it. Use them at 16, 24, or 32 pixels, with a text label unless the meaning is universal."
-        introShort="Pick a color, then tap an icon."
+        intro="Pick a color pair, then click an icon to download it. Use them at 16, 24, or 32 pixels, with a text label unless the meaning is universal."
+        introShort="Pick a color pair, then tap an icon."
       />
       <RuleStrip strip={ruleStrip(site, "icons", icons)} />
       <div className="icon-toolbar">
         <label className="visually-hidden" htmlFor="icon-filter">Filter icons by name</label>
         <input id="icon-filter" type="search" placeholder="Filter by name" autoComplete="off" data-icon-filter="" />
-        {colors.length > 0 && (
+        {pairs.length > 0 && (
           <div className="icon-colors" role="radiogroup" aria-label="Icon color">
-            {colors.map((c, i) => (
-              <button key={c.id} className="chip" type="button" role="radio" aria-checked={i === 0} tabIndex={i === 0 ? 0 : -1} data-icon-color={c.hex} data-color-id={c.id} data-color-name={c.label}>
-                <span className="chip-dot" style={{ background: c.hex }} aria-hidden="true" />
-                {c.label}
+            {pairs.map((p) => (
+              <button
+                key={p.id}
+                className="chip"
+                type="button"
+                role="radio"
+                aria-checked={p === first}
+                tabIndex={p === first ? 0 : -1}
+                data-pair={p.id}
+                data-icon-color={p.icon.hex}
+                data-ground={p.ground.hex}
+                data-label-color={p.text}
+                data-color-id={p.icon.id}
+                data-color-name={p.label}
+              >
+                <span className="pair-dot" style={{ background: p.ground.hex, color: p.icon.hex }} aria-hidden="true" />
+                {p.label}
               </button>
             ))}
           </div>
@@ -68,7 +92,7 @@ export function IconsPage() {
             </div>
           </aside>
         )}
-        <div className="icon-groups">
+        <div className="icon-groups icon-board">
           {groups.map((g) => (
             <section key={g} aria-labelledby={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`} data-icon-group="">
               <h2 className="icon-group-title" id={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`}>{g}</h2>

@@ -1,9 +1,11 @@
 // Brand settings (ENGINE_SPEC.md, section 8): the brand name, the primary color with a live preview of the
-// tuned hero tones, the guide chapters, and Quick downloads. Edits go into the draft like any other change.
+// tuned hero tones, the guide chapters, Quick downloads, and the icon colors and backgrounds that make the Icons
+// page's color pairs. Edits go into the draft like any other change.
 import { useState } from "react";
-import type { Asset } from "../../../schemas/asset.ts";
+import type { Asset, ColorAsset } from "../../../schemas/asset.ts";
 import type { Brand, GuideChapter } from "../../../schemas/brand.ts";
 import { heroTones } from "../../theme/hero-tint.ts";
+import { iconPairs } from "../../site/library.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
 import { uniqueId } from "../editor/modules.ts";
 import { updateBrand } from "../editor/state.ts";
@@ -22,6 +24,30 @@ function Move({ label, index, count, onMove }: { label: string; index: number; c
         Down<span className="visually-hidden">: move {label} down</span>
       </button>
     </>
+  );
+}
+
+/** A checklist of colors that keeps the order they were chosen in. */
+function ColorChecklist({ legend, help, colors, chosen, onChange }: { legend: string; help: string; colors: ColorAsset[]; chosen: string[]; onChange: (next: string[]) => void }) {
+  const id = legend.toLowerCase().replace(/\W+/g, "-");
+  return (
+    <fieldset className="settings-colors" aria-describedby={`${id}-help`}>
+      <legend className="ed-label">{legend}</legend>
+      <p className="ed-help" id={`${id}-help`}>{help}</p>
+      <div className="ed-checklist">
+        {colors.map((c) => (
+          <label key={c.id}>
+            <input
+              type="checkbox"
+              checked={chosen.includes(c.id)}
+              onChange={(e) => onChange(e.target.checked ? [...chosen, c.id] : chosen.filter((x) => x !== c.id))}
+            />
+            <span className="settings-swatch settings-swatch-sm" style={{ background: c.hex }} aria-hidden="true" />
+            {c.label}
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -50,6 +76,11 @@ export function BrandSettings() {
 
   const setChapters = (next: GuideChapter[]) => set((b) => ({ ...b, guide: { ...b.guide, chapters: next } }));
   const setQuick = (next: string[]) => set((b) => ({ ...b, quickDownloads: next }));
+  const liveColors = records.filter((r): r is ColorAsset => r.type === "color" && r.status === "locked");
+  const icons = brand.modules.icons;
+  const setIcons = (next: { colors: string[]; grounds?: string[] }) =>
+    set((b) => ({ ...b, modules: { ...b.modules, icons: { colors: next.colors, ...(next.grounds?.length ? { grounds: next.grounds } : {}) } } }));
+  const pairs = iconPairs(liveColors, icons);
 
   const addChapter = () => {
     const title = newChapter.trim();
@@ -164,6 +195,30 @@ export function BrandSettings() {
           <input id="set-new-chapter" className="field" placeholder="New chapter, like Photography" value={newChapter} onChange={(e) => setNewChapter(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addChapter())} />
           <button type="button" className="btn btn-secondary" onClick={addChapter}>Add chapter</button>
         </div>
+      </section>
+
+      <section className="settings-card" aria-labelledby="set-icons">
+        <h2 id="set-icons">Icon colors</h2>
+        <p className="ed-help">The Icons page offers each icon color on each background, when the two have enough contrast (3:1).</p>
+        <div className="settings-pair-lists">
+          <ColorChecklist
+            legend="Icon colors"
+            help="The colors icons can be downloaded in."
+            colors={liveColors}
+            chosen={icons?.colors ?? []}
+            onChange={(next) => setIcons({ colors: next, grounds: icons?.grounds })}
+          />
+          <ColorChecklist
+            legend="Icon backgrounds"
+            help="The grounds icons are shown on. None chosen: the lightest and darkest colors."
+            colors={liveColors}
+            chosen={icons?.grounds ?? []}
+            onChange={(next) => setIcons({ colors: icons?.colors ?? [], grounds: next })}
+          />
+        </div>
+        <p className="small" role="status">
+          {pairs.length ? `${pairs.length} ${pairs.length === 1 ? "pair" : "pairs"} on the Icons page: ${pairs.map((p) => p.label).join(", ")}.` : "No pairs yet. Choose icon colors that stand out on a background."}
+        </p>
       </section>
 
       <section className="settings-card" aria-labelledby="set-quick">

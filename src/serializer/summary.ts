@@ -36,6 +36,8 @@ const BRAND_PARTS: [string, (b: Brand) => unknown][] = [
   ["hero colors", (b) => b.hero.tint ?? null],
   ["guide chapters", (b) => b.guide.chapters],
   ["Quick downloads", (b) => b.quickDownloads],
+  ["icon colors", (b) => b.modules.icons?.colors ?? []],
+  ["icon backgrounds", (b) => b.modules.icons?.grounds ?? []],
 ];
 
 /** One line when brand settings changed: "Brand settings: primary color, guide chapters changed". */

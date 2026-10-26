@@ -37,11 +37,11 @@ test("keyboard only: search, recolor and download an icon, download a logo and a
   const panel = page.getByRole("complementary", { name: "Selected icon" });
   await expect(panel.getByRole("heading", { name: "Hot cup" })).toBeVisible();
 
-  // Change the color with the arrow keys in the radio group.
-  await tabTo(page, /^Ink$/);
+  // Change the color pair with the arrow keys in the radio group.
+  await tabTo(page, /^Ink on Kiln White$/);
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByRole("radio", { name: "Comet Green" })).toHaveAttribute("aria-checked", "true");
-  await expect(panel).toContainText("Tea · Comet Green");
+  await expect(page.getByRole("radio", { name: "Comet Green on Kiln White" })).toHaveAttribute("aria-checked", "true");
+  await expect(panel).toContainText("Tea · Comet Green on Kiln White");
 
   // Download the recolored SVG and see it confirmed.
   await tabTo(page, /^For print and slides/);

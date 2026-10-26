@@ -209,7 +209,9 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
         problems.push({ file: at, problem: `quickDownloads: asset "${ref}" is ${statusOf.get(ref)}, only locked assets show on the site. Lock it or remove it from quickDownloads`, code: "reference", field: "quickDownloads", ref });
       }
     }
-    for (const ref of brand.modules.icons?.colors ?? []) if (!colorIds.has(ref)) problems.push({ file: at, problem: `modules.icons.colors: color "${ref}" does not exist`, code: "reference", field: "modules", ref });
+    for (const key of ["colors", "grounds"] as const) {
+      for (const ref of brand.modules.icons?.[key] ?? []) if (!colorIds.has(ref)) problems.push({ file: at, problem: `modules.icons.${key}: color "${ref}" does not exist`, code: "reference", field: "modules", ref });
+    }
   }
 
   // 4. Every file path exists.

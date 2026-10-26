@@ -97,15 +97,16 @@ describe("loadBrand integrity failures", () => {
     ]);
   });
 
-  it("reports brand.json quick downloads and icon colors that do not exist", () => {
+  it("reports brand.json quick downloads, icon colors, and icon backgrounds that do not exist", () => {
     const { brandDir } = demoCopy();
     edit(brandDir, "brand.json", (b) => {
       b.quickDownloads = ["comet-green", "ghost-logo"];
-      b.modules = { icons: { colors: ["comet-green", "icon-search"] } };
+      b.modules = { icons: { colors: ["comet-green", "icon-search"], grounds: ["kiln-white", "night"] } };
     });
     expect(loadError(brandDir).problems.map((p) => p.problem)).toEqual([
       'quickDownloads: asset "ghost-logo" does not exist',
       'modules.icons.colors: color "icon-search" does not exist',
+      'modules.icons.grounds: color "night" does not exist',
     ]);
   });
 

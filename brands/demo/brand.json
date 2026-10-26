@@ -59,7 +59,13 @@
       "colors": [
         "ink",
         "comet-green",
-        "copper"
+        "copper",
+        "kiln-white"
+      ],
+      "grounds": [
+        "kiln-white",
+        "ink",
+        "comet-green"
       ]
     }
   }

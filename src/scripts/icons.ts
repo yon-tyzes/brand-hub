@@ -1,12 +1,32 @@
-// Icons page: pick an icon and a color, filter by name, and download the selected icon as SVG or PNG in
-// that color. Markup: src/site/pages/library/IconsPage.tsx. A #icon-id in the address selects that icon.
+// Icons page: pick an icon and a color pair, filter by name, and download the selected icon as SVG or PNG in
+// the pair's icon color, on a transparent background. Markup: src/site/pages/library/IconsPage.tsx. A #icon-id
+// in the address selects that icon. Each theme opens on its own default pair; a pair the viewer picks is kept
+// for later visits.
 import { downloadBlob } from "./client.ts";
 import { flip } from "./flip.ts";
+
+const PAIR_KEY = "bh-icon-pair";
+
+function savedPair(): string | null {
+  try {
+    return localStorage.getItem(PAIR_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function savePair(id: string) {
+  try {
+    localStorage.setItem(PAIR_KEY, id);
+  } catch {
+    // Storage blocked: the choice lasts for this page only.
+  }
+}
 
 const root = document.querySelector<HTMLElement>("[data-icons-root]");
 if (root) {
   const tiles = [...root.querySelectorAll<HTMLButtonElement>("[data-icon-id]")];
-  const radios = [...root.querySelectorAll<HTMLButtonElement>("[data-icon-color]")];
+  const radios = [...root.querySelectorAll<HTMLButtonElement>("[data-pair]")];
   const filter = root.querySelector<HTMLInputElement>("[data-icon-filter]");
   const count = root.querySelector<HTMLElement>("[data-icon-count]");
   const preview = root.querySelector<HTMLElement>("[data-icon-preview]");
@@ -15,6 +35,13 @@ if (root) {
   const metaOut = root.querySelector<HTMLElement>("[data-icon-meta]");
   let tile = tiles.find((t) => t.getAttribute("aria-pressed") === "true") ?? tiles[0];
   let color = radios.find((r) => r.getAttribute("aria-checked") === "true") ?? radios[0];
+  let picked = radios.find((r) => r.dataset.pair === savedPair());
+
+  const html = document.documentElement;
+  const systemDark = matchMedia("(prefers-color-scheme: dark)");
+  const isDark = () => (html.dataset.theme ? html.dataset.theme === "dark" : systemDark.matches);
+  /** The viewer's pick, else the current theme's default pair. */
+  const current = () => picked ?? radios.find((r) => r.dataset.pair === (isDark() ? root.dataset.pairDark : root.dataset.pairLight)) ?? radios[0];
 
   const svgOf = (t: HTMLElement, size: number, hex: string) =>
     (t.querySelector("svg")?.outerHTML ?? "")
@@ -33,16 +60,29 @@ if (root) {
     if (metaOut) metaOut.textContent = [tile.dataset.iconGroup, color?.dataset.colorName].filter(Boolean).join(" · ");
   }
 
-  function pickColor(r: HTMLButtonElement, focus = false) {
+  function pickColor(r: HTMLButtonElement | undefined, { focus = false, save = false } = {}) {
+    if (!r) return;
     color = r;
+    if (save) {
+      picked = r;
+      savePair(r.dataset.pair!);
+    }
     for (const x of radios) {
       x.setAttribute("aria-checked", String(x === r));
       x.tabIndex = x === r ? 0 : -1;
     }
     root!.style.setProperty("--icon-color", r.dataset.iconColor!);
+    root!.style.setProperty("--icon-ground", r.dataset.ground!);
+    root!.style.setProperty("--icon-text", r.dataset.labelColor!);
     if (focus) r.focus();
     show();
   }
+
+  // Without a pick, the pair follows the theme toggle and the system setting.
+  const follow = () => !picked && pickColor(current());
+  new MutationObserver(follow).observe(html, { attributes: true, attributeFilter: ["data-theme"] });
+  systemDark.addEventListener("change", follow);
+  pickColor(current());
 
   root.addEventListener("click", (e) => {
     const t = (e.target as Element).closest<HTMLButtonElement>("[data-icon-id]");
@@ -51,8 +91,8 @@ if (root) {
       history.replaceState(null, "", `#${t.dataset.iconId}`);
       return show();
     }
-    const r = (e.target as Element).closest<HTMLButtonElement>("[data-icon-color]");
-    if (r) pickColor(r);
+    const r = (e.target as Element).closest<HTMLButtonElement>("[data-pair]");
+    if (r) pickColor(r, { save: true });
   });
 
   // Radio group keys: arrows move the choice.
@@ -61,7 +101,7 @@ if (root) {
     const step = k === "ArrowRight" || k === "ArrowDown" ? 1 : k === "ArrowLeft" || k === "ArrowUp" ? -1 : 0;
     if (!step || !color) return;
     e.preventDefault();
-    pickColor(radios[(radios.indexOf(color) + step + radios.length) % radios.length]!, true);
+    pickColor(radios[(radios.indexOf(color) + step + radios.length) % radios.length]!, { focus: true, save: true });
   });
 
   filter?.addEventListener("input", () => {

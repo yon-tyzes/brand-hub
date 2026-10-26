@@ -99,7 +99,7 @@ export const addRecord = (record: AnyRecord, files: StoredFile[] = []): Edit => 
   files: { ...d.files, ...Object.fromEntries(files.map((f) => [f.path, f])) },
 });
 
-/** Changes brand settings: name, primary color, guide chapters, Quick downloads. */
+/** Changes brand settings: name, primary color, guide chapters, Quick downloads, icon colors and backgrounds. */
 export const updateBrand = (base: Brand, change: (b: Brand) => Brand): Edit => (d) => ({ ...d, brand: change(d.brand ?? base) });
 
 /** The brand settings a draft shows: its own edits, or the saved ones. */
