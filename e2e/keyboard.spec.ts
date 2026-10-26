@@ -64,3 +64,29 @@ test("keyboard only: search, recolor and download an icon, download a logo and a
   await page.keyboard.press("Enter");
   expect((await pdf).suggestedFilename()).toBe("letterhead.pdf");
 });
+
+test("the search dialog shows focus on its input row, without a full-width focus line", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("/");
+  const search = page.getByRole("dialog", { name: "Search the brand" }).getByRole("searchbox");
+  await expect(search).toBeFocused();
+  const row = page.locator(".search-input-row");
+  const look = () => row.evaluate((el) => {
+    const s = getComputedStyle(el);
+    const icon = getComputedStyle(el.querySelector("svg")!);
+    const token = (name: string) => {
+      const probe = Object.assign(document.createElement("span"), { style: `color: var(${name})` });
+      document.body.append(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    };
+    return { shadow: s.boxShadow, border: s.borderBottomColor, icon: icon.color, control: token("--border-control"), text: token("--text") };
+  });
+  // Both settle after a short color transition.
+  await expect.poll(async () => {
+    const l = await look();
+    return l.border === l.control && l.icon === l.text;
+  }).toBe(true);
+  expect((await look()).shadow).toBe("none");
+});
