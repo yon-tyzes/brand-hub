@@ -186,3 +186,24 @@ test.describe("reduced motion", () => {
     expect(await lightOpacity(page)).toBe(0);
   });
 });
+
+test("changing the icon pair recolors the tiles in a wave of at most 400ms", async ({ page }) => {
+  await page.goto("/icons/");
+  await page.getByRole("radio", { name: "Copper on Kiln White" }).click();
+  const waves = await page.locator(".icon-tile-btn").evaluateAll((tiles) => tiles.map((t) => parseFloat(getComputedStyle(t).transitionDelay)));
+  expect(waves.slice(0, 4)).toEqual([0, 0.02, 0.04, 0.06]);
+  expect(Math.max(...waves)).toBeLessThanOrEqual(0.28);
+  expect(await page.locator(".icon-board").evaluate((e) => getComputedStyle(e).transitionDuration)).toContain("0.32s");
+});
+
+test.describe("reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("the icon recolor is instant", async ({ page }) => {
+    await page.goto("/icons/");
+    await page.getByRole("radio", { name: "Copper on Kiln White" }).click();
+    const last = page.locator(".icon-tile-btn").last();
+    expect(await last.evaluate((t) => getComputedStyle(t).transitionDelay.split(", ").every((d) => parseFloat(d) === 0))).toBe(true);
+    await expect(last).toHaveCSS("color", "rgb(154, 74, 36)");
+  });
+});

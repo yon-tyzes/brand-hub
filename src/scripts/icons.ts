@@ -6,6 +6,9 @@ import { downloadBlob } from "./client.ts";
 import { flip } from "./flip.ts";
 
 const PAIR_KEY = "bh-icon-pair";
+/** The recolor wave: each tile 20ms after the one before, all done within 400ms of a fast (120ms) change. */
+const WAVE_STEP = 20;
+const WAVE_LAST = 400 - 120;
 
 function savedPair(): string | null {
   try {
@@ -71,6 +74,9 @@ if (root) {
       x.setAttribute("aria-checked", String(x === r));
       x.tabIndex = x === r ? 0 : -1;
     }
+    // Stagger the shown tiles in reading order; hidden (filtered) tiles change at once.
+    let n = 0;
+    for (const t of tiles) t.style.setProperty("--wave", `${t.closest("[hidden]") ? 0 : Math.min(n++ * WAVE_STEP, WAVE_LAST)}ms`);
     root!.style.setProperty("--icon-color", r.dataset.iconColor!);
     root!.style.setProperty("--icon-ground", r.dataset.ground!);
     root!.style.setProperty("--icon-text", r.dataset.labelColor!);
