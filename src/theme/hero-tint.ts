@@ -16,7 +16,7 @@ export const TONES = [
 /** The cool neutral for brands with no color above NEUTRAL_CHROMA. All three tones keep this hue. */
 export const NEUTRAL = { hue: 250, chroma: 0.012 } as const;
 /** How far each tone moves toward the dark background in dark theme. */
-export const DARK_MIX = 0.8;
+export const DARK_MIX = 0.6;
 
 export interface HeroTintInput {
   /** tokens.color.primary in brand.json. */

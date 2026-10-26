@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hexToOklch, hexToRgb } from "../src/theme/color.ts";
+import { contrastRatio, hexToOklch, hexToRgb } from "../src/theme/color.ts";
 import { CHROMA_RANGE, heroTones, NEUTRAL, SHELL_COLORS, TONES } from "../src/theme/index.ts";
 
 /** Each channel within `tolerance` of the expected color. */
@@ -65,9 +65,14 @@ describe("heroTones", () => {
       const light = hexToOklch(t.light[i]!).l;
       const dark = hexToOklch(hex).l;
       expect(dark).toBeLessThan(light);
-      // About 80% of the way: within 25% of the background's lightness gap.
-      expect(dark - bg).toBeLessThan((light - bg) * 0.25);
-      expect(dark).toBeGreaterThan(bg);
+      // About 60% of the way: 35% to 45% of the background's lightness gap is left, so the hue still shows.
+      expect(dark - bg).toBeLessThan((light - bg) * 0.45);
+      expect(dark - bg).toBeGreaterThan((light - bg) * 0.35);
     });
+  });
+
+  it("keeps the hero text readable over the brightest dark tone", () => {
+    const t = heroTones({ primary: "#1E5B4A", palette: DEMO_PALETTE });
+    for (const hex of t.dark) expect(contrastRatio(SHELL_COLORS.text.dark, hex)).toBeGreaterThanOrEqual(4.5);
   });
 });
