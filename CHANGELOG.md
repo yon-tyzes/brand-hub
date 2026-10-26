@@ -2,6 +2,31 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
+## 0.2.1 (2026-10-25)
+
+A polish release: glass that reads over the hero gradient, icons and logos that work in dark mode, and small interface motions. No breaking changes.
+
+### Fixes
+
+- Logo previews take their ground from the logo's `background` field in both themes. Light logos sit on a fixed light ground (`#f5f6f8`) in dark mode too, on the home page, `/logos`, search results, guide examples, and in the editor.
+- The hero keeps the brand hue in dark mode: tones now move about 60% toward the background instead of 80%.
+- The animated hero mesh draws above the static gradient. In 0.2.0 the canvas sat underneath it, so only the static gradient showed.
+- The search dialog's full-width blue focus line is gone. The input row's bottom border and the search icon show focus instead.
+- Save draft and Publish in the editor are never disabled. With nothing to do they say "No changes to save." or "Nothing to publish yet." This applies in the top bar and on the Overview.
+
+### Design
+
+- Hero glass: a lighter fill with a stronger edge and a shadow tinted with the brand hue (`--hero-shadow`), over a fourth pool of color behind the search field and chips. The gradient fades under the title only. The static gradient and the contour preset use the same layout. The search hint now uses `text-secondary` so it keeps 4.5:1 over the mesh.
+- A pointer light follows the mouse inside the hero search field, on fine pointers only, and is off under reduced motion and reduced transparency.
+- Icon color choices are brand pairs, an icon color on a ground ("Kiln White on Ink"), offered only at 3:1 or better. The grid sits on a panel filled with the pair's ground, each theme opens on a pair that suits it, and a picked pair is remembered. Changing the pair recolors the grid in a short wave.
+- Brand settings in the editor gain "Icon colors" and "Icon backgrounds".
+- Micro-interactions, all 120 to 320ms and instant under reduced motion: a success flash on copied rows, a check on copy buttons in search (the dialog now stays open after a copy), a download arrow that dips and drops, color previews that grow on hover, page transitions with a sliding tab underline and sidebar item, a turning theme toggle, and a press scale on buttons and chips.
+
+### Data
+
+- `brand.json`: new optional `modules.icons.grounds`, a list of color ids for icon backgrounds. Without it, the lightest and darkest locked colors are used. The loader reports ids that do not exist.
+- Demo brand: icon colors are Ink, Comet Green, Copper, and Kiln White, on Kiln White, Ink, and Comet Green.
+
 ## 0.2.0 (2026-10-24)
 
 The redesign. The engine now owns the interface, so every brand gets the same shell, and the brand shows up as content. Instances moving from 0.1 should read Breaking changes first.
