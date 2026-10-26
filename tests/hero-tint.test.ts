@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { contrastRatio, hexToOklch, hexToRgb } from "../src/theme/color.ts";
-import { CHROMA_RANGE, heroTones, NEUTRAL, SHELL_COLORS, TONES } from "../src/theme/index.ts";
+import { CHROMA_RANGE, heroCss, heroTones, NEUTRAL, NEUTRAL_SHADOW, SHADOW, SHELL_COLORS, TONES } from "../src/theme/index.ts";
 
 /** Each channel within `tolerance` of the expected color. */
 function expectClose(actual: string[], expected: string[], tolerance = 1) {
@@ -74,5 +74,22 @@ describe("heroTones", () => {
   it("keeps the hero text readable over the brightest dark tone", () => {
     const t = heroTones({ primary: "#1E5B4A", palette: DEMO_PALETTE });
     for (const hex of t.dark) expect(contrastRatio(SHELL_COLORS.text.dark, hex)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("builds the glass shadow from the hue at lightness 0.45 and chroma 0.08, at 28% alpha", () => {
+    const t = heroTones({ primary: "#1E5B4A", palette: [] });
+    const m = /^rgb\((\d+) (\d+) (\d+) \/ 0\.28\)$/.exec(t.shadow);
+    expect(m).not.toBeNull();
+    const hex = "#" + m!.slice(1, 4).map((v) => Number(v).toString(16).padStart(2, "0")).join("");
+    const c = hexToOklch(hex);
+    expect(c.l).toBeCloseTo(SHADOW.l, 2);
+    expect(c.c).toBeCloseTo(SHADOW.c, 2);
+    expect(Math.abs(c.h - hexToOklch("#1E5B4A").h)).toBeLessThan(3);
+    expect(heroCss(t)).toContain(`--hero-shadow: ${t.shadow};`);
+  });
+
+  it("gives the neutral fallback a plain shadow", () => {
+    expect(heroTones({ primary: "#000000", palette: ["#FFFFFF"] }).shadow).toBe(NEUTRAL_SHADOW);
+    expect(NEUTRAL_SHADOW).toBe("rgba(11, 13, 16, 0.16)");
   });
 });

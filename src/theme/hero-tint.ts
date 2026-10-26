@@ -1,7 +1,7 @@
 // Hero gradient colors (ENGINE_SPEC.md, section 10). The mesh never uses brand colors raw: it takes the hue
 // of the brand's primary color and builds three pale tones from it in OKLCH, so every brand gets a soft,
 // legible gradient. `hero.tint` replaces the tuning with exact colors.
-import { hexToOklch, mix, oklchToHex } from "./color.ts";
+import { hexToOklch, mix, oklchToHex, withAlpha } from "./color.ts";
 import { SHELL_COLORS } from "./shell.ts";
 
 /** Below this OKLCH chroma a color counts as neutral and gives no usable hue. */
@@ -17,6 +17,10 @@ export const TONES = [
 export const NEUTRAL = { hue: 250, chroma: 0.012 } as const;
 /** How far each tone moves toward the dark background in dark theme. */
 export const DARK_MIX = 0.6;
+/** The brand shadow under the hero glass: the hue at this lightness and chroma, at this alpha. */
+export const SHADOW = { l: 0.45, c: 0.08, alpha: 0.28 } as const;
+/** The shadow for brands on the neutral fallback. */
+export const NEUTRAL_SHADOW = "rgba(11, 13, 16, 0.16)";
 
 export interface HeroTintInput {
   /** tokens.color.primary in brand.json. */
@@ -32,6 +36,8 @@ export interface HeroTones {
   dark: string[];
   /** The brand line in the contour preset, light and dark: the hue source itself, kept readable in dark. */
   line: { light: string; dark: string };
+  /** Shadow color under the hero search field and chips, tinted with the hue. */
+  shadow: string;
   /** Where the tones came from. */
   source: "tint" | "primary" | "palette" | "neutral";
 }
@@ -56,12 +62,18 @@ export const darkTones = (light: string[]) => light.map((t) => lower(mix(t, SHEL
 /** The contour preset's brand line: the color itself in light, lifted halfway toward white in dark. */
 const lineFor = (hex: string) => ({ light: lower(hex), dark: lower(mix(hex, "#ffffff", 0.5)) });
 
+/** The brand shadow at a hue, or the neutral shadow when there is no usable hue. */
+export function shadowFor(hex: string | undefined): string {
+  if (!hex || hexToOklch(hex).c < NEUTRAL_CHROMA) return NEUTRAL_SHADOW;
+  return withAlpha(oklchToHex({ l: SHADOW.l, c: SHADOW.c, h: hexToOklch(hex).h }), SHADOW.alpha);
+}
+
 export function heroTones(input: HeroTintInput): HeroTones {
+  const from = hueSource(input);
   if (input.tint?.length) {
     const light = input.tint.slice(0, 3).map(lower);
-    return { light, dark: darkTones(light), line: lineFor(input.primary ?? light[0]!), source: "tint" };
+    return { light, dark: darkTones(light), line: lineFor(input.primary ?? light[0]!), shadow: shadowFor(from?.hex ?? light[0]), source: "tint" };
   }
-  const from = hueSource(input);
   let light: string[];
   if (from) {
     const { c, h } = hexToOklch(from.hex);
@@ -71,15 +83,18 @@ export function heroTones(input: HeroTintInput): HeroTones {
   } else {
     light = TONES.map((t) => lower(oklchToHex({ l: t.l, c: NEUTRAL.chroma, h: NEUTRAL.hue })));
   }
-  return { light, dark: darkTones(light), line: lineFor(from?.hex ?? light[0]!), source: from?.source ?? "neutral" };
+  return { light, dark: darkTones(light), line: lineFor(from?.hex ?? light[0]!), shadow: shadowFor(from?.hex), source: from?.source ?? "neutral" };
 }
 
-/** --hero-1 to --hero-3 for the hero gradient and --hero-line for the contour preset, light on :root and dark where the shell turns dark. */
+/**
+ * --hero-1 to --hero-3 for the hero gradient and --hero-line for the contour preset, light on :root and dark where
+ * the shell turns dark, and --hero-shadow for the glass on the gradient (the dark glass shadow is plain black).
+ */
 export function heroCss(tones: HeroTones): string {
   const vars = (list: string[], line: string) =>
     [0, 1, 2].map((i) => `--hero-${i + 1}: ${list[i] ?? list[list.length - 1]};`).join(" ") + ` --hero-line: ${line};`;
   return [
-    `:root { ${vars(tones.light, tones.line.light)} }`,
+    `:root { ${vars(tones.light, tones.line.light)} --hero-shadow: ${tones.shadow}; }`,
     `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${vars(tones.dark, tones.line.dark)} } }`,
     `:root[data-theme="dark"] { ${vars(tones.dark, tones.line.dark)} }`,
   ].join("\n");

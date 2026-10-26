@@ -33,8 +33,9 @@ test("with motion on, the hero draws and the search hint types", async ({ page }
   await page.goto("/");
   await heroSettled(page);
   const state = await heroState(page);
-  // Machines without WebGL2 keep the static gradient; covered below.
-  if (state !== "static") expect(state).toBe("moving");
+  // Machines without WebGL2 keep the static gradient (covered below); with WebGL2 the mesh must run.
+  const gl = await page.evaluate(() => !!document.createElement("canvas").getContext("webgl2"));
+  if (gl) expect(state).toBe("moving");
   await expect(page.locator(".hero-hint")).toHaveText(/^Try "/);
   await expect(page.getByRole("searchbox", { name: "Search the brand" })).toBeVisible();
 });
@@ -73,6 +74,26 @@ test("frosted surfaces blur only where the spec lists them", async ({ page }) =>
   await page.mouse.wheel(0, 500);
   await expect(page.locator("header.topbar")).toHaveCSS("backdrop-filter", "blur(14px) saturate(1.4)");
 });
+
+for (const width of [1440, 390]) {
+  test(`light theme at ${width}px: the hero search field and every chip have an edge over the gradient`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    const looks = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLElement>(".hero-search, .hero-chips .chip")].map((e) => {
+        const c = getComputedStyle(e);
+        return { name: e.textContent?.trim(), border: c.borderTopColor, width: c.borderTopWidth, shadow: c.boxShadow, backdrop: c.backdropFilter };
+      }),
+    );
+    expect(looks.length).toBe(5);
+    for (const l of looks) {
+      expect(l.border, l.name).toBe("rgba(11, 13, 16, 0.09)");
+      expect(l.width, l.name).toBe("1px");
+      expect(l.shadow, l.name).toContain("inset");
+      expect(l.backdrop, l.name).toBe("blur(14px) saturate(1.8)");
+    }
+  });
+}
 
 test("without WebGL the static gradient shows and search works", async ({ page }) => {
   await page.addInitScript(() => {

@@ -168,12 +168,15 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .chip:hover { background: var(--surface-subtle); }
 .chip[aria-pressed="true"] { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-primary); }
 .chip-dot { width: 10px; height: 10px; border-radius: 3px; flex: none; }
-/* Frosted quick picks over the hero mesh (DESIGN_SYSTEM.md, section 8). */
+/* Frosted quick picks over the hero mesh (DESIGN_SYSTEM.md, section 8): on hover they lift 1px, fill up, and
+   deepen their shadow; pressed, they scale down a little. */
 .chip-glass {
-  border-color: var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight);
+  border-color: var(--glass-hero-border);
+  box-shadow: var(--glass-hero-shadow);
+  transition: background-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
-.chip-glass:hover { background: var(--glass-fill-strong); }
+.chip-glass:hover { background: var(--glass-fill-hover); box-shadow: var(--glass-hero-shadow-hover); transform: translateY(-1px); }
+.chip-glass:active { transform: scale(0.98); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* ---------- Asset card (DESIGN_SYSTEM.md, AssetCard) ---------- */
@@ -494,20 +497,23 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 /* ---------- Home (DESIGN_SYSTEM.md, Hero) ---------- */
 
 .hero { position: relative; height: 320px; overflow: hidden; border-bottom: 1px solid var(--border); }
-/* Static gradient from the tuned tones (src/theme/hero-tint.ts). It stays top right and fades under the text. */
+/* Static gradient from the tuned tones (src/theme/hero-tint.ts), laid out like the mesh: tones top right, the
+   lightest pooled behind the search field and chips, and faded under the title only. */
 .hero-mesh {
   position: absolute; inset: 0;
   background:
+    radial-gradient(38% 34% at 16% 36%, var(--bg) 55%, transparent 100%),
     radial-gradient(48% 75% at 82% 18%, var(--hero-1) 0%, transparent 72%),
     radial-gradient(40% 70% at 98% 85%, var(--hero-2) 0%, transparent 70%),
     radial-gradient(38% 60% at 58% 105%, var(--hero-3) 0%, transparent 70%),
+    radial-gradient(42% 55% at 34% 78%, var(--hero-3) 0%, transparent 72%),
     var(--bg);
 }
 /* The WebGL mesh (src/scripts/hero.ts) fades in over the static gradient once its first frame is drawn. */
 .hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity var(--duration-slow) var(--ease-out); }
 .hero-canvas.is-ready { opacity: 1; }
-/* Without the canvas (no WebGL, or the script has not loaded) the static gradient below stays; text sits on
-   near-bg ground either way because both fade out on the left and toward the bottom. */
+/* Without the canvas (no WebGL, or the script has not loaded) the static gradient below stays; the title sits on
+   near-bg ground either way because both fade out under it. */
 @media (prefers-reduced-motion: reduce) { .hero-canvas { transition: none; } }
 .hero-content { position: relative; box-sizing: border-box; max-width: var(--content-max); padding: 64px 48px 0; }
 .hero-title { margin: 0; font-size: var(--display-xl-size); line-height: var(--display-xl-leading); font-weight: 600; letter-spacing: var(--display-xl-tracking); }
@@ -515,22 +521,23 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   /* Sizes are inside the padding and border, as the screen draws them: 554 by 54 at full width. */
   position: relative; margin-top: 28px; max-width: 520px; height: 52px; box-sizing: content-box;
   display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: var(--radius-md);
-  border: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), 0 1px 2px color-mix(in srgb, var(--fill-primary) 5%, transparent);
+  border: 1px solid var(--glass-hero-border);
+  box-shadow: var(--glass-hero-shadow);
 }
 .hero-search > svg { flex: none; color: var(--text-secondary); }
 .hero-search input { flex: 1; min-width: 0; height: 48px; border: 0; background: transparent; font: 400 var(--body-size) var(--font-sans); color: var(--text); }
-.hero-search input::placeholder { color: var(--text-muted); }
+/* text-secondary, not text-muted: the hint sits on glass over the mesh and must keep 4.5:1 at its darkest point. */
+.hero-search input::placeholder { color: var(--text-secondary); }
 /* The typed hint (src/scripts/hero-typing.ts) sits where the placeholder would be. */
 .hero-search { position: relative; }
 .hero-hint {
   position: absolute; left: 46px; right: 48px; top: 50%; transform: translateY(-50%);
-  font-size: var(--body-size); color: var(--text-muted); white-space: nowrap; overflow: hidden; pointer-events: none;
+  font-size: var(--body-size); color: var(--text-secondary); white-space: nowrap; overflow: hidden; pointer-events: none;
 }
 @media (max-width: 767.98px) { .hero-hint { left: 44px; right: 14px; } }
 .hero-search input:focus-visible { outline: none; }
 .hero-search:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
-.hero-search kbd { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 6px; }
+.hero-search kbd { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); border: 1px solid var(--glass-hero-border); border-radius: var(--radius-sm); padding: 2px 6px; }
 .hero-chips { margin-top: 14px; }
 @media (max-width: 991.98px) {
   .hero-title { font-size: var(--display-size); line-height: var(--display-leading); }
@@ -539,9 +546,11 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   .hero { height: auto; }
   .hero-mesh {
     background:
+      radial-gradient(75% 26% at 22% 22%, var(--bg) 55%, transparent 100%),
       radial-gradient(70% 60% at 90% 10%, var(--hero-1) 0%, transparent 72%),
       radial-gradient(60% 55% at 100% 90%, var(--hero-2) 0%, transparent 70%),
       radial-gradient(55% 45% at 30% 110%, var(--hero-3) 0%, transparent 70%),
+      radial-gradient(70% 40% at 34% 78%, var(--hero-3) 0%, transparent 72%),
       var(--bg);
   }
   .hero-content { padding: 28px var(--gutter) 24px; }
@@ -1085,8 +1094,8 @@ dialog:not([open]) { display: none !important; }
 
 .hero-search, .chip-glass {
   background: var(--glass-fill);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-hero-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-hero-saturate));
 }
 .topbar[data-scrolled], .toast {
   background: var(--glass-fill-strong);

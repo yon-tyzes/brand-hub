@@ -1,7 +1,7 @@
 // The contour preset for the home hero (DESIGN_SYSTEM.md, section 9): hairline contours in the text color at low
 // strength, every fifth line in the brand's color, bending slightly around the pointer. Uses the same loader,
 // pausing, and fallbacks as the mesh (src/scripts/hero-gl.ts).
-import { NOISE, type Preset } from "./hero-gl.ts";
+import { NOISE, TITLE_FADE, type Preset } from "./hero-gl.ts";
 
 const CONTOUR = `#version 300 es
 precision highp float;
@@ -11,6 +11,7 @@ uniform vec3 bg, ink, line;
 uniform vec3 ptr;
 out vec4 color;
 ${NOISE}
+${TITLE_FADE}
 void main() {
   vec2 uv = gl_FragCoord.xy / res;
   float ar = res.x / res.y;
@@ -24,7 +25,7 @@ void main() {
   bool major = mod(floor(n + 0.5), 5.0) < 0.5;
   vec3 c = major ? line : ink;
   float strength = major ? 0.55 : 0.12;
-  float mask = smoothstep(0.3, 0.85, uv.x) * smoothstep(0.0, 0.45, uv.y);
+  float mask = titleFade(uv);
   vec3 outc = mix(bg, c, stroke * strength * mask);
   outc += (hash(gl_FragCoord.xy + fract(t * 3.0)) - 0.5) * 0.03;
   color = vec4(outc, 1.0);

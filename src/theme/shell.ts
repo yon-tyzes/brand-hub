@@ -21,7 +21,18 @@ export const SHELL_COLORS = {
   success: { light: "#1a7f52", dark: "#4cc38a" },
   danger: { light: "#c93a3a", dark: "#f07070" },
   scrim: { light: "rgba(10, 11, 13, 0.45)", dark: "rgba(0, 0, 0, 0.6)" },
-  "glass-fill": { light: "rgba(255, 255, 255, 0.6)", dark: "rgba(22, 24, 29, 0.6)" },
+  // The hero search field and chips over the mesh (DESIGN_SYSTEM.md, section 8).
+  "glass-fill": { light: "rgba(255, 255, 255, 0.42)", dark: "rgba(22, 24, 29, 0.5)" },
+  "glass-fill-hover": { light: "rgba(255, 255, 255, 0.6)", dark: "rgba(22, 24, 29, 0.6)" },
+  "glass-hero-border": { light: "rgba(11, 13, 16, 0.09)", dark: "rgba(255, 255, 255, 0.10)" },
+  "glass-hero-shadow": {
+    light: "inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(11, 13, 16, 0.04), 0 1px 2px rgba(11, 13, 16, 0.04), 0 10px 24px -10px var(--hero-shadow)",
+    dark: "inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px -10px rgba(0, 0, 0, 0.5)",
+  },
+  "glass-hero-shadow-hover": {
+    light: "inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(11, 13, 16, 0.04), 0 2px 4px rgba(11, 13, 16, 0.05), 0 14px 28px -10px var(--hero-shadow)",
+    dark: "inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 28px -10px rgba(0, 0, 0, 0.6)",
+  },
   "glass-fill-strong": { light: "rgba(255, 255, 255, 0.72)", dark: "rgba(22, 24, 29, 0.75)" },
   "glass-border": { light: "rgba(255, 255, 255, 0.7)", dark: "rgba(255, 255, 255, 0.08)" },
   "glass-highlight": { light: "rgba(255, 255, 255, 0.75)", dark: "rgba(255, 255, 255, 0.06)" },
@@ -65,6 +76,7 @@ export const SHELL_STATIC = {
   "logo-ground-dark": "#0b0d10",
   "glass-blur": "14px",
   "glass-saturate": "1.4",
+  "glass-hero-saturate": "1.8",
 } as const;
 
 /** Type styles (DESIGN_SYSTEM.md, section 3). Each becomes --<name>-size, -leading, -weight, -tracking. */

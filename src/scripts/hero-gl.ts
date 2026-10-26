@@ -21,8 +21,23 @@ float fbm(vec2 p) {
   return v;
 }`;
 
-// Three soft tones drifting on slow, unrelated periods (a full cycle well over a minute), warped by noise,
-// faded out toward the text on the left and toward the bottom, with about 5% film grain.
+/**
+ * 1 everywhere except under the hero title, where it falls to 0 so the title sits on near-bg ground. `title` is
+ * the title text's right edge and bottom edge in canvas pixels (y up) and the pixel ratio; the fade ends 8px below
+ * the title, short of the search field. Shared with the contour preset.
+ */
+const TITLE_FADE = `
+uniform vec3 title;
+float titleFade(vec2 uv) {
+  vec2 px = gl_FragCoord.xy;
+  float left = 1.0 - smoothstep(title.x, title.x + 120.0 * title.z, px.x);
+  float above = smoothstep(title.y - 8.0 * title.z, title.y + 24.0 * title.z, px.y);
+  return 1.0 - left * above;
+}`;
+
+// Three soft tones drifting on slow, unrelated periods (a full cycle well over a minute), warped by noise, with
+// a fourth pool of the lightest tone behind the search field and chips so the glass has color behind it. Faded
+// out under the title only (TITLE_FADE), with about 5% film grain.
 const MESH = `#version 300 es
 precision highp float;
 uniform float t;
@@ -31,6 +46,7 @@ uniform vec3 bg, c1, c2, c3;
 out vec4 color;
 ${NOISE}
 float blob(vec2 p, vec2 at, float r) { float d = length(p - at) / r; return exp(-d * d); }
+${TITLE_FADE}
 void main() {
   vec2 uv = gl_FragCoord.xy / res;
   float ar = res.x / res.y;
@@ -40,10 +56,13 @@ void main() {
   c = mix(c, c1, 0.9 * blob(w, vec2(ar * 0.80 + 0.14 * sin(t * 0.083), 0.75 + 0.10 * cos(t * 0.097)), 0.5));
   c = mix(c, c2, 0.85 * blob(w, vec2(ar * 0.98 + 0.10 * cos(t * 0.071), 0.30 + 0.12 * sin(t * 0.061)), 0.45));
   c = mix(c, c3, 0.8 * blob(w, vec2(ar * 0.55 + 0.16 * sin(t * 0.053 + 1.0), 0.95 + 0.08 * cos(t * 0.089)), 0.45));
-  c = mix(bg, c, smoothstep(0.3, 0.85, uv.x) * smoothstep(0.0, 0.45, uv.y));
+  // Behind the controls: 34% across, 78% down (y runs up from the bottom).
+  c = mix(c, c3, 0.9 * blob(w, vec2(ar * 0.34 + 0.06 * sin(t * 0.047), 0.22 + 0.05 * cos(t * 0.067)), 0.5));
+  c = mix(bg, c, titleFade(uv));
   c += (hash(gl_FragCoord.xy + fract(t * 3.0)) - 0.5) * 0.05;
   color = vec4(c, 1.0);
 }`;
+
 
 export interface Tones {
   bg: [number, number, number];
@@ -104,6 +123,19 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
 
   const still = matchMedia("(prefers-reduced-motion: reduce)");
   let tones = readTones(hero);
+  // Where the title text ends, measured from its text rather than its box (the heading spans the column).
+  const titleEl = hero.querySelector(".hero-title");
+  let titleEdge = { right: -1e4, bottom: 1e4 };
+  const measure = () => {
+    if (!titleEl) return;
+    const range = document.createRange();
+    range.selectNodeContents(titleEl);
+    const t = range.getBoundingClientRect();
+    const h = hero.getBoundingClientRect();
+    titleEdge = { right: t.right - h.left, bottom: t.bottom - h.top };
+  };
+  measure();
+  void document.fonts?.ready.then(() => (measure(), redraw()));
   let visible = true;
   let frame = 0;
   const begin = performance.now();
@@ -127,6 +159,7 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
     gl!.uniform3fv(u("c3"), tones.c3);
     gl!.uniform3fv(u("line"), tones.line);
     gl!.uniform3fv(u("ink"), tones.text);
+    gl!.uniform3f(u("title"), titleEdge.right * dpr, h - titleEdge.bottom * dpr, dpr);
     preset.extra?.(gl!, u);
     gl!.drawArrays(gl!.TRIANGLES, 0, 3);
     hero.dataset.heroState = still.matches ? "still" : "moving";
@@ -152,7 +185,7 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
   };
   new MutationObserver(retone).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retone);
-  addEventListener("resize", redraw, { passive: true });
+  addEventListener("resize", () => (measure(), redraw()), { passive: true });
 
   // A lost context (GPU reset, too many contexts) falls back to the static gradient underneath.
   canvas.addEventListener("webglcontextlost", () => {
@@ -171,4 +204,4 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
 }
 
 export const mesh: Preset = { fragment: MESH };
-export { NOISE };
+export { NOISE, TITLE_FADE };
