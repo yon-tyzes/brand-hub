@@ -262,3 +262,25 @@ test("hovered cards: a color preview grows 10px without moving the card's text, 
   await logo.hover();
   await expect.poll(() => logo.locator(".asset-well > img").evaluate((e) => getComputedStyle(e).transform)).toBe("matrix(1.02, 0, 0, 1.02, 0, 0)");
 });
+
+test("the theme toggle turns and crossfades between moon and sun", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/logos/");
+  const look = (part: "moon" | "sun") => page.locator(`.theme-toggle .${part}`).evaluate((e) => ({ opacity: getComputedStyle(e).opacity, transform: getComputedStyle(e).transform }));
+  expect(await look("moon")).toEqual({ opacity: "1", transform: "none" });
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await expect.poll(() => look("sun")).toEqual({ opacity: "1", transform: "none" });
+  // rotate(90deg)
+  await expect.poll(() => look("moon")).toEqual({ opacity: "0", transform: "matrix(0, 1, -1, 0, 0, 0)" });
+});
+
+test("buttons and chips scale to 0.98 while pressed", async ({ page }) => {
+  await page.goto("/templates/");
+  for (const selector of ["#main .btn", ".filter-chips .chip"]) {
+    const el = page.locator(selector).first();
+    await el.hover();
+    await page.mouse.down();
+    await expect.poll(() => el.evaluate((e) => getComputedStyle(e).transform), { message: selector }).toBe("matrix(0.98, 0, 0, 0.98, 0, 0)");
+    await page.mouse.up();
+  }
+});

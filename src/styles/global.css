@@ -141,9 +141,11 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   border: 1px solid transparent; border-radius: var(--radius-md);
   font-size: var(--label-size); line-height: 1; font-weight: 500;
   text-decoration: none; white-space: nowrap; cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 .btn svg { flex: none; }
+/* Every button and chip gives a little while pressed. */
+:is(.btn, .chip, .theme-toggle, .search-trigger):active { transform: scale(0.98); }
 .btn-sm { height: 32px; padding: 0 10px; gap: 6px; font-size: 13px; }
 .btn-primary { background: var(--fill-primary); color: var(--on-primary); }
 .btn-primary:hover { background: var(--fill-primary-hover); }
@@ -175,7 +177,7 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
   height: 32px; padding: 0 12px; border-radius: var(--radius-pill);
   background: var(--bg); border: 1px solid var(--border-control); color: var(--text);
   font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap; cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 .chip:hover { background: var(--surface-subtle); }
 .chip[aria-pressed="true"] { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-primary); }
@@ -415,7 +417,7 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   height: 36px; padding: 0 10px;
   border-radius: var(--radius-md); background: var(--surface-subtle); border: 1px solid var(--border);
   color: var(--text-secondary); font-size: 13px;
-  transition: color var(--duration-fast) var(--ease-out);
+  transition: color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 .search-trigger:hover { color: var(--text); }
 .search-trigger-keys { margin-left: 28px; display: inline-flex; }
@@ -431,7 +433,7 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   width: 36px; height: 36px; display: grid; place-items: center;
   border-radius: var(--radius-md); background: transparent; border: 1px solid transparent;
   color: var(--text-secondary);
-  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
 }
 .theme-toggle:hover { background: var(--surface-subtle); color: var(--text); }
 /* Segmented tabs: phones only. */
@@ -468,12 +470,17 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   }
 }
 
-.theme-toggle .sun { display: none; }
-:root[data-theme="dark"] .theme-toggle .sun { display: contents; }
-:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+/* Sun and moon share one place: switching theme turns the icon 90 degrees and crossfades the two. */
+.theme-toggle > span {
+  grid-area: 1 / 1; display: grid;
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+.theme-toggle .sun { opacity: 0; transform: rotate(-90deg); }
+:root[data-theme="dark"] .theme-toggle .sun { opacity: 1; transform: none; }
+:root[data-theme="dark"] .theme-toggle .moon { opacity: 0; transform: rotate(90deg); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle .sun { display: contents; }
-  :root:not([data-theme="light"]) .theme-toggle .moon { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .sun { opacity: 1; transform: none; }
+  :root:not([data-theme="light"]) .theme-toggle .moon { opacity: 0; transform: rotate(90deg); }
 }
 
 /* ---------- Shell: sidebar beside the content column (DESIGN_SYSTEM.md, Sidebar) ---------- */
