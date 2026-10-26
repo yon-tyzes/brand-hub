@@ -206,7 +206,7 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 - **Search:** build-time index of every rendered asset and rule. Opens with Cmd/Ctrl+K or `/`. The hint shows the shortcut for the viewer's platform only. Results are grouped by type (Colors, Logos, Rules ...) and carry inline actions (copy hex, download, open). Full screen on small screens.
 - **Copy:** a single toast region (`aria-live="polite"`) names what was copied: "Comet Green #1E5B4A copied".
 - **Downloads:** direct file links from the site. Font zips, "all logos" zips, and the Office theme are built at build time.
-- **Icons:** recolor in the browser in the colors listed in `modules.icons.colors` (all SVGs use `currentColor`). PNG export through canvas at preset sizes.
+- **Icons:** each color choice is a brand pair, an icon color on a ground, labeled "<icon color> on <ground>" ("Kiln White on Ink"). Icon colors come from `modules.icons.colors`, grounds from `modules.icons.grounds` (default: the brand's lightest and darkest locked colors). The engine builds every pair from the two lists, keeps those with contrast of at least 3:1, and orders them by icon color, then ground. The grid sits on one panel filled with the pair's ground; tiles are transparent with a hairline in the icon color, and labels take whichever shell text value passes 4.5:1 on that ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground; a viewer's pick is remembered. Downloads are the icon in the exact icon color hex on a transparent background, as SVG and PNG (all SVGs use `currentColor`). Brand colors are never adjusted for display.
 - **Fonts:** a type tester sets the viewer's own words in each brand family. On phones the page offers "Copy page link," since fonts install on a computer.
 - **Photos:** a link card to the instance's photo source, labeled with access type, plus the photo and headshot rules.
 - **Theme:** light by default, following the system setting, with a toggle in the top bar remembered per viewer.
@@ -214,6 +214,19 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 ### Frosted surfaces
 
 Frosted glass appears only where something sits behind it: the hero search field and chips, the top bar after the page scrolls, the search dialog, toasts, and the mobile tab bar. It is solid under `prefers-reduced-transparency` and where `backdrop-filter` is unsupported. No refractive effects.
+
+The hero search field and chips use their own recipe so they read over the gradient:
+
+| | Light | Dark |
+|---|---|---|
+| Fill | `rgba(255, 255, 255, 0.42)` | `rgba(22, 24, 29, 0.5)` |
+| Backdrop | `blur(14px) saturate(1.8)` | `blur(14px) saturate(1.8)` |
+| Border | 1px `rgba(11, 13, 16, 0.09)` | 1px `rgba(255, 255, 255, 0.10)` |
+| Shadow | inset top `rgba(255, 255, 255, 0.9)`, inset bottom `rgba(11, 13, 16, 0.04)`, `0 1px 2px rgba(11, 13, 16, 0.04)`, `0 10px 24px -10px` brand shadow | inset top `rgba(255, 255, 255, 0.08)`, `0 10px 24px -10px rgba(0, 0, 0, 0.5)` |
+
+- The brand shadow (`--hero-shadow`) is the hero hue at OKLCH lightness 0.45 and chroma 0.08, at 28% alpha. A brand on the neutral fallback uses `rgba(11, 13, 16, 0.16)`.
+- Chips lift 1px on hover, fill to 0.6, and deepen the shadow over the fast duration. They scale to 0.98 while pressed.
+- A pointer light sits inside the hero search field: a radial highlight, white at 55% fading to transparent (12% in dark theme, so muted text keeps its contrast), about 120px across, centered on the pointer. It fades in on hover and out on leave over the base duration. Fine pointers only (`hover: hover` and `pointer: fine`), off under reduced motion and reduced transparency. Custom properties set from `pointermove`, throttled to animation frames.
 
 ### Motion
 
@@ -426,7 +439,7 @@ The hero gradient never uses brand colors raw. The engine tunes them so every br
 1. Take `tokens.color.primary` and keep only its hue. If its chroma is under 0.03 in OKLCH, use the most saturated color in the brand's palette instead.
 2. Build three tones in OKLCH: at that hue with lightness 0.88, at the hue plus about 35 degrees with lightness 0.92, and at the hue minus about 28 degrees with lightness 0.94. Keep chroma between 0.035 and 0.07.
 3. A brand with no color above chroma 0.03 gets a cool neutral instead.
-4. In dark theme, mix each tone about 80% toward the background.
+4. In dark theme, mix each tone about 60% toward the background.
 5. `hero.tint` overrides the tuning with up to three exact colors, for a client who asks for a specific look.
 
 The layout system, type scale, and component shapes come from `docs/DESIGN_SYSTEM.md`. Brands change their data, not the shell.
@@ -461,6 +474,7 @@ CI blocks merge on failure.
 |---|---|---|
 | 0.1 | Public site for logos, colors, fonts, icons, photos, templates, search, guide pages, What's new. Admin editor with local and demo adapters, serializer, preview. Demo brand. | Released (v0.1.0) |
 | 0.2 | Redesign. Engine-owned shell and interface fonts, Library, Brand guide, and Create navigation, search-first home with tuned hero gradient, frosted surfaces, motion, guide chapters, template formats, logo print files, rebuilt editor with Overview. | Released (v0.2.0) |
+| 0.2.1 | Polish: glass, dark mode icons and logos, micro-interactions. | Next |
 | 0.3 | Email signature generator, New to the team, Office theme download. | Planned |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 

@@ -39,7 +39,7 @@ How to use the roles:
 - Use `fill-primary` with `on-primary` for one primary action per view. It is ink, never brand color.
 - `focus` is the only saturated color the shell owns. It draws the 2px focus ring, offset 2px, on every interactive element.
 - `success` and `danger` always travel with an icon and a word.
-- `logo-ground-light` (`#ffffff`) and `logo-ground-dark` (`#0b0d10`) are fixed grounds for logo previews in the editor. They do not change with the theme.
+- Logo previews take their ground from the logo's `background` field, never from the theme. Light logos sit on `logo-ground-light` (`#f5f6f8`, the light theme's `surface-subtle`) in both themes. Dark logos sit on the brand's darkest color on the site and on `logo-ground-dark` (`#0b0d10`) in the editor. This holds everywhere a logo is previewed: Quick downloads, `/logos`, search results, guide examples, and editor cards.
 
 ### Light
 
@@ -61,10 +61,15 @@ How to use the roles:
 | `success` | `#1a7f52` | Copied and downloaded confirmations, with the check icon and a word. |
 | `danger` | `#c93a3a` | Editor errors and failed downloads, with a word. |
 | `scrim` | `rgba(10, 11, 13, 0.45)` | Backdrop behind the search dialog and the mobile menu. |
-| `glass-fill` | `rgba(255, 255, 255, 0.6)` | Frosted fill for the hero search field and chips. Never below 55%, so text holds 4.5:1 over the darkest point of any tuned mesh. |
+| `glass-fill` | `rgba(255, 255, 255, 0.42)` | Frosted fill for the hero search field and chips. Text holds 4.5:1 over the darkest point of the mesh behind it (measured each release). |
+| `glass-fill-hover` | `rgba(255, 255, 255, 0.6)` | Hero chip fill on hover. |
 | `glass-fill-strong` | `rgba(255, 255, 255, 0.72)` | Frosted fill for the scrolled top bar, the mobile tab bar, the search dialog, and toasts. |
 | `glass-border` | `rgba(255, 255, 255, 0.7)` | Edge of a frosted surface. Paired with `border` on the top bar's bottom edge. |
 | `glass-highlight` | `rgba(255, 255, 255, 0.75)` | 1px inset top line on frosted surfaces, drawn as an inset box shadow. |
+| `glass-hero-border` | `rgba(11, 13, 16, 0.09)` | Edge of the hero search field and chips, so they keep an edge over the pale mesh. |
+| `glass-hero-shadow` | `inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(11, 13, 16, 0.04), 0 1px 2px rgba(11, 13, 16, 0.04), 0 10px 24px -10px var(--hero-shadow)` | Depth of the hero search field and chips, tinted with the brand shadow (section 9). |
+| `glass-hero-shadow-hover` | `inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(11, 13, 16, 0.04), 0 2px 4px rgba(11, 13, 16, 0.05), 0 14px 28px -10px var(--hero-shadow)` | Hero chip on hover. |
+| `hero-light` | `rgba(255, 255, 255, 0.55)` | Center of the pointer light in the hero search field. |
 
 ### Dark
 
@@ -86,10 +91,15 @@ How to use the roles:
 | `success` | `#4cc38a` | Copied and downloaded confirmations, with the check icon and a word. |
 | `danger` | `#f07070` | Editor errors and failed downloads, with a word. |
 | `scrim` | `rgba(0, 0, 0, 0.6)` | Backdrop behind the search dialog and the mobile menu. |
-| `glass-fill` | `rgba(22, 24, 29, 0.6)` | Frosted fill for the hero search field and chips. |
 | `glass-fill-strong` | `rgba(22, 24, 29, 0.75)` | Frosted fill for the scrolled top bar, the mobile tab bar, the search dialog, and toasts. |
 | `glass-border` | `rgba(255, 255, 255, 0.08)` | Edge of a frosted surface. |
 | `glass-highlight` | `rgba(255, 255, 255, 0.06)` | 1px inset top line on frosted surfaces. |
+| `glass-fill` | `rgba(22, 24, 29, 0.5)` | Frosted fill for the hero search field and chips. |
+| `glass-fill-hover` | `rgba(22, 24, 29, 0.6)` | Hero chip fill on hover. |
+| `glass-hero-border` | `rgba(255, 255, 255, 0.10)` | Edge of the hero search field and chips. |
+| `glass-hero-shadow` | `inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px -10px rgba(0, 0, 0, 0.5)` | Depth of the hero search field and chips. |
+| `glass-hero-shadow-hover` | `inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 28px -10px rgba(0, 0, 0, 0.6)` | Hero chip on hover. |
+| `hero-light` | `rgba(255, 255, 255, 0.12)` | Center of the pointer light. Lower than light so muted text keeps its contrast. |
 
 ## 3. Type
 
@@ -212,7 +222,8 @@ Buttons run an action on the asset in front of the person: download, copy, open.
 Chips are quick picks under the hero search and filters above a grid. A chip takes a short label, an optional icon or color dot, and `aria-pressed` when it filters.
 
 - Pill shape (`radius-pill`), 32px tall, `border-control` boundary on `bg`.
-- Hero quick picks are frosted (`glass-fill`). Filter chips above grids stay solid.
+- Hero quick picks are frosted (`glass-fill`, section 8). On hover they lift 1px, fill to `glass-fill-hover`, and take `glass-hero-shadow-hover` over `duration-fast`. Filter chips above grids stay solid.
+- Every chip and button scales to 0.98 while pressed.
 - A selected filter chip uses `fill-primary` and `on-primary`.
 - A color dot uses the brand color it names.
 - Labels say what someone came for ("Logo for slides"), not the asset's internal name.
@@ -233,7 +244,7 @@ The home hero puts search first: the brand's name, a large search field, and fou
 - Title in `display-xl` from 992px and `display` below, on two lines: "<Brand>" then "brand files". Nothing above it.
 - The search field is the hero size of SearchField. Its hint types out real asset names from the brand's data and stops under reduced motion.
 - Quick picks are chips naming what people come for: "Logo for slides", the primary color, "Font files", the most used template.
-- The search field and chips are frosted (section 8), and solid under reduced transparency.
+- The search field and chips are frosted (section 8), and solid under reduced transparency. The search field carries the pointer light (section 8).
 - The mesh follows the hero gradient rules in section 9.
 - On phones the title drops to two short lines, the search goes full width, and the chips wrap to two rows.
 
@@ -242,6 +253,7 @@ The home hero puts search first: the brand's name, a large search field, and fou
 Search is the main action on the home page and one keystroke away everywhere else. The field takes hint text that shows a real query and the platform's shortcut.
 
 - Hero size: 52px tall, up to 480px wide, `bg` with a `border-control` boundary, `body` text. Frosted (`glass-fill`) in the home hero, solid everywhere else.
+- In the search dialog, focus shows on the input row: its bottom border turns `border-control` and the search icon turns `text`. No full-width focus line.
 - Header trigger: 36px, `surface-subtle`, opens the search dialog. Shows ⌘K on Mac and Ctrl K elsewhere. The engine detects the platform and never shows both.
 - The hint cycles through real asset names from the brand's data (Try "horizontal logo") and stops cycling under reduced motion.
 - Results open in a frosted dialog (`glass-fill-strong`, `shadow-popover`) over `scrim`, full screen below 768px.
@@ -294,10 +306,22 @@ border: 1px solid var(--glass-border);
 box-shadow: inset 0 1px 0 var(--glass-highlight);
 ```
 
+The hero search field and chips sit over the pale mesh, so they use a stronger edge and a brand-tinted shadow:
+
+```css
+background: var(--glass-fill);
+backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-hero-saturate));
+border: 1px solid var(--glass-hero-border);
+box-shadow: var(--glass-hero-shadow);
+```
+
+Pointer light: a radial highlight inside the hero search field, `hero-light` at the center fading to transparent over about 120px, centered on the pointer. It fades in on hover and out on leave over `duration-base`. Fine pointers only (`hover: hover` and `pointer: fine`), off under reduced motion and reduced transparency. A small script sets its position as custom properties from `pointermove`, once per animation frame.
+
 | Token | Value | Usage |
 |---|---|---|
 | `glass-blur` | 14px | Backdrop blur radius for every frosted surface. Never raise it: blur cost grows with radius. |
 | `glass-saturate` | 1.4 | Backdrop saturation boost so the brand tint behind frosted surfaces stays visible. |
+| `glass-hero-saturate` | 1.8 | Saturation boost for the hero search field and chips, over the pale mesh. |
 
 - Never put glass on cards, the sidebar, grids, or anything with nothing behind it.
 - Never brighten the hero mesh to make glass more visible.
@@ -315,14 +339,16 @@ The engine tunes the brand's colors instead of using them raw:
 1. Take the brand's primary color (`tokens.color.primary` in `brand.json`) and keep only its hue. If its OKLCH chroma is under 0.03, use the most saturated color in the palette instead.
 2. Build three tones in OKLCH: at that hue, at the hue plus about 35 degrees, and at the hue minus about 28 degrees. Lock lightness between 0.88 and 0.94 and keep chroma between 0.035 and 0.07.
 3. A brand with no color above chroma 0.03 (black, white, grey) gets a cool neutral instead.
-4. In dark theme, mix each tone about 80% toward `bg` so the mesh stays a tint, not a glow.
-5. `hero.tint` in `brand.json` overrides the tuning with up to three exact colors. Use it only when a client asks for a specific look.
+4. In dark theme, mix each tone about 60% toward `bg` so the mesh keeps the brand hue but stays a tint, not a glow.
+5. Build one shadow tone from the same hue at OKLCH lightness 0.45 and chroma 0.08, at 28% alpha, as `--hero-shadow`. It tints the shadow under the hero search field and chips. A brand on the neutral fallback uses `rgba(11, 13, 16, 0.16)`.
+6. `hero.tint` in `brand.json` overrides the tuning with up to three exact colors. Use it only when a client asks for a specific look.
 
 Never default to a blue and purple gradient. Every hub would look the same.
 
 ### Placement and rendering
 
-- The mesh stays inside the content column, top right. It fades out under the hero text and toward the bottom, so the title, search, and chips always sit on near-`bg` ground. The sidebar never carries the gradient.
+- The mesh stays inside the content column. Its tones pool top right, with a fourth pool of the lightest tone behind the search field and chips, centered about 34% across and 78% down, so the glass has color behind it. It fades out under the title only, so the title sits on near-`bg` ground. The sidebar never carries the gradient.
+- The static fallback gradient and the contour preset follow the same layout.
 - Film grain at about 5% keeps it from reading as a stock gradient.
 - It drifts slowly: a full cycle takes well over a minute.
 - It renders one still frame under reduced motion, when WebGL is missing, and when the tab is hidden or the hero is offscreen.
@@ -342,8 +368,12 @@ Never default to a blue and purple gradient. Every hub would look the same.
 | `ease-out` | `cubic-bezier(0.2, 0.8, 0.2, 1)` | Everything entering or settling. No bounce, no overshoot. |
 | `ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` | Things that move between two resting places, such as the filter reflow. |
 
-- Cards lift 2px and move to `border-strong` on hover.
-- Copy buttons swap their icon for a check, then show a toast.
+- Cards lift 2px and move to `border-strong` on hover. A color preview grows 10px taller with the lift; other previews scale to 1.02 inside their area.
+- Copy buttons swap their icon for a check, then show a toast. The copied row flashes `success` at 14% and fades out over `duration-slow`. In search results the copy icon shows a check for 1.2 seconds.
+- On download buttons the arrow dips 2px on hover. On click it drops down and out, then returns from above, in one `duration-slow` movement.
+- Every chip and button scales to 0.98 while pressed. The theme toggle's icon rotates 90 degrees and crossfades between sun and moon.
+- Page changes use cross-document view transitions (`@view-transition { navigation: auto; }`), with no client router. The current sidebar item's background and the current tab's underline slide to their new place, and page content crossfades over `duration-base`. Browsers without support navigate normally. Off under reduced motion.
+- When the icon pair changes, the panel ground transitions over `duration-slow` and each icon's color changes with a 20ms stagger in reading order, capped at 400ms in all.
 - Filtered grids move items to their new positions instead of jumping.
 - No fade-up sections on scroll, no parallax, no glows, no blur-in headings.
 - Under `prefers-reduced-motion`, transitions are instant and the hero holds still.
@@ -365,6 +395,8 @@ Empty, loading, and error states follow the copy rules in section 13: say what i
 - Render at 16px or 18px with a 1.75px stroke, and at 20px in the search field.
 - Shell icons are always one color, inherited from the text beside them.
 - Brand icons are content. They live in the brand's data and show in the brand's colors on the Icons page.
+- On the Icons page every color choice is a brand pair: an icon color on a ground, labeled "<icon color> on <ground>". Pairs come from `modules.icons.colors` and `modules.icons.grounds` (default: the lightest and darkest locked colors), and only pairs at 3:1 or better are offered, ordered by icon color, then ground. The grid sits on one panel filled with the ground. Tiles are transparent with a hairline in the icon color at low opacity, and labels use whichever of the two `text` values passes 4.5:1 on the ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground. The viewer's pick is remembered.
+- Icon downloads are the exact icon color hex on a transparent background. Brand colors are never adjusted for display.
 - No emoji anywhere in the shell.
 
 ## 13. Copy

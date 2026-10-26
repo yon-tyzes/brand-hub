@@ -33,6 +33,7 @@ No decorative visuals. The asset is the imagery. Release 0.2 allows a few narrow
 - No glows, orbs, aurora effects, or blurred color blobs behind content.
 - No blue-to-purple gradients.
 - No gradient text, buttons, cards, or borders.
+- One exception: a pointer-following light inside the hero search field, white at most 55%, about 120px, on fine pointers only, off under reduced motion and reduced transparency.
 
 ### Glass
 
