@@ -23,13 +23,16 @@ export async function copyText(text: string, message: string): Promise<boolean> 
   }
 }
 
-/** The copied row's success flash (DESIGN_SYSTEM.md, Motion): restarts if the row is copied again. */
-export function flash(el: Element): void {
-  el.classList.remove("is-flashing");
-  void (el as HTMLElement).offsetWidth;
-  el.classList.add("is-flashing");
-  el.addEventListener("animationend", () => el.classList.remove("is-flashing"), { once: true });
+/** Plays a one-shot CSS animation set by `className`, from the start even if it is already running. */
+export function replay(el: Element, className: string): void {
+  el.classList.remove(className);
+  void el.getBoundingClientRect();
+  el.classList.add(className);
+  el.addEventListener("animationend", () => el.classList.remove(className), { once: true });
 }
+
+/** The copied row's success flash (DESIGN_SYSTEM.md, Motion). */
+export const flash = (el: Element) => replay(el, "is-flashing");
 
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);

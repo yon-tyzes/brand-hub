@@ -1,6 +1,6 @@
 // Site shell behavior, loaded on every page: theme toggle, frosted top bar, the phone chip row, toasts, copy
 // buttons, and the search shortcut. The search dialog and its index load on first use.
-import { copyText, flash, toast, type ToastDetail } from "./client.ts";
+import { copyText, flash, replay, toast, type ToastDetail } from "./client.ts";
 
 const THEME_KEY = "bh-theme";
 
@@ -92,6 +92,12 @@ function checked(btn: HTMLElement) {
     delete btn.dataset.copied;
   }, 1500);
 }
+
+// ---------- Download arrow: drops out and comes back on click ----------
+document.addEventListener("click", (e) => {
+  const arrow = (e.target as Element).closest(".btn, .chip")?.querySelector(".icon-arrow");
+  if (arrow) replay(arrow, "is-dropping");
+});
 
 // ---------- Download confirmations: "logo-horizontal.png downloaded" ----------
 document.addEventListener("click", (e) => {

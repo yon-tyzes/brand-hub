@@ -234,3 +234,16 @@ test.describe("copy", () => {
     await expect(copy).not.toHaveAttribute("data-copied", { timeout: 2000 });
   });
 });
+
+test("the download arrow dips on hover and drops out and back on click", async ({ page }) => {
+  await page.goto("/logos/");
+  const button = page.locator("#logo-horizontal .btn-primary");
+  const arrow = button.locator(".icon-arrow");
+  await button.hover();
+  await expect.poll(() => arrow.evaluate((e) => getComputedStyle(e).transform)).toBe("matrix(1, 0, 0, 1, 0, 3)");
+  const download = page.waitForEvent("download");
+  await button.click();
+  expect(await arrow.evaluate((e) => e.getAnimations().map((a) => (a as CSSAnimation).animationName))).toContain("arrow-drop");
+  await download;
+  await expect(arrow).not.toHaveClass(/is-dropping/);
+});
