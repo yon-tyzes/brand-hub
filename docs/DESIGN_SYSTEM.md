@@ -99,7 +99,7 @@ How to use the roles:
 | `glass-hero-border` | `rgba(255, 255, 255, 0.10)` | Edge of the hero search field and chips. |
 | `glass-hero-shadow` | `inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px -10px rgba(0, 0, 0, 0.5)` | Depth of the hero search field and chips. |
 | `glass-hero-shadow-hover` | `inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 28px -10px rgba(0, 0, 0, 0.6)` | Hero chip on hover. |
-| `hero-light` | `rgba(255, 255, 255, 0.12)` | Center of the pointer light. Lower than light so muted text keeps its contrast. |
+| `hero-light` | `rgba(255, 255, 255, 0.04)` | Center of the pointer light. Lower than light so the search hint keeps 4.5:1 under it. |
 
 ## 3. Type
 
@@ -315,7 +315,7 @@ border: 1px solid var(--glass-hero-border);
 box-shadow: var(--glass-hero-shadow);
 ```
 
-Pointer light: a radial highlight inside the hero search field, `hero-light` at the center fading to transparent over about 120px, centered on the pointer. It fades in on hover and out on leave over `duration-base`. Fine pointers only (`hover: hover` and `pointer: fine`), off under reduced motion and reduced transparency. A small script sets its position as custom properties from `pointermove`, once per animation frame.
+Pointer light: a radial highlight inside the hero search field, `hero-light` at the center fading to transparent, about 120px across, centered on the pointer. It fades in on hover and out on leave over `duration-base`. Fine pointers only (`hover: hover` and `pointer: fine`), off under reduced motion and reduced transparency. A small script sets its position as custom properties from `pointermove`, once per animation frame.
 
 | Token | Value | Usage |
 |---|---|---|

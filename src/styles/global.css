@@ -525,6 +525,19 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   box-shadow: var(--glass-hero-shadow);
 }
 .hero-search > svg { flex: none; color: var(--text-secondary); }
+/* The pointer light (src/scripts/hero-light.ts): under the field's text, on fine pointers only. */
+.hero-search { isolation: isolate; }
+@media (hover: hover) and (pointer: fine) {
+  .hero-search::before {
+    content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(60px circle at var(--light-x, 50%) var(--light-y, 50%), var(--hero-light), transparent);
+    opacity: 0; transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .hero-search[data-lit]::before { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {
+  .hero-search::before { content: none; }
+}
 .hero-search input { flex: 1; min-width: 0; height: 48px; border: 0; background: transparent; font: 400 var(--body-size) var(--font-sans); color: var(--text); }
 /* text-secondary, not text-muted: the hint sits on glass over the mesh and must keep 4.5:1 at its darkest point. */
 .hero-search input::placeholder { color: var(--text-secondary); }

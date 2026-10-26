@@ -140,3 +140,49 @@ test("the hero script stays under 12 KB gzipped and loads after first paint", as
   const heroStart = await page.evaluate(() => Math.min(...performance.getEntriesByType("resource").filter((r) => /\/hero[^/]*\.js$/.test(r.name)).map((r) => r.startTime)));
   expect(heroStart).toBeGreaterThan(fcp);
 });
+
+const lightOpacity = (page: Page) => page.evaluate(() => Number(getComputedStyle(document.querySelector(".hero-search")!, "::before").opacity || 0));
+
+test("the pointer light follows a mouse over the hero search field and fades out on leave", async ({ page }) => {
+  await page.goto("/");
+  await heroSettled(page);
+  const box = (await page.locator(".hero-search").boundingBox())!;
+  await page.mouse.move(box.x + 100, box.y + box.height / 2);
+  await page.mouse.move(box.x + 140, box.y + box.height / 2);
+  await expect(page.locator(".hero-search")).toHaveAttribute("data-lit", "");
+  await expect.poll(() => lightOpacity(page)).toBe(1);
+  expect(await page.locator(".hero-search").evaluate((e) => e.style.getPropertyValue("--light-x"))).toBe("140px");
+  await page.mouse.move(box.x + 100, box.y + box.height + 120);
+  await expect(page.locator(".hero-search")).not.toHaveAttribute("data-lit");
+  await expect.poll(() => lightOpacity(page)).toBe(0);
+});
+
+test.describe("touch", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+
+  test("the pointer light never shows", async ({ page }) => {
+    await page.goto("/");
+    await heroSettled(page);
+    const box = (await page.locator(".hero-search").boundingBox())!;
+    await page.touchscreen.tap(box.x + 60, box.y + box.height / 2);
+    await page.locator(".hero-search").dispatchEvent("pointermove", { pointerType: "touch", clientX: box.x + 60, clientY: box.y + 20 });
+    await page.waitForTimeout(250);
+    await expect(page.locator(".hero-search")).not.toHaveAttribute("data-lit");
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector(".hero-search")!, "::before").content)).toBe("none");
+  });
+});
+
+test.describe("reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("the pointer light is off", async ({ page }) => {
+    await page.goto("/");
+    await heroSettled(page);
+    const box = (await page.locator(".hero-search").boundingBox())!;
+    await page.mouse.move(box.x + 100, box.y + box.height / 2);
+    await page.mouse.move(box.x + 140, box.y + box.height / 2);
+    await page.waitForTimeout(250);
+    await expect(page.locator(".hero-search")).not.toHaveAttribute("data-lit");
+    expect(await lightOpacity(page)).toBe(0);
+  });
+});

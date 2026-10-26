@@ -24,6 +24,8 @@ export const SHELL_COLORS = {
   // The hero search field and chips over the mesh (DESIGN_SYSTEM.md, section 8).
   "glass-fill": { light: "rgba(255, 255, 255, 0.42)", dark: "rgba(22, 24, 29, 0.5)" },
   "glass-fill-hover": { light: "rgba(255, 255, 255, 0.6)", dark: "rgba(22, 24, 29, 0.6)" },
+  // Center of the pointer light in the hero search field. Dark stays low so the hint keeps 4.5:1 under it.
+  "hero-light": { light: "rgba(255, 255, 255, 0.55)", dark: "rgba(255, 255, 255, 0.04)" },
   "glass-hero-border": { light: "rgba(11, 13, 16, 0.09)", dark: "rgba(255, 255, 255, 0.10)" },
   "glass-hero-shadow": {
     light: "inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(11, 13, 16, 0.04), 0 1px 2px rgba(11, 13, 16, 0.04), 0 10px 24px -10px var(--hero-shadow)",

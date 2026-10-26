@@ -226,7 +226,7 @@ The hero search field and chips use their own recipe so they read over the gradi
 
 - The brand shadow (`--hero-shadow`) is the hero hue at OKLCH lightness 0.45 and chroma 0.08, at 28% alpha. A brand on the neutral fallback uses `rgba(11, 13, 16, 0.16)`.
 - Chips lift 1px on hover, fill to 0.6, and deepen the shadow over the fast duration. They scale to 0.98 while pressed.
-- A pointer light sits inside the hero search field: a radial highlight, white at 55% fading to transparent (12% in dark theme, so muted text keeps its contrast), about 120px across, centered on the pointer. It fades in on hover and out on leave over the base duration. Fine pointers only (`hover: hover` and `pointer: fine`), off under reduced motion and reduced transparency. Custom properties set from `pointermove`, throttled to animation frames.
+- A pointer light sits inside the hero search field: a radial highlight, white at 55% fading to transparent (4% in dark theme, so the search hint keeps 4.5:1 under it), about 120px across, centered on the pointer. It fades in on hover and out on leave over the base duration. Fine pointers only (`hover: hover` and `pointer: fine`), off under reduced motion and reduced transparency. Custom properties set from `pointermove`, throttled to animation frames.
 
 ### Motion
 
