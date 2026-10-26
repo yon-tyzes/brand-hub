@@ -14,11 +14,6 @@ import { Button, Icon, useSite } from "../../ui.tsx";
 const NUMBER = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const count = (n: number) => NUMBER[n] ?? String(n);
 
-/** The light ground for logo examples: the brand's own background color, or white. */
-function lightGround(site: Site): string {
-  return site.assetsOfType("color").find((c) => c.role.toLowerCase() === "background")?.hex ?? "var(--logo-ground-light)";
-}
-
 const image = (l: LogoAsset) => logoFile(l, "svg") ?? logoFile(l, "png");
 
 interface Examples {
@@ -37,7 +32,8 @@ function logoExamples(site: Site, rule: RuleAsset): Examples | null {
   if (!light) return null;
   const dark = logos.find((l) => l.background === "dark" && l.lockup === light.lockup) ?? logos.find((l) => l.background === "dark");
   const lightSrc = site.urlFor(image(light)!.path);
-  const grounds = { light: lightGround(site), dark: darkGround(site) };
+  // The same grounds as every other logo preview: fixed light, and the brand's darkest color.
+  const grounds = { light: "var(--logo-ground-light)", dark: darkGround(site) };
   return {
     clear: (
       <figure className="guide-figure">

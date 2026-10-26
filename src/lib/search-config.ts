@@ -22,7 +22,7 @@ export interface SearchDoc {
   svg?: string;
   /** Preview image URL for logo and template results. */
   image?: string;
-  /** Ground color behind the preview image (logos made for dark backgrounds). */
+  /** Ground behind a logo preview, from the logo's background field. */
   ground?: string;
   /** First action is the default (Enter). */
   actions: SearchAction[];

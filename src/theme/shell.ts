@@ -59,8 +59,9 @@ export const SHELL_STATIC = {
   "header-h": "56px",
   "sidebar-w": "248px",
   "reading-max": "68ch",
-  // Fixed grounds for logo previews in the editor. They do not follow the theme.
-  "logo-ground-light": "#ffffff",
+  // Fixed grounds for logo previews. They follow the logo's background field, not the theme. The light ground
+  // is the light theme's surface-subtle.
+  "logo-ground-light": "#f5f6f8",
   "logo-ground-dark": "#0b0d10",
   "glass-blur": "14px",
   "glass-saturate": "1.4",

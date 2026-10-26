@@ -3,7 +3,7 @@
 import type { LogoAsset } from "../../../../schemas/asset.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import { LOGOS_ZIP, logoFile } from "../../data.ts";
-import { darkGround, logoDownloads, ruleStrip } from "../../library.ts";
+import { logoDownloads, logoGround, ruleStrip } from "../../library.ts";
 import { AssetCard, Button, DownloadButton, LibraryHead, RuleStrip, useSite } from "../../ui.tsx";
 
 /** Image size by lockup: a mark is square, a stacked logo is tall, anything else is wide. */
@@ -15,7 +15,6 @@ export const lockupShape = (l: LogoAsset) => {
 export function LogosPage() {
   const site = useSite();
   const logos = site.assetsOfType("logo");
-  const dark = darkGround(site);
   const zip = logos.length > 0 && (
     <Button href={LOGOS_ZIP} download icon="download">All logos (ZIP)</Button>
   );
@@ -40,7 +39,7 @@ export function LogosPage() {
               title={l.label}
               help={l.help}
               well={f && <img className={`logo-img logo-img-${lockupShape(l)}`} src={site.urlFor(f.path)} alt={l.label} loading="lazy" />}
-              wellStyle={l.background === "dark" ? { background: dark } : undefined}
+              wellStyle={{ background: logoGround(site, l) }}
               actions={logoDownloads(site, l).map((d, i) => (
                 <DownloadButton key={d.format} d={d} variant={i === 0 ? "primary" : "secondary"} assetLabel={l.label} />
               ))}

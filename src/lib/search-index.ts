@@ -3,7 +3,7 @@ import MiniSearch from "minisearch";
 import type { Asset } from "../../schemas/asset.ts";
 import { MODULES } from "../modules/registry.ts";
 import { logoFile, MODULE_FOR_TYPE, TYPE_LABEL } from "../site/data.ts";
-import { darkGround } from "../site/library.ts";
+import { logoGround } from "../site/library.ts";
 import { searchOptions, type SearchDoc } from "./search-config.ts";
 import { site } from "./site-server.ts";
 
@@ -31,7 +31,7 @@ export function searchDocs(): SearchDoc[] {
       swatch: a.type === "color" ? a.hex : undefined,
       svg: a.type === "icon" ? site.iconMarkup(a, 20) : undefined,
       image: previewImage(a),
-      ground: a.type === "logo" && a.background === "dark" ? darkGround(site) : undefined,
+      ground: a.type === "logo" ? logoGround(site, a) : undefined,
       actions: site.actionsFor(a),
     });
   }

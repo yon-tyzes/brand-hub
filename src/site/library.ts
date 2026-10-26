@@ -101,6 +101,12 @@ export function darkGround(site: Site): string {
   return colors.sort((a, b) => relativeLuminance(a.hex) - relativeLuminance(b.hex))[0]?.hex ?? "#0b0d10";
 }
 
+/**
+ * The ground a logo preview sits on, from the logo's own background field and never from the theme: the brand's
+ * darkest color for dark logos, the fixed light ground for the rest.
+ */
+export const logoGround = (site: Site, l: LogoAsset): string => (l.background === "dark" ? darkGround(site) : "var(--logo-ground-light)");
+
 /** True for colors light enough to need a hairline against the page. */
 export const isLight = (hex: string) => {
   const [r, g, b] = hexToRgb(hex);

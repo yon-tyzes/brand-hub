@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { Asset, ColorAsset, FontAsset, IconAsset, LogoAsset, TemplateAsset } from "../../../schemas/asset.ts";
 import { MODULES } from "../../modules/registry.ts";
 import { fontZips, logoFile } from "../data.ts";
-import { colorRows, darkGround, logoDownloads } from "../library.ts";
+import { colorRows, logoDownloads, logoGround } from "../library.ts";
 import { AssetCard, Button, Chip, ColorRows, DownloadButton, Icon, useSite } from "../ui.tsx";
 
 /** The file to draw a logo with: SVG when there is one. */
@@ -78,7 +78,7 @@ function LogoWell({ logo }: { logo: LogoAsset }) {
   return f ? <img src={site.urlFor(f.path)} alt={logo.label} loading="lazy" /> : null;
 }
 
-const groundFor = (site: ReturnType<typeof useSite>, l: LogoAsset) => (l.background === "dark" ? { background: darkGround(site) } : undefined);
+const groundFor = (site: ReturnType<typeof useSite>, l: LogoAsset) => ({ background: logoGround(site, l) });
 
 function QuickCard({ asset: a }: { asset: Asset }) {
   const site = useSite();
