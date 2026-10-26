@@ -35,7 +35,19 @@ test("with motion on, the hero draws and the search hint types", async ({ page }
   const state = await heroState(page);
   // Machines without WebGL2 keep the static gradient (covered below); with WebGL2 the mesh must run.
   const gl = await page.evaluate(() => !!document.createElement("canvas").getContext("webgl2"));
-  if (gl) expect(state).toBe("moving");
+  if (gl) {
+    expect(state).toBe("moving");
+    // The canvas paints over the static gradient: it is what sits under the hero's center.
+    const top = await page.evaluate(() => {
+      const r = document.querySelector(".hero")!.getBoundingClientRect();
+      const title = document.querySelector<HTMLElement>(".hero-content")!;
+      title.style.visibility = "hidden";
+      const el = document.elementFromPoint(r.right - 40, r.top + 40);
+      title.style.visibility = "";
+      return el?.className;
+    });
+    expect(top).toContain("hero-canvas");
+  }
   await expect(page.locator(".hero-hint")).toHaveText(/^Try "/);
   await expect(page.getByRole("searchbox", { name: "Search the brand" })).toBeVisible();
 });

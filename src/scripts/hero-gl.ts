@@ -194,7 +194,10 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
     hero.dataset.heroState = "static";
   });
 
-  hero.prepend(canvas);
+  // Above the static gradient, which stays underneath as the fallback, and below the hero text.
+  const fallback = hero.querySelector(".hero-mesh");
+  if (fallback) fallback.after(canvas);
+  else hero.prepend(canvas);
   requestAnimationFrame((now) => {
     draw(now);
     canvas.classList.add("is-ready");
