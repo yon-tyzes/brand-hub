@@ -1,9 +1,9 @@
 // Brand settings (ENGINE_SPEC.md, section 8): the brand name, the primary color with a live preview of the
-// tuned hero tones, the guide chapters and the full guide PDF, Quick downloads, and the icon colors and
-// backgrounds that make the Icons page's color pairs. Edits go into the draft like any other change.
+// tuned hero tones, the guide chapters and the full guide PDF, the Fonts page groups, Quick downloads, and the
+// icon colors and backgrounds that make the Icons page's color pairs. Edits go into the draft like any other change.
 import { useState } from "react";
 import type { Asset, ColorAsset } from "../../../schemas/asset.ts";
-import type { Brand, GuideChapter } from "../../../schemas/brand.ts";
+import type { Brand, FontGroup, GuideChapter } from "../../../schemas/brand.ts";
 import { heroTones } from "../../theme/hero-tint.ts";
 import { iconPairs } from "../../site/library.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
@@ -68,6 +68,7 @@ export function BrandSettings() {
   const set = (change: (b: Brand) => Brand, key?: string) => apply(updateBrand(state.base.brand, change), key);
   const [hex, setHex] = useState(brand.tokens.color.primary);
   const [newChapter, setNewChapter] = useState("");
+  const [newGroup, setNewGroup] = useState("");
   const [pick, setPick] = useState("");
 
   const palette = records.flatMap((r) => (r.type === "color" && r.status !== "retired" ? [r.hex] : []));
@@ -85,6 +86,21 @@ export function BrandSettings() {
   const setIcons = (next: { colors: string[]; grounds?: string[] }) =>
     set((b) => ({ ...b, modules: { ...b.modules, icons: { colors: next.colors, ...(next.grounds?.length ? { grounds: next.grounds } : {}) } } }));
   const pairs = iconPairs(liveColors, icons);
+
+  const groups = brand.modules.fonts?.groups ?? [];
+  // No groups left means an ungrouped Fonts page, as in 0.2.1: the key goes away.
+  const setGroups = (next: FontGroup[]) =>
+    set((b) => {
+      const { fonts: _old, ...modules } = b.modules;
+      return { ...b, modules: next.length ? { ...modules, fonts: { groups: next } } : modules };
+    });
+  const groupUsed = (id: string) => records.some((r) => r.type === "font" && r.status !== "retired" && r.group === id);
+  const addGroup = () => {
+    const title = newGroup.trim();
+    if (!title) return;
+    setGroups([...groups, { id: uniqueId(title, new Set(groups.map((g) => g.id))), title }]);
+    setNewGroup("");
+  };
 
   const pdf = brand.guide.pdf;
   const setPdf = (next: Brand["guide"]["pdf"]) => set((b) => ({ ...b, guide: { ...b.guide, pdf: next } }));
@@ -208,6 +224,50 @@ export function BrandSettings() {
           <label className="visually-hidden" htmlFor="set-new-chapter">New chapter title</label>
           <input id="set-new-chapter" className="field" placeholder="New chapter, like Photography" value={newChapter} onChange={(e) => setNewChapter(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addChapter())} />
           <button type="button" className="btn btn-secondary" onClick={addChapter}>Add chapter</button>
+        </div>
+      </section>
+
+      <section className="settings-card" aria-labelledby="set-font-groups">
+        <h2 id="set-font-groups">Font groups</h2>
+        <p className="ed-help">The Fonts page shows one section per group, in this order, each with its own download. Once there is a group, every font picks one.</p>
+        {groups.length > 0 && (
+          <ol className="settings-list" role="list">
+            {groups.map((g, i) => (
+              <li key={g.id} className="settings-group">
+                <span className="settings-group-fields">
+                  <label className="visually-hidden" htmlFor={`group-${g.id}`}>Group {i + 1} title</label>
+                  <input id={`group-${g.id}`} className="field" value={g.title} onChange={(e) => setGroups(groups.map((x) => (x.id === g.id ? { ...x, title: e.target.value } : x)))} />
+                  <label className="visually-hidden" htmlFor={`group-${g.id}-help`}>Group {i + 1} help line</label>
+                  <input
+                    id={`group-${g.id}-help`}
+                    className="field field-sm"
+                    placeholder="One line on when to use these fonts (optional)"
+                    value={g.help ?? ""}
+                    onChange={(e) => setGroups(groups.map((x) => (x.id === g.id ? { ...x, help: e.target.value || undefined } : x)))}
+                  />
+                </span>
+                <span className="settings-row-actions">
+                  <Move label={g.title} index={i} count={groups.length} onMove={(to) => setGroups(moved(groups, i, to))} />
+                  <button
+                    type="button"
+                    className="btn btn-text btn-sm"
+                    onClick={() =>
+                      groupUsed(g.id)
+                        ? toast({ message: `${g.title} still has fonts. Move them to another group first.` })
+                        : setGroups(groups.filter((x) => x.id !== g.id))
+                    }
+                  >
+                    Remove<span className="visually-hidden"> {g.title}</span>
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+        <div className="settings-add">
+          <label className="visually-hidden" htmlFor="set-new-group">New group title</label>
+          <input id="set-new-group" className="field" placeholder="New group, like Fonts for documents" value={newGroup} onChange={(e) => setNewGroup(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addGroup())} />
+          <button type="button" className="btn btn-secondary" onClick={addGroup}>Add group</button>
         </div>
       </section>
 

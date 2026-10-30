@@ -45,7 +45,7 @@ export function Field({ def, record, error }: FieldProps) {
   const described = [def.help && `${id}-help`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
   const set = (value: unknown) => apply(updateRecord(record.id, { [def.key]: value } as Partial<AnyRecord>), `${record.id}.${def.key}`);
   const common = { id, "aria-describedby": described, "aria-invalid": error ? true : undefined } as const;
-  const ctx: FieldContext = { records, record, chapters: brand.guide.chapters };
+  const ctx: FieldContext = { records, record, chapters: brand.guide.chapters, fontGroups: brand.modules.fonts?.groups ?? [] };
 
   switch (def.kind) {
     case "text": {
@@ -117,6 +117,18 @@ export function Field({ def, record, error }: FieldProps) {
           </select>
         </Shell>
       );
+    case "font-group": {
+      if (!ctx.fontGroups.length) return null;
+      const value = String(get(record, def.key) ?? "");
+      return (
+        <Shell def={def} error={error} id={id}>
+          <select className="field" value={value} onChange={(e) => set(e.target.value || undefined)} {...common}>
+            {!ctx.fontGroups.some((g) => g.id === value) && <option value={value}>Choose a group</option>}
+            {ctx.fontGroups.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
+          </select>
+        </Shell>
+      );
+    }
     case "font-files":
       return <FontFilesField def={def} record={record as FontAsset} error={error} id={id} variant={def.variant} />;
   }
