@@ -1,10 +1,10 @@
 // The home search hint types out real asset names from the brand's data, one after another (Hero component).
 // The text is drawn in an overlay hidden from assistive tech, so the field keeps one stable label. It holds the
-// first hint under reduced motion, and stops while the field has focus or text.
+// first hint under reduced motion or calm motion, and stops while the field has focus or text.
+import { still } from "./motion.ts";
 
 const field = document.querySelector<HTMLInputElement>("[data-hero-search]");
 const hints: string[] = JSON.parse(field?.dataset.hints ?? "[]");
-const still = matchMedia("(prefers-reduced-motion: reduce)");
 
 if (field && hints.length > 1 && !still.matches) type(field);
 

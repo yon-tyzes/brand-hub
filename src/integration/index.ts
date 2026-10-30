@@ -20,6 +20,9 @@ import { buildThemeCss } from "../theme/tokens.ts";
 
 export const VIRTUAL_ID = "virtual:brand-hub";
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
+/** Build-time constants for client scripts. Constants, so the bundler drops code they turn off. */
+export const CLIENT_ID = "virtual:brand-hub/client";
+const RESOLVED_CLIENT_ID = `\0${CLIENT_ID}`;
 /** The editor's adapters, chosen in hub.config.ts. Imported only by the editor. */
 export const ADMIN_ID = "virtual:brand-hub/admin";
 const RESOLVED_ADMIN_ID = `\0${ADMIN_ID}`;
@@ -117,9 +120,10 @@ export interface VirtualData {
 function virtualModule(data: VirtualData, adapters: { content: string; auth: string; mode: string }): Plugin {
   return {
     name: "brand-hub:virtual",
-    resolveId: (id) => (id === VIRTUAL_ID ? RESOLVED_ID : id === ADMIN_ID ? RESOLVED_ADMIN_ID : undefined),
+    resolveId: (id) => (id === VIRTUAL_ID ? RESOLVED_ID : id === ADMIN_ID ? RESOLVED_ADMIN_ID : id === CLIENT_ID ? RESOLVED_CLIENT_ID : undefined),
     load: (id) => {
       if (id === RESOLVED_ID) return Object.entries(data).map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`).join("\n");
+      if (id === RESOLVED_CLIENT_ID) return `export const calm = ${JSON.stringify(data.config.motion === "calm")};`;
       if (id === RESOLVED_ADMIN_ID) {
         return [
           `import content from ${JSON.stringify(adapters.content)};`,

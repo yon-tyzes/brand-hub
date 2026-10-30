@@ -13,6 +13,11 @@ declare module "virtual:brand-hub" {
   export const fontCss: BrandHubVirtualData["fontCss"];
 }
 
+declare module "virtual:brand-hub/client" {
+  /** motion: "calm" in hub.config.ts. */
+  export const calm: boolean;
+}
+
 declare module "virtual:brand-hub/admin" {
   export const content: import("./adapters/types.ts").ContentAdapter;
   export const auth: import("./adapters/types.ts").AuthAdapter;

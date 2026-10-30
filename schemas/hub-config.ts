@@ -28,6 +28,8 @@ export const hubConfig = z.strictObject({
   search: z.strictObject({ shortcut: z.array(z.string().min(1)).default(["mod+k", "/"]) }).default({ shortcut: ["mod+k", "/"] }),
   /** Home hero gradient: the grain mesh, or contour lines for very loud or nearly monochrome palettes. */
   hero: z.strictObject({ preset: z.enum(["mesh", "contour"]).default("mesh") }).default({ preset: "mesh" }),
+  /** "calm" turns off decorative motion for every viewer, as reduced motion does; feedback motion stays. */
+  motion: z.enum(["full", "calm"]).default("full"),
   /** When false, every page gets a noindex meta tag. */
   indexing: z.boolean().default(false),
   analytics: z.strictObject({ provider: z.literal("plausible"), domain: z.string().min(1) }).optional(),
