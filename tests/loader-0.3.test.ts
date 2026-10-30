@@ -3,8 +3,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import type { GradientAsset } from "../schemas/asset.ts";
 import { checkBrand } from "../src/content/check.ts";
 import { diskSource, loadBrand } from "../src/content/load.ts";
+import { gradientCss } from "../src/site/library.ts";
 import { demoCopy, edit, write } from "./helpers.ts";
 
 const signature = () => ({
@@ -225,5 +227,14 @@ describe("gradient records in colors.json", () => {
     const { brandDir } = demoCopy();
     write(brandDir, "logos.json", JSON.stringify([gradient()]));
     expect(() => loadBrand(brandDir)).toThrow(/type "gradient" does not belong in logos\.json/);
+  });
+});
+
+describe("gradient CSS", () => {
+  const g = (stops: { hex: string; at?: number }[], angle = 90) => ({ ...gradient(), angle, stops }) as GradientAsset;
+
+  it("lists the stops in order, with positions only when set", () => {
+    expect(gradientCss(g([{ hex: "#1C2430" }, { hex: "#1E5B4A" }]))).toBe("linear-gradient(90deg, #1C2430, #1E5B4A)");
+    expect(gradientCss(g([{ hex: "#1C2430", at: 0 }, { hex: "#1E5B4A", at: 70 }], 180))).toBe("linear-gradient(180deg, #1C2430 0%, #1E5B4A 70%)");
   });
 });

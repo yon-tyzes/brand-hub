@@ -27,7 +27,7 @@ export function searchDocs(): SearchDoc[] {
       group: MODULES[MODULE_FOR_TYPE[a.type]!].label,
       label: a.label,
       help: a.help,
-      keywords: [...(a.keywords ?? []), ...(a.type === "icon" ? [a.group] : []), ...(a.type === "color" ? [a.hex] : [])].join(" "),
+      keywords: [...(a.keywords ?? []), ...(a.type === "icon" ? [a.group] : []), ...(a.type === "color" ? [a.hex] : []), ...(a.type === "gradient" ? ["gradient", "css", ...a.stops.map((s) => s.hex)] : [])].join(" "),
       swatch: a.type === "color" ? a.hex : undefined,
       svg: a.type === "icon" ? site.iconMarkup(a, 20) : undefined,
       image: previewImage(a),

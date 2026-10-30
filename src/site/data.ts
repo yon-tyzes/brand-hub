@@ -8,6 +8,7 @@ import type { Onboarding } from "../../schemas/onboarding.ts";
 import type { Signature } from "../../schemas/signature.ts";
 import type { SearchAction } from "../lib/search-config.ts";
 import { fileName, isExternal } from "../lib/paths.ts";
+import { gradientCss } from "./library.ts";
 import { TYPE_LABEL } from "../lib/labels.ts";
 import { MODULES, type ModuleDef } from "../modules/registry.ts";
 
@@ -33,7 +34,7 @@ export interface SiteInput {
 export type OfType<T extends AssetType> = Extract<Asset, { type: T }>;
 
 export const MODULE_FOR_TYPE: Partial<Record<AssetType, ModuleId>> = {
-  logo: "logos", color: "colors", font: "fonts", icon: "icons", template: "templates", "photo-source": "photos",
+  logo: "logos", color: "colors", gradient: "colors", font: "fonts", icon: "icons", template: "templates", "photo-source": "photos",
 };
 
 export const LOGOS_ZIP = "/downloads/logos-all.zip";
@@ -153,6 +154,8 @@ export function createSite(input: SiteInput) {
       switch (a.type) {
         case "color":
           return [copy(a.label, a.hex), ...(a.pms ? [copy(a.label, a.pms)] : [])];
+        case "gradient":
+          return [{ kind: "copy", label: "Copy CSS", text: gradientCss(a), message: `${a.label} CSS copied` }, ...view()];
         case "icon":
           return [...view(), { kind: "download", label: "SVG", href: input.urlFor(a.svgPath), filename: fileName(a.svgPath) }];
         case "logo": {
