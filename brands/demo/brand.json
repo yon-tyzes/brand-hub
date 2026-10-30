@@ -46,7 +46,11 @@
         "id": "templates",
         "title": "Templates"
       }
-    ]
+    ],
+    "pdf": {
+      "path": "files/guide/pocket-comet-brand-guide.pdf",
+      "updated": "2026-10-30"
+    }
   },
   "quickDownloads": [
     "logo-horizontal",
