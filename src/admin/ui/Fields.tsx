@@ -528,13 +528,16 @@ function TemplateFormatsField({ def, record, error, id }: Sub & { record: Templa
   );
 }
 
-function FontFilesField({ def, record, error, id, variant }: Sub & { record: FontAsset; variant: "static" | "variable" }) {
+const ADD_FONT_LABEL = { static: "Add font files", variable: "Add a variable font file", web: "Add web font files" } as const;
+
+function FontFilesField({ def, record, error, id, variant }: Sub & { record: FontAsset; variant: "static" | "variable" | "web" }) {
   const { apply, fileLabel } = useEditor();
   const picker = useRef<HTMLInputElement>(null);
   const upload = useUpload(record);
-  const accept = EDITOR_MODULES.find((m) => m.id === "fonts")!.accept;
-  const list = record.files[variant];
-  const save = (next: string[]) => ({ files: { ...record.files, [variant]: next } });
+  const accept = variant === "web" ? [".woff2"] : EDITOR_MODULES.find((m) => m.id === "fonts")!.accept;
+  const list = record.files[variant] ?? [];
+  // An empty web list is left out, so fonts without web files keep their 0.2.1 shape.
+  const save = (next: string[]) => ({ files: { ...record.files, [variant]: variant === "web" && !next.length ? undefined : next } });
   return (
     <Shell def={def} error={variant === "static" ? error : undefined} id={id} group>
       {list.length > 0 && (
@@ -550,13 +553,13 @@ function FontFilesField({ def, record, error, id, variant }: Sub & { record: Fon
         </ul>
       )}
       <button type="button" className="btn btn-secondary btn-sm" onClick={() => picker.current?.click()}>
-        {variant === "static" ? "Add font files" : "Add a variable font file"}
+        {ADD_FONT_LABEL[variant]}
       </button>
       <input
         ref={picker}
         type="file"
         hidden
-        multiple={variant === "static"}
+        multiple={variant !== "variable"}
         accept={accept.join(",")}
         aria-label={def.label}
         onChange={async (e) => {

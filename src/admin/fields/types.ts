@@ -33,7 +33,7 @@ export type FieldKind =
   | { kind: "template-formats" }
   /** A Brand guide chapter from brand settings. */
   | { kind: "chapter" }
-  | { kind: "font-files"; variant: "static" | "variable" };
+  | { kind: "font-files"; variant: "static" | "variable" | "web" };
 
 export type FieldDef = FieldKind & {
   key: string;

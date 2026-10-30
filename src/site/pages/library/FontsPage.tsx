@@ -28,6 +28,9 @@ function fontDownloads(f: FontAsset) {
 
 export const DEFAULT_SAMPLE_SIZE = 56;
 
+/** Install steps for Office (ENGINE_SPEC.md, section 5, Font files). */
+export const OFFICE_NOTE = "Word, PowerPoint, and Excel need the TTF or OTF files. WOFF2 files are for websites and do not install.";
+
 function FamilyCard({ font: f, sample }: { font: FontAsset; sample: string }) {
   const family = `"${f.family}", var(--font-sans)`;
   const { computer, web } = fontDownloads(f);
@@ -91,6 +94,7 @@ export function FontsPage() {
         <input id="font-tester-size" type="range" min={24} max={96} step={4} defaultValue={DEFAULT_SAMPLE_SIZE} data-font-tester-size="" />
         <output htmlFor="font-tester-size" data-font-tester-readout="">{DEFAULT_SAMPLE_SIZE}px</output>
       </div>
+      <p className="font-office-note hide-phone-flex">{OFFICE_NOTE}</p>
       <div className="font-phone-note show-phone">
         <p><Icon name="monitor" size={20} /><span>Fonts install on a computer. Open this page there, or copy the link to send it to yourself.</span></p>
         <button className="btn btn-secondary btn-block" type="button" data-copy-page="">Copy page link</button>

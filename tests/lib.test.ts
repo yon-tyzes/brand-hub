@@ -38,6 +38,13 @@ describe("fontFaceCss", () => {
     expect(css).toHaveLength(2);
     expect(css[1]).toContain('src:url("/s.ttf") format("truetype");font-weight:600');
   });
+
+  it("uses web files over the download files when a font has them", () => {
+    const f: FontAsset = { ...base, weights: [400, 600], files: { static: ["r.ttf", "s.ttf"], variable: ["v.ttf"], web: ["latin-400.woff2", "latin-wght-normal.woff2"] } };
+    expect(fontFaceCss([f], url)).toBe('@font-face{font-family:"Inter";src:url("/latin-wght-normal.woff2") format("woff2");font-weight:400 600;font-style:normal;font-display:swap}');
+    const statics: FontAsset = { ...f, files: { ...f.files, web: ["latin-400.woff2", "latin-600.woff2"] } };
+    expect(fontFaceCss([statics], url).split("\n").map((r) => r.match(/url\("([^"]+)"\).*font-weight:(\d+)/)!.slice(1))).toEqual([["/latin-400.woff2", "400"], ["/latin-600.woff2", "600"]]);
+  });
 });
 
 describe("templateLinks", () => {

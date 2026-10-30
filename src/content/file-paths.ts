@@ -17,6 +17,7 @@ export function filePaths(a: AnyRecord): { field: string; path: string }[] {
       return [
         ...a.files.static.map((p, i) => ({ field: `files.static.${i}`, path: p })),
         ...a.files.variable.map((p, i) => ({ field: `files.variable.${i}`, path: p })),
+        ...(a.files.web ?? []).map((p, i) => ({ field: `files.web.${i}`, path: p })),
       ];
     case "icon":
       return [{ field: "svgPath", path: a.svgPath }];

@@ -103,8 +103,12 @@ export const fontAsset = z
     role: z.string().min(1),
     weights: z.array(z.int().min(1).max(1000)).min(1),
     files: z.strictObject({
+      /** One TTF or OTF file per weight, in `weights` order. The download for computers. */
       static: z.array(brandPath).default([]),
+      /** A variable file covering every weight. The download for websites. */
       variable: z.array(brandPath).default([]),
+      /** WOFF2 files for the site's own @font-face only. Never in a download. */
+      web: z.array(fileWith(".woff2")).optional(),
     }),
     license: z.string().min(1),
     install: z.string().min(1),

@@ -227,6 +227,20 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
     }
   }
 
+  // Fonts Word cannot install: WOFF2 files and no static TTF or OTF. A warning: the site still renders them.
+  for (const { record, file } of records) {
+    if (record.type !== "font" || record.status === "retired") continue;
+    const { static: statics, variable, web = [] } = record.files;
+    const woff2 = web.length > 0 || [...statics, ...variable].some((p) => p.toLowerCase().endsWith(".woff2"));
+    if (woff2 && !statics.some((p) => /\.(ttf|otf)$/i.test(p))) {
+      warnings.push({
+        file: src.label(file), id: record.id, field: "files",
+        problem: `font "${record.id}" has only WOFF2 files, so it cannot be installed in Word`,
+        fix: "Add its static TTF or OTF files to files.static, and keep the WOFF2 files in files.web.",
+      });
+    }
+  }
+
   // 5. Contrast: declared color pairings. The shell's own tokens are checked by the unit tests.
   const colors = records.map((r) => r.record).filter((r): r is ColorAsset => r.type === "color");
   for (const f of checkPairingContrast(colors)) {

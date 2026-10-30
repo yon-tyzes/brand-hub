@@ -91,7 +91,7 @@ function withPaths(r: AnyRecord, map: (p: string) => string): AnyRecord {
     case "logo":
       return { ...r, files: r.files.map((f) => ({ ...f, path: map(f.path) })) };
     case "font":
-      return { ...r, files: { static: r.files.static.map(map), variable: r.files.variable.map(map) } };
+      return { ...r, files: { static: r.files.static.map(map), variable: r.files.variable.map(map), ...(r.files.web ? { web: r.files.web.map(map) } : {}) } };
     case "icon":
       return { ...r, svgPath: map(r.svgPath) };
     case "template": {
