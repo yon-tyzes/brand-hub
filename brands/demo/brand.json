@@ -71,6 +71,20 @@
         "ink",
         "comet-green"
       ]
+    },
+    "fonts": {
+      "groups": [
+        {
+          "id": "headings",
+          "title": "Headings",
+          "help": "Page titles and section headings."
+        },
+        {
+          "id": "text",
+          "title": "Text",
+          "help": "Body text, interface, and small headings."
+        }
+      ]
     }
   }
 }
