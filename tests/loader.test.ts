@@ -148,7 +148,7 @@ describe("loadBrand integrity failures", () => {
       });
       return icons;
     });
-    expect(loadError(brandDir).problems[0]!.problem).toBe('type "icon" does not belong in colors.json (expects "color")');
+    expect(loadError(brandDir).problems[0]!.problem).toBe('type "icon" does not belong in colors.json (expects "color" or "gradient")');
   });
 
   it("reports invalid JSON and a missing brand.json", () => {
