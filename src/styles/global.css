@@ -1001,6 +1001,7 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
   padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 15px;
 }
+.guide-pdf { margin: var(--space-5) 0 0; }
 .guide-index { margin: 32px 0 0; border-top: 1px solid var(--border); }
 .guide-index li { padding: 16px 0; border-bottom: 1px solid var(--border); }
 .guide-index a { display: inline-flex; align-items: center; min-height: 32px; font-size: 18px; font-weight: 600; color: var(--text); }

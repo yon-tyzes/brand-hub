@@ -21,6 +21,8 @@ export interface SiteInput {
   urlFor: (path: string) => string;
   /** SVG markup of a brand file, when available. */
   svgFor: (path: string) => string | undefined;
+  /** Size in bytes of a brand file, when known (the build reads it; the editor preview does not). */
+  sizeOf?: (path: string) => number | undefined;
 }
 
 export type OfType<T extends AssetType> = Extract<Asset, { type: T }>;
@@ -34,6 +36,8 @@ export const LOGOS_ZIP = "/downloads/logos-all.zip";
 const dateFormat = new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 export const formatDate = (iso: string) => dateFormat.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso));
 export const formatCmyk = (c: ColorAsset) => (c.cmyk ? c.cmyk.join(", ") : undefined);
+/** File size for a button label: "1.2 MB", "340 KB". */
+export const formatBytes = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1000))} KB`);
 export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export function logoFile(l: LogoAsset, ext: string) {
@@ -102,6 +106,13 @@ export function createSite(input: SiteInput) {
     isEnabled,
     assetHref,
     iconMarkup,
+    /** The full brand guide PDF, with its size when known. */
+    guidePdf: (): { href: string; label: string } | undefined => {
+      const pdf = input.brand.guide.pdf;
+      if (!pdf) return undefined;
+      const size = input.sizeOf?.(pdf.path);
+      return { href: input.urlFor(pdf.path), label: `Open the full guide (PDF${size ? `, ${formatBytes(size)}` : ""})` };
+    },
     /** A template's formats, in button order. Empty when it has none. */
     templateLinks: (t: TemplateAsset) => templateLinks(t, input.urlFor),
     assetsOfType: <T extends AssetType>(type: T): OfType<T>[] => input.assets.filter((a): a is OfType<T> => a.type === type),

@@ -19,7 +19,7 @@ export const link = z.union([z.url(), z.string().regex(/^\/(?!\/)\S*$/, "must be
 
 export const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/, "must be a 6-digit hex color like #0F3D6B");
 
-const fileWith = (ext: string) => brandPath.refine((p) => p.toLowerCase().endsWith(ext), { message: `must point to a ${ext} file` });
+export const fileWith = (ext: string) => brandPath.refine((p) => p.toLowerCase().endsWith(ext), { message: `must point to a ${ext} file` });
 
 const isoDate = z.union([z.iso.date(), z.iso.datetime({ offset: true })]);
 const oneLine = z.string().min(1).regex(/^[^\n]*$/, "must be a single line");

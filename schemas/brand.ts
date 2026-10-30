@@ -1,6 +1,6 @@
 // brand.json (spec sections 5 and 10).
 import { z } from "zod";
-import { hex, id } from "./asset.ts";
+import { fileWith, hex, id } from "./asset.ts";
 
 /**
  * Brand values the shell reads (spec section 10). The engine owns every other visual value; the 0.1 shell keys
@@ -53,6 +53,8 @@ export const brand = z.strictObject({
         .array(guideChapter)
         .default([])
         .refine((cs) => new Set(cs.map((c) => c.id)).size === cs.length, { message: "chapter ids must be unique" }),
+      /** The full brand guide as one PDF, opened from the Brand guide landing page. The file must exist. */
+      pdf: z.strictObject({ path: fileWith(".pdf"), updated: z.iso.date() }).optional(),
     })
     .default({ chapters: [] }),
   /** Per-module settings, keyed by module id. */

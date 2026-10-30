@@ -214,7 +214,11 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
     }
   }
 
-  // 4. Every file path exists.
+  // 4. Every file path exists, brand.json's included.
+  const guidePdf = brand?.guide.pdf?.path;
+  if (guidePdf && !src.exists(guidePdf)) {
+    problems.push({ file: src.label("brand.json"), problem: `guide.pdf.path: file not found: ${src.label(guidePdf)}`, code: "file-not-found", field: "guide", ref: guidePdf });
+  }
   for (const { record, file } of records) {
     for (const { field, path } of filePaths(record)) {
       if (!src.exists(path)) {

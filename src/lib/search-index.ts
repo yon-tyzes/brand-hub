@@ -36,6 +36,13 @@ export function searchDocs(): SearchDoc[] {
     });
   }
   if (site.isEnabled("guide")) {
+    const pdf = site.guidePdf();
+    if (pdf) {
+      docs.push({
+        id: "brand-guide-pdf", type: "document", typeLabel: "PDF", group: MODULES.guide.label, label: `${MODULES.guide.label} (PDF)`,
+        keywords: "pdf guidelines guide book", actions: [{ kind: "open", label: "Open", href: pdf.href, external: true }],
+      });
+    }
     for (const r of site.rules) {
       const href = site.assetHref(r);
       docs.push({
