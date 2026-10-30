@@ -1,15 +1,19 @@
 // Brand settings (ENGINE_SPEC.md, section 8): the brand name, the primary color with a live preview of the
-// tuned hero tones, the guide chapters, Quick downloads, and the icon colors and backgrounds that make the Icons
-// page's color pairs. Edits go into the draft like any other change.
+// tuned hero tones, the guide chapters and the full guide PDF, Quick downloads, and the icon colors and
+// backgrounds that make the Icons page's color pairs. Edits go into the draft like any other change.
 import { useState } from "react";
 import type { Asset, ColorAsset } from "../../../schemas/asset.ts";
 import type { Brand, GuideChapter } from "../../../schemas/brand.ts";
 import { heroTones } from "../../theme/hero-tint.ts";
 import { iconPairs } from "../../site/library.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
+import { brandFilePaths, filePaths } from "../../content/file-paths.ts";
+import { today } from "../editor/changeset.ts";
+import { extension, uploadPath } from "../editor/files.ts";
 import { uniqueId } from "../editor/modules.ts";
-import { updateBrand } from "../editor/state.ts";
+import { attachBrandFiles, updateBrand } from "../editor/state.ts";
 import { useEditor } from "./context.tsx";
+import { Slot } from "./Fields.tsx";
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 const MAX_QUICK = 4;
@@ -81,6 +85,16 @@ export function BrandSettings() {
   const setIcons = (next: { colors: string[]; grounds?: string[] }) =>
     set((b) => ({ ...b, modules: { ...b.modules, icons: { colors: next.colors, ...(next.grounds?.length ? { grounds: next.grounds } : {}) } } }));
   const pairs = iconPairs(liveColors, icons);
+
+  const pdf = brand.guide.pdf;
+  const setPdf = (next: Brand["guide"]["pdf"]) => set((b) => ({ ...b, guide: { ...b.guide, pdf: next } }));
+  const uploadPdf = (file: File) => {
+    if (extension(file.name) !== "pdf") return toast({ message: `${file.name} can't be used here. Use a PDF file.` });
+    const taken = new Set([...Object.keys(state.present.files), ...records.flatMap((r) => filePaths(r).map((f) => f.path)), ...brandFilePaths(brand).map((f) => f.path)]);
+    const path = uploadPath("guide", file.name, taken);
+    const stored = { path, name: file.name, type: "application/pdf", blob: file };
+    apply(attachBrandFiles(state.base.brand, [stored], (b) => ({ ...b, guide: { ...b.guide, pdf: { path, updated: today() } } })));
+  };
 
   const addChapter = () => {
     const title = newChapter.trim();
@@ -195,6 +209,21 @@ export function BrandSettings() {
           <input id="set-new-chapter" className="field" placeholder="New chapter, like Photography" value={newChapter} onChange={(e) => setNewChapter(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addChapter())} />
           <button type="button" className="btn btn-secondary" onClick={addChapter}>Add chapter</button>
         </div>
+      </section>
+
+      <section className="settings-card" aria-labelledby="set-guide-pdf">
+        <h2 id="set-guide-pdf">Brand guide PDF</h2>
+        <p className="ed-help">The full guide as one PDF. The Brand guide page links to it and search lists it.</p>
+        <ul className="ed-slots" role="list">
+          <Slot
+            label="Guide PDF"
+            accept={[".pdf"]}
+            file={pdf ? { path: pdf.path, detail: `updated ${pdf.updated}` } : undefined}
+            note="PDF file"
+            onUpload={uploadPdf}
+            onRemove={() => setPdf(undefined)}
+          />
+        </ul>
       </section>
 
       <section className="settings-card" aria-labelledby="set-icons">

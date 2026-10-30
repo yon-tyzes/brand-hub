@@ -1,6 +1,6 @@
 // Bridges the editor's draft and the serializer: the change list for the top bar, and the final change set.
 import type { AnyRecord } from "../../../schemas/asset.ts";
-import { filePaths } from "../../content/file-paths.ts";
+import { brandFilePaths, filePaths } from "../../content/file-paths.ts";
 import { describeBrandChange, describeChanges, serialize, type RecordChange, type SerializeError, type SerializeResult } from "../../serializer/index.ts";
 import type { BrandContent } from "../../adapters/types.ts";
 import type { Draft, EditorState } from "./state.ts";
@@ -22,7 +22,10 @@ export function today(now = new Date()): string {
 /** Runs the serializer on the draft: final names, dates, validation, and the spec's ChangeSet. */
 export function serializeDraft(state: EditorState, author: string, date: string): SerializeResult {
   const { base, present } = state;
-  const referenced = new Set(present.records.flatMap((r: AnyRecord) => filePaths(r).map((f) => f.path)));
+  const referenced = new Set([
+    ...present.records.flatMap((r: AnyRecord) => filePaths(r).map((f) => f.path)),
+    ...brandFilePaths(present.brand ?? base.brand).map((f) => f.path),
+  ]);
   const uploads = Object.values(present.files)
     .filter((f) => referenced.has(f.path))
     .map((f) => ({ path: f.path, name: f.name, content: f.blob, width: f.width }));

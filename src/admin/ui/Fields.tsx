@@ -404,7 +404,7 @@ function FileField({ def, record, error, id, accept }: Sub & { record: AnyRecord
 }
 
 /** One upload slot: shows the file with Replace and Remove, or an Add button. */
-function Slot({ label, accept, file, note, onUpload, onRemove }: {
+export function Slot({ label, accept, file, note, onUpload, onRemove }: {
   label: string; accept: string[]; file?: { path: string; detail?: string }; note?: string;
   onUpload: (f: File) => void; onRemove?: () => void;
 }) {

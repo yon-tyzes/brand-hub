@@ -102,6 +102,13 @@ export const addRecord = (record: AnyRecord, files: StoredFile[] = []): Edit => 
 /** Changes brand settings: name, primary color, guide chapters, Quick downloads, icon colors and backgrounds. */
 export const updateBrand = (base: Brand, change: (b: Brand) => Brand): Edit => (d) => ({ ...d, brand: change(d.brand ?? base) });
 
+/** Adds uploaded files and changes brand settings to point at them in one step (the guide PDF). */
+export const attachBrandFiles = (base: Brand, files: StoredFile[], change: (b: Brand) => Brand): Edit => (d) => ({
+  ...d,
+  files: { ...d.files, ...Object.fromEntries(files.map((f) => [f.path, f])) },
+  brand: change(d.brand ?? base),
+});
+
 /** The brand settings a draft shows: its own edits, or the saved ones. */
 export const brandOf = (state: Pick<EditorState, "base" | "present">): Brand => state.present.brand ?? state.base.brand;
 

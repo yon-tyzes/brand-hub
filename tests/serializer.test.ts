@@ -172,3 +172,44 @@ describe("serialize validation", () => {
     ]);
   });
 });
+
+describe("serialize brand files", () => {
+  const withPdf = (path: string) => (b: SerializeInput["brand"]) => ({ ...b, guide: { ...b.guide, pdf: { path, updated: "2026-11-01" } } });
+
+  it("writes an uploaded guide PDF and points brand.json at it", () => {
+    const base = input();
+    const r = serialize({
+      ...base,
+      base: { ...base.base, brand: base.brand },
+      brand: withPdf("files/guide/full-guide.pdf")(base.brand),
+      uploads: [{ path: "files/guide/full-guide.pdf", name: "Full Guide.pdf", content: "%PDF" }],
+    });
+    if (!r.ok) throw new Error(JSON.stringify(r.errors));
+    expect(r.changeSet.upserts.map((u) => u.path)).toEqual(["brands/demo/brand.json", "brands/demo/files/guide/full-guide.pdf"]);
+    expect(r.changeSet.summary).toEqual(["Brand settings: guide PDF changed"]);
+    expect(r.changeSet.deletes).toEqual([]);
+  });
+
+  it("deletes the old PDF when it is replaced, and keeps it when brand settings do not change", () => {
+    const base = input();
+    const before = withPdf("files/guide/old.pdf")(base.brand);
+    const replaced = serialize({
+      ...base,
+      base: { ...base.base, brand: before },
+      brand: withPdf("files/guide/new.pdf")(base.brand),
+      uploads: [{ path: "files/guide/new.pdf", name: "new.pdf", content: "%PDF" }],
+    });
+    if (!replaced.ok) throw new Error(JSON.stringify(replaced.errors));
+    expect(replaced.changeSet.deletes).toEqual(["brands/demo/files/guide/old.pdf"]);
+
+    const unchanged = serialize({ ...base, base: { ...base.base, brand: before }, brand: before });
+    expect(unchanged.ok && unchanged.changeSet.deletes).toEqual([]);
+  });
+
+  it("fails when the guide PDF points at a file that is neither uploaded nor saved", () => {
+    const base = input();
+    const r = serialize({ ...base, base: { ...base.base, brand: base.brand }, brand: withPdf("files/guide/missing.pdf")(base.brand) });
+    expect(r.ok).toBe(false);
+    expect(!r.ok && r.errors.map((e) => [e.code, e.field])).toEqual([["file-not-found", "guide"]]);
+  });
+});
