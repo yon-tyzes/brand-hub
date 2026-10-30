@@ -61,6 +61,7 @@ if (root) {
     if (preview) preview.innerHTML = markup.replace(/\swidth="[^"]*"/, ' width="64"').replace(/\sheight="[^"]*"/, ' height="64"');
     if (thumb) thumb.innerHTML = markup;
     if (nameOut) nameOut.textContent = tile.dataset.iconName ?? "";
+    for (const n of root!.querySelectorAll("[data-icon-name-hidden]")) n.textContent = tile.dataset.iconName ?? "";
     if (metaOut) metaOut.textContent = [tile.dataset.iconGroup, color?.dataset.colorName].filter(Boolean).join(" · ");
   }
 

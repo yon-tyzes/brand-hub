@@ -18,8 +18,8 @@ const base = { status: "locked", version: "1.0", updated: "2026-10-23", audience
 const color = (id: string, role: string, extra: Partial<ColorAsset> = {}): ColorAsset =>
   ({ ...base, id, label: id, type: "color", hex: "#1E5B4A", rgb: [30, 91, 74], role, pairings: [], ...extra }) as ColorAsset;
 
-describe("downloads by use", () => {
-  it("names logo files by use, PNG first, with PDF and EPS for vendors when present", () => {
+describe("logo downloads", () => {
+  it("lists logo files PNG first, then SVG, with PDF and EPS when present", () => {
     const logo = {
       ...base, id: "logo-horizontal", label: "Horizontal logo", type: "logo", lockup: "Horizontal", colorway: "Full color", background: "light",
       files: [
@@ -27,10 +27,10 @@ describe("downloads by use", () => {
         { ext: "png", path: "files/logos/h-1200.png", width: 1200 }, { ext: "eps", path: "files/logos/h.eps" },
       ],
     } as LogoAsset;
-    expect(logoDownloads(site(), logo).map((d) => [d.label, d.short, d.format, d.filename])).toEqual([
-      ["For Word and PowerPoint", "For slides", "PNG", "h-1200.png"],
-      ["For print and web", "For print", "SVG", "h.svg"],
-      ["For sign makers", "For sign makers", "EPS", "h.eps"],
+    expect(logoDownloads(site(), logo).map((d) => [d.format, d.filename])).toEqual([
+      ["PNG", "h-1200.png"],
+      ["SVG", "h.svg"],
+      ["EPS", "h.eps"],
     ]);
   });
 });

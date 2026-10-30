@@ -76,15 +76,14 @@ export function IconsPage() {
                 <p className="icon-panel-meta" data-icon-meta="">{meta(selected)}</p>
               </div>
               <div className="icon-panel-actions">
+                {/* "Download" with the format; the hidden name follows the selected icon. */}
                 <button className="btn btn-primary" type="button" data-icon-download="svg">
                   <Icon name="download" size={16} />
-                  <span className="label-long">For print and slides</span>
-                  <span className="label-short">For slides</span>
+                  Download<span className="visually-hidden"> <span data-icon-name-hidden="">{selected.label}</span> icon, </span>
                   <span className="btn-format">SVG</span>
                 </button>
                 <button className="btn btn-secondary" type="button" data-icon-download="png">
-                  <span className="label-long">For Word and email</span>
-                  <span className="label-short">For Word</span>
+                  Download<span className="visually-hidden"> <span data-icon-name-hidden="">{selected.label}</span> icon, </span>
                   <span className="btn-format">PNG</span>
                 </button>
               </div>

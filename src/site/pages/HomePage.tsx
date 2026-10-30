@@ -47,13 +47,13 @@ function Hero() {
   );
 }
 
-/** A frosted chip naming what people come for: "Logo for slides", the primary color, "Font files". */
+/** A frosted chip naming what people come for: a logo, the primary color, "Font files". */
 function QuickPick({ asset: a }: { asset: Asset }) {
   const site = useSite();
   switch (a.type) {
     case "logo": {
       const d = logoDownloads(site, a)[0];
-      return d ? <Chip glass href={d.href} download={d.filename} icon="download">Logo for slides</Chip> : null;
+      return d ? <Chip glass href={d.href} download={d.filename} icon="download">{a.label}</Chip> : null;
     }
     case "color":
       return <Chip glass dot={a.hex} data-copy={a.hex} data-copy-name={a.label} aria-label={`Copy ${a.label} ${a.hex}`}>{a.label}</Chip>;
@@ -93,8 +93,8 @@ function QuickCard({ asset: a }: { asset: Asset }) {
           wellStyle={groundFor(site, a)}
           actions={
             <>
-              {png && <DownloadButton d={png} variant="primary" size="sm" short bare assetLabel={a.label} />}
-              {svg && <DownloadButton d={svg} size="sm" short bare assetLabel={a.label} />}
+              {png && <DownloadButton d={png} variant="primary" size="sm" assetLabel={a.label} />}
+              {svg && <DownloadButton d={svg} size="sm" assetLabel={a.label} />}
             </>
           }
         />
