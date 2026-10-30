@@ -113,14 +113,11 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 
 /* ---------- Page transitions (DESIGN_SYSTEM.md, Motion) ---------- */
 /* Cross-document view transitions, no client router: the page crossfades and the current tab's underline and
-   sidebar item's background slide to their new place. Browsers without support navigate normally. */
+   sidebar item's background slide to their new place. Browsers without support navigate normally. The
+   @view-transition rule itself is in Layout.astro, which leaves it out under motion: "calm". */
 
-@view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--duration-base); }
 ::view-transition-group(nav-current), ::view-transition-group(tab-current) { animation-duration: var(--duration-base); animation-timing-function: var(--ease-out); }
-@media (prefers-reduced-motion: reduce) {
-  @view-transition { navigation: none; }
-}
 
 /* ---------- Skip link ---------- */
 

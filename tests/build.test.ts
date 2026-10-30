@@ -56,8 +56,10 @@ describe("motion: calm", () => {
 
     const html = readFileSync(join(calm, "index.html"), "utf8");
     expect(html).toMatch(/<html[^>]* data-motion="calm"/);
-    expect(html).toContain("@view-transition{navigation:none}");
-    expect(readFileSync(join(full, "index.html"), "utf8")).not.toContain("data-motion");
+    expect(html).not.toContain("@view-transition");
+    const fullHtml = readFileSync(join(full, "index.html"), "utf8");
+    expect(fullHtml).not.toContain("data-motion");
+    expect(fullHtml).toContain("@view-transition{navigation:auto}");
   });
 });
 

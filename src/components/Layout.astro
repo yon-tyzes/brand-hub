@@ -45,8 +45,8 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
     <style is:inline set:html={themeCss}></style>
     <style is:inline set:html={heroCss}></style>
     {fontCss && <style is:inline set:html={fontCss}></style>}
-    {/* Calm motion: no page transitions, as under reduced motion (global.css). The later rule wins. */}
-    {config.motion === "calm" && <style is:inline set:html="@view-transition{navigation:none}"></style>}
+    {/* Page transitions (global.css): on, and off under reduced motion. Calm motion leaves them out altogether. */}
+    {config.motion !== "calm" && <style is:inline set:html="@view-transition{navigation:auto}@media (prefers-reduced-motion: reduce){@view-transition{navigation:none}}"></style>}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
