@@ -167,7 +167,7 @@ Change the pinned tag to `#v0.2.2`, then build. Most 0.1 data still builds and p
 
 ## Editor
 
-`/admin` is a React app for adding, editing, reordering, and retiring brand items without touching files. It is built when `admin.enabled` is true in `hub.config.ts`.
+`/admin` is a React app for adding, editing, reordering, and retiring brand items without touching files. It is built when `admin.enabled` is true in `hub.config.ts`. With `admin.enabled: "dev"` it runs under `pnpm dev` only, and a production build ships no `/admin` route and no editor JavaScript.
 
 | Path | What it does |
 |---|---|
