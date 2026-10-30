@@ -130,24 +130,43 @@ export const iconAsset = z.strictObject({
   standIn: z.boolean().optional(),
 });
 
+const templateFormats = z.strictObject({
+  /** Canva share link. */
+  canva: z.url().optional(),
+  docx: fileWith(".docx").optional(),
+  pptx: fileWith(".pptx").optional(),
+  pdf: fileWith(".pdf").optional(),
+});
+
+/** The most variants one template card offers; the stylesheet has a rule for each position. */
+export const MAX_TEMPLATE_VARIANTS = 8;
+
+export const templateVariant = z.strictObject({
+  /** Unique within the template. */
+  id,
+  label: oneLine,
+  thumbnail: brandPath,
+  /** Formats for this variant. Without it, the variant uses the template's own. */
+  formats: templateFormats.optional(),
+});
+
 export const templateAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("template"),
   category: z.string().min(1),
   /** Where to get the template. At least one is required (checked by the loader). Canva is the recommended format. */
-  formats: z
-    .strictObject({
-      /** Canva share link. */
-      canva: z.url().optional(),
-      docx: fileWith(".docx").optional(),
-      pptx: fileWith(".pptx").optional(),
-      pdf: fileWith(".pdf").optional(),
-    })
-    .default({}),
+  formats: templateFormats.default({}),
   /** 0.1 template link, read as a single "Open template" link with a build warning until moved to `formats`. */
   url: link.optional(),
   thumbnail: brandPath,
   rules: z.array(id).default([]),
+  /** Versions of one design, such as two colors. The first is the default and stands for the template everywhere. */
+  variants: z
+    .array(templateVariant)
+    .min(1)
+    .max(MAX_TEMPLATE_VARIANTS)
+    .refine((vs) => new Set(vs.map((v) => v.id)).size === vs.length, { message: "variant ids must be unique" })
+    .optional(),
 });
 
 export const photoSourceAsset = z.strictObject({
@@ -219,6 +238,7 @@ export type FontAsset = z.infer<typeof fontAsset>;
 export type IconAsset = z.infer<typeof iconAsset>;
 export type TemplateAsset = z.infer<typeof templateAsset>;
 export type TemplateFormat = keyof TemplateAsset["formats"];
+export type TemplateVariant = z.infer<typeof templateVariant>;
 export type PhotoSourceAsset = z.infer<typeof photoSourceAsset>;
 export type BoilerplateAsset = z.infer<typeof boilerplateAsset>;
 export type DocumentAsset = z.infer<typeof documentAsset>;

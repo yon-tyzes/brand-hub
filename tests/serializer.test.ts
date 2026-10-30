@@ -213,3 +213,21 @@ describe("serialize brand files", () => {
     expect(!r.ok && r.errors.map((e) => [e.code, e.field])).toEqual([["file-not-found", "guide"]]);
   });
 });
+
+describe("serialize template variants", () => {
+  it("names a variant's uploaded thumbnail and points the variant at it", () => {
+    const t = {
+      id: "template-poster", type: "template", label: "Poster", status: "locked", version: "1.0", updated: "2026-10-01", audience: "public",
+      category: "Print", thumbnail: "files/templates/up.svg", rules: [], formats: { pdf: "files/templates/up.pdf" },
+      variants: [{ id: "green", label: "Green", thumbnail: "files/templates/up-green.svg" }],
+    } as AnyRecord;
+    const r = serialize(input((rs) => [...rs, t], {
+      uploads: ["up.svg", "up.pdf", "up-green.svg"].map((n) => ({ path: `files/templates/${n}`, name: n, content: "x" })),
+    }));
+    if (!r.ok) throw new Error(JSON.stringify(r.errors));
+    const saved = r.records.find((x) => x.id === "template-poster");
+    const paths = saved?.type === "template" ? [saved.thumbnail, saved.formats.pdf, saved.variants?.[0]?.thumbnail] : [];
+    expect(new Set(paths).size).toBe(3);
+    for (const p of paths) expect(r.changeSet.upserts.map((u) => u.path)).toContain(`brands/demo/${p}`);
+  });
+});

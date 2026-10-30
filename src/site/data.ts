@@ -1,6 +1,6 @@
 // Everything a public page needs, built from plain data. The build creates one from the brand folder
 // (src/lib/site-server.ts); the editor's preview creates one from the draft. No file system access here.
-import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat } from "../../schemas/asset.ts";
+import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat, TemplateVariant } from "../../schemas/asset.ts";
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
@@ -59,15 +59,20 @@ const FILE_FORMATS = [
   ["pdf", "PDF"],
 ] as const;
 
+/** The image that stands for a template: its first variant's, when it has variants (spec section 5). */
+export const templateThumbnail = (t: TemplateAsset) => t.variants?.[0]?.thumbnail ?? t.thumbnail;
+
 /**
  * A template's formats in button order (spec section 5): Canva first, then Word, PowerPoint, and PDF. Only the
- * formats it has. A 0.1 `url` stands in as one "Open template" link when no format is set.
+ * formats it has. A 0.1 `url` stands in as one "Open template" link when no format is set. With variants, the
+ * links are those of `variant` (the first by default), which falls back to the template's own formats.
  */
-export function templateLinks(t: TemplateAsset, urlFor: (path: string) => string): TemplateLink[] {
+export function templateLinks(t: TemplateAsset, urlFor: (path: string) => string, variant: TemplateVariant | undefined = t.variants?.[0]): TemplateLink[] {
   const out: TemplateLink[] = [];
-  if (t.formats.canva) out.push({ format: "canva", label: "Open in Canva", href: t.formats.canva, external: true });
+  const formats = variant?.formats ?? t.formats;
+  if (formats.canva) out.push({ format: "canva", label: "Open in Canva", href: formats.canva, external: true });
   for (const [format, label] of FILE_FORMATS) {
-    const path = t.formats[format];
+    const path = formats[format];
     if (path) out.push({ format, label, href: urlFor(path), external: false, filename: fileName(path) });
   }
   if (!out.length && t.url) out.push({ format: "link", label: "Open template", href: t.url, external: isExternal(t.url) });
@@ -117,7 +122,7 @@ export function createSite(input: SiteInput) {
       return { href: input.urlFor(pdf.path), label: `Open the full guide (PDF${size ? `, ${formatBytes(size)}` : ""})` };
     },
     /** A template's formats, in button order. Empty when it has none. */
-    templateLinks: (t: TemplateAsset) => templateLinks(t, input.urlFor),
+    templateLinks: (t: TemplateAsset, variant?: TemplateVariant) => templateLinks(t, input.urlFor, variant ?? t.variants?.[0]),
     /** Font groups in order, each with its locked fonts. Undefined when the brand sets no groups. Empty groups are left out. */
     fontGroups: () => {
       const groups = input.brand.modules.fonts?.groups;

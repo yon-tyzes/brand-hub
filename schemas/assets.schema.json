@@ -701,6 +701,57 @@
               "type": "string",
               "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
             }
+          },
+          "variants": {
+            "minItems": 1,
+            "maxItems": 8,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[^\\n]*$"
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "formats": {
+                  "type": "object",
+                  "properties": {
+                    "canva": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "docx": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "pptx": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "pdf": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "thumbnail"
+              ],
+              "additionalProperties": false
+            }
           }
         },
         "required": [

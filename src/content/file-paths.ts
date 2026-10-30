@@ -25,6 +25,10 @@ export function filePaths(a: AnyRecord): { field: string; path: string }[] {
       return [
         { field: "thumbnail", path: a.thumbnail },
         ...(["docx", "pptx", "pdf"] as const).flatMap((k) => (a.formats[k] ? [{ field: `formats.${k}`, path: a.formats[k] }] : [])),
+        ...(a.variants ?? []).flatMap((v, i) => [
+          { field: `variants.${i}.thumbnail`, path: v.thumbnail },
+          ...(["docx", "pptx", "pdf"] as const).flatMap((k) => (v.formats?.[k] ? [{ field: `variants.${i}.formats.${k}`, path: v.formats[k] }] : [])),
+        ]),
       ];
     default:
       return [];

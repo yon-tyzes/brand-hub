@@ -2,13 +2,13 @@
 import MiniSearch from "minisearch";
 import type { Asset } from "../../schemas/asset.ts";
 import { MODULES } from "../modules/registry.ts";
-import { logoFile, MODULE_FOR_TYPE, TYPE_LABEL } from "../site/data.ts";
+import { logoFile, MODULE_FOR_TYPE, templateThumbnail, TYPE_LABEL } from "../site/data.ts";
 import { logoGround } from "../site/library.ts";
 import { searchOptions, type SearchDoc } from "./search-config.ts";
 import { site } from "./site-server.ts";
 
 function previewImage(a: Asset): string | undefined {
-  if (a.type === "template") return site.urlFor(a.thumbnail);
+  if (a.type === "template") return site.urlFor(templateThumbnail(a));
   if (a.type !== "logo") return undefined;
   const f = logoFile(a, "svg") ?? logoFile(a, "png");
   return f && site.urlFor(f.path);

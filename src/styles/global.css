@@ -948,6 +948,29 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 .template-grid { --card-min: 300px; }
 .template-grid > li { display: grid; }
 .template-card .asset-well { height: auto; display: block; background: none; }
+/* Template variants (ENGINE_SPEC.md, section 5): the checked chip shows its panel, a thumbnail or a set of
+   buttons, with no script. One rule per position, up to MAX_TEMPLATE_VARIANTS (schemas/asset.ts). Without
+   :has(), the first variant shows and the switcher hides. */
+.variant-switch { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; border: 0; min-width: 0; }
+.variant-chip { position: relative; height: 28px; padding: 0 10px; font-size: 12px; }
+.variant-chip:has(:checked) { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-primary); }
+.variant-chip:has(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.template-card img[data-variant-panel] { --variant-display: block; }
+.variant-actions { --variant-display: contents; }
+[data-variant-panel] { display: none; }
+.template-card:has([data-variant-pick="1"]:checked) [data-variant-panel="1"],
+.template-card:has([data-variant-pick="2"]:checked) [data-variant-panel="2"],
+.template-card:has([data-variant-pick="3"]:checked) [data-variant-panel="3"],
+.template-card:has([data-variant-pick="4"]:checked) [data-variant-panel="4"],
+.template-card:has([data-variant-pick="5"]:checked) [data-variant-panel="5"],
+.template-card:has([data-variant-pick="6"]:checked) [data-variant-panel="6"],
+.template-card:has([data-variant-pick="7"]:checked) [data-variant-panel="7"],
+.template-card:has([data-variant-pick="8"]:checked) [data-variant-panel="8"] { display: var(--variant-display); }
+@supports not selector(:has(*)) {
+  [data-variant-panel="1"] { display: var(--variant-display); }
+  .variant-switch { display: none; }
+}
+
 .template-card .asset-well img { display: block; width: 100%; max-width: none; max-height: none; aspect-ratio: 4 / 3; object-fit: cover; }
 .template-category { margin: 4px 0 0; font-size: 12px; font-weight: 500; color: var(--text-muted); }
 @media (max-width: 767.98px) {

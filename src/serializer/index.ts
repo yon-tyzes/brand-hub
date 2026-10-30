@@ -6,7 +6,7 @@
 // 3. Writes each data file as stable JSON and adds changelog entries for changes people can see.
 // 4. Validates the whole result with the loader's rules. Any problem returns errors, each tied to an
 //    item id where there is one, and no change set.
-import type { AnyRecord } from "../../schemas/asset.ts";
+import type { AnyRecord, TemplateAsset } from "../../schemas/asset.ts";
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { ChangeSet } from "../adapters/types.ts";
@@ -95,9 +95,13 @@ function withPaths(r: AnyRecord, map: (p: string) => string): AnyRecord {
     case "icon":
       return { ...r, svgPath: map(r.svgPath) };
     case "template": {
-      const formats = { ...r.formats };
-      for (const k of ["docx", "pptx", "pdf"] as const) if (formats[k]) formats[k] = map(formats[k]);
-      return { ...r, thumbnail: map(r.thumbnail), formats };
+      const mapFormats = <F extends TemplateAsset["formats"]>(f: F): F => {
+        const out = { ...f };
+        for (const k of ["docx", "pptx", "pdf"] as const) if (out[k]) out[k] = map(out[k]);
+        return out;
+      };
+      const variants = r.variants?.map((v) => ({ ...v, thumbnail: map(v.thumbnail), ...(v.formats ? { formats: mapFormats(v.formats) } : {}) }));
+      return { ...r, thumbnail: map(r.thumbnail), formats: mapFormats(r.formats), ...(variants ? { variants } : {}) };
     }
     default:
       return r;

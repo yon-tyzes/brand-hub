@@ -37,8 +37,11 @@ export function AssetPreview({ record: r, urlFor, svgFor, bg, alt }: Props) {
         </div>
       );
     }
-    case "template":
-      return r.thumbnail ? <img className="template-thumb" src={urlFor(r.thumbnail)} alt="" loading="lazy" /> : <div className="template-thumb" />;
+    case "template": {
+      // With variants, the first one stands for the template (ENGINE_SPEC.md, section 5).
+      const thumb = r.variants?.[0]?.thumbnail ?? r.thumbnail;
+      return thumb ? <img className="template-thumb" src={urlFor(thumb)} alt="" loading="lazy" /> : <div className="template-thumb" />;
+    }
     case "font":
       return (
         <div className="font-preview" style={{ fontFamily: `"${r.family}", var(--font-sans)` }} aria-hidden="true">
