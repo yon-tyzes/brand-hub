@@ -1,5 +1,5 @@
 // Prints the demo brand's template files: one PDF per template in brands/demo/templates.json, written to the
-// path in its formats.pdf. Each page shows the template's preview and says it is a demo file, set in the
+// path in its formats.pdf, and one per variant that sets its own formats.pdf. Each page shows the template's preview and says it is a demo file, set in the
 // demo brand's own fonts. Run after changing a demo template; the PDFs are committed.
 // Usage: node scripts/build-demo-templates.ts
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -23,14 +23,14 @@ const SIZES: Record<string, { width: string; height: string }> = {
 
 const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-function page(t: TemplateAsset): string {
+function page(t: TemplateAsset, thumbnail = t.thumbnail, label = t.label): string {
   const size = SIZES[t.category] ?? SIZES.Print!;
-  const svg = readFileSync(join(brandDir, t.thumbnail), "utf8");
+  const svg = readFileSync(join(brandDir, thumbnail), "utf8");
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>${escape(t.label)} | ${escape(brand.name)}</title>
+<title>${escape(label)} | ${escape(brand.name)}</title>
 <style>
   @font-face { font-family: "Fraunces"; src: url("${fontUrl("fraunces/fraunces-latin-wght-normal.woff2")}") format("woff2"); font-weight: 100 900; }
   @font-face { font-family: "Inter"; src: url("${fontUrl("inter/inter-latin-wght-normal.woff2")}") format("woff2"); font-weight: 100 900; }
@@ -45,7 +45,7 @@ function page(t: TemplateAsset): string {
 </style>
 </head>
 <body>
-  <h1>${escape(t.label)}</h1>
+  <h1>${escape(label)}</h1>
   ${t.help ? `<p>${escape(t.help)}</p>` : ""}
   <div class="preview">${svg}</div>
   <p class="note">A demo template file for ${escape(brand.name)}, a fictional brand used to show the Brand Hub engine. In a real brand hub, this file is the template itself.</p>
@@ -58,19 +58,22 @@ const work = mkdtempSync(join(tmpdir(), "demo-templates-"));
 const browser = await chromium.launch();
 try {
   const tab = await browser.newPage();
-  for (const t of templates) {
-    const out = t.formats?.pdf;
-    if (!out) {
-      console.log(`${t.id}: no formats.pdf, skipped`);
+  const jobs = templates.flatMap((t) => [
+    { name: t.id, out: t.formats?.pdf, html: () => page(t) },
+    ...(t.variants ?? []).filter((v) => v.formats?.pdf).map((v) => ({ name: `${t.id} ${v.id}`, out: v.formats!.pdf, html: () => page(t, v.thumbnail, `${t.label}, ${v.label}`) })),
+  ]);
+  for (const job of jobs) {
+    if (!job.out) {
+      console.log(`${job.name}: no formats.pdf, skipped`);
       continue;
     }
-    const html = join(work, `${t.id}.html`);
-    writeFileSync(html, page(t));
+    const html = join(work, `${job.name.replace(/\W+/g, "-")}.html`);
+    writeFileSync(html, job.html());
     await tab.goto(pathToFileURL(html).href, { waitUntil: "load" });
     await tab.evaluate(() => document.fonts.ready);
-    mkdirSync(dirname(join(brandDir, out)), { recursive: true });
-    await tab.pdf({ path: join(brandDir, out), preferCSSPageSize: true, printBackground: true });
-    console.log(`${t.id}: wrote brands/demo/${out}`);
+    mkdirSync(dirname(join(brandDir, job.out)), { recursive: true });
+    await tab.pdf({ path: join(brandDir, job.out), preferCSSPageSize: true, printBackground: true });
+    console.log(`${job.name}: wrote brands/demo/${job.out}`);
   }
 } finally {
   await browser.close();
