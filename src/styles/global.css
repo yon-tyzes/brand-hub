@@ -150,8 +150,8 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .btn-secondary:hover { background: var(--surface-subtle); }
 .btn-ghost, .btn-text { background: transparent; color: var(--text); padding-inline: 6px; }
 .btn-ghost:hover, .btn-text:hover { background: var(--surface-subtle); }
-/* Quiet: a secondary action with no fill and a faint edge ("Copy hex code"). */
-.btn-quiet { background: transparent; border-color: var(--border); color: var(--text); }
+/* Quiet: a secondary action with no fill ("Copy hex code"). */
+.btn-quiet { background: transparent; border-color: var(--border-control); color: var(--text); }
 .btn-quiet:hover { background: var(--surface-subtle); }
 .btn-icon { padding: 0; width: 40px; }
 .btn-block { width: 100%; }
