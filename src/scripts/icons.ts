@@ -4,6 +4,7 @@
 // for later visits.
 import { downloadBlob } from "./client.ts";
 import { flip } from "./flip.ts";
+import { still } from "./motion.ts";
 
 const PAIR_KEY = "bh-icon-pair";
 /** The recolor wave: each tile 20ms after the one before, all done within 400ms of a fast (120ms) change. */
@@ -76,7 +77,8 @@ if (root) {
     }
     // Stagger the shown tiles in reading order; hidden (filtered) tiles change at once.
     let n = 0;
-    for (const t of tiles) t.style.setProperty("--wave", `${t.closest("[hidden]") ? 0 : Math.min(n++ * WAVE_STEP, WAVE_LAST)}ms`);
+    // Reduced or calm motion: every tile recolors at once.
+    for (const t of tiles) t.style.setProperty("--wave", `${t.closest("[hidden]") || still.matches ? 0 : Math.min(n++ * WAVE_STEP, WAVE_LAST)}ms`);
     root!.style.setProperty("--icon-color", r.dataset.iconColor!);
     root!.style.setProperty("--icon-ground", r.dataset.ground!);
     root!.style.setProperty("--icon-text", r.dataset.labelColor!);

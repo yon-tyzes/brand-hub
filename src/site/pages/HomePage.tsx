@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { Asset, ColorAsset, FontAsset, IconAsset, LogoAsset, TemplateAsset } from "../../../schemas/asset.ts";
 import { MODULES } from "../../modules/registry.ts";
-import { fontZips, logoFile } from "../data.ts";
+import { fontZips, logoFile, templateThumbnail } from "../data.ts";
 import { colorRows, logoDownloads, logoGround } from "../library.ts";
 import { AssetCard, Button, Chip, ColorRows, DownloadButton, Icon, useSite } from "../ui.tsx";
 
@@ -156,7 +156,7 @@ function QuickTemplate({ template: t }: { template: TemplateAsset }) {
     <AssetCard
       title={t.label}
       help={t.help}
-      well={<img className="well-thumb" src={site.urlFor(t.thumbnail)} alt="" loading="lazy" />}
+      well={<img className="well-thumb" src={site.urlFor(templateThumbnail(t))} alt="" loading="lazy" />}
       actions={site.templateLinks(t).map((l, i) => (
         <Button key={l.format} size="sm" variant={i === 0 && l.format === "canva" ? "primary" : "secondary"} href={l.href} external={l.external} download={l.filename} aria-label={`${l.label}: ${t.label}`}>
           {l.label}
@@ -243,7 +243,7 @@ function CategoryPreviews() {
         out.push(
           <Preview key={m.id} id="preview-templates" title={m.label} more={more}>
             <div className="library-grid">
-              {templates.map((t) => <AssetCard key={t.id} title={t.label} help={t.help} well={<img className="well-thumb" src={site.urlFor(t.thumbnail)} alt="" loading="lazy" />} />)}
+              {templates.map((t) => <AssetCard key={t.id} title={t.label} help={t.help} well={<img className="well-thumb" src={site.urlFor(templateThumbnail(t))} alt="" loading="lazy" />} />)}
             </div>
           </Preview>,
         );

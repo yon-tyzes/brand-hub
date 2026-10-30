@@ -1,6 +1,6 @@
 // Everything a public page needs, built from plain data. The build creates one from the brand folder
 // (src/lib/site-server.ts); the editor's preview creates one from the draft. No file system access here.
-import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat } from "../../schemas/asset.ts";
+import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat, TemplateVariant } from "../../schemas/asset.ts";
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
@@ -21,6 +21,8 @@ export interface SiteInput {
   urlFor: (path: string) => string;
   /** SVG markup of a brand file, when available. */
   svgFor: (path: string) => string | undefined;
+  /** Size in bytes of a brand file, when known (the build reads it; the editor preview does not). */
+  sizeOf?: (path: string) => number | undefined;
 }
 
 export type OfType<T extends AssetType> = Extract<Asset, { type: T }>;
@@ -34,6 +36,8 @@ export const LOGOS_ZIP = "/downloads/logos-all.zip";
 const dateFormat = new Intl.DateTimeFormat("en", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 export const formatDate = (iso: string) => dateFormat.format(new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso));
 export const formatCmyk = (c: ColorAsset) => (c.cmyk ? c.cmyk.join(", ") : undefined);
+/** File size for a button label: "1.2 MB", "340 KB". */
+export const formatBytes = (n: number) => (n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1000))} KB`);
 export const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export function logoFile(l: LogoAsset, ext: string) {
@@ -55,20 +59,28 @@ const FILE_FORMATS = [
   ["pdf", "PDF"],
 ] as const;
 
+/** The image that stands for a template: its first variant's, when it has variants (spec section 5). */
+export const templateThumbnail = (t: TemplateAsset) => t.variants?.[0]?.thumbnail ?? t.thumbnail;
+
 /**
  * A template's formats in button order (spec section 5): Canva first, then Word, PowerPoint, and PDF. Only the
- * formats it has. A 0.1 `url` stands in as one "Open template" link when no format is set.
+ * formats it has. A 0.1 `url` stands in as one "Open template" link when no format is set. With variants, the
+ * links are those of `variant` (the first by default), which falls back to the template's own formats.
  */
-export function templateLinks(t: TemplateAsset, urlFor: (path: string) => string): TemplateLink[] {
+export function templateLinks(t: TemplateAsset, urlFor: (path: string) => string, variant: TemplateVariant | undefined = t.variants?.[0]): TemplateLink[] {
   const out: TemplateLink[] = [];
-  if (t.formats.canva) out.push({ format: "canva", label: "Open in Canva", href: t.formats.canva, external: true });
+  const formats = variant?.formats ?? t.formats;
+  if (formats.canva) out.push({ format: "canva", label: "Open in Canva", href: formats.canva, external: true });
   for (const [format, label] of FILE_FORMATS) {
-    const path = t.formats[format];
+    const path = formats[format];
     if (path) out.push({ format, label, href: urlFor(path), external: false, filename: fileName(path) });
   }
   if (!out.length && t.url) out.push({ format: "link", label: "Open template", href: t.url, external: isExternal(t.url) });
   return out;
 }
+
+/** The "Download all" zip of one font group: every family's static and variable files. */
+export const fontGroupZip = (groupId: string) => `/downloads/fonts-${groupId}.zip`;
 
 export function fontZips(f: FontAsset): { kind: "static" | "variable"; href: string; files: string[] }[] {
   const out: { kind: "static" | "variable"; href: string; files: string[] }[] = [];
@@ -102,8 +114,22 @@ export function createSite(input: SiteInput) {
     isEnabled,
     assetHref,
     iconMarkup,
+    /** The full brand guide PDF, with its size when known. */
+    guidePdf: (): { href: string; label: string } | undefined => {
+      const pdf = input.brand.guide.pdf;
+      if (!pdf) return undefined;
+      const size = input.sizeOf?.(pdf.path);
+      return { href: input.urlFor(pdf.path), label: `Open the full guide (PDF${size ? `, ${formatBytes(size)}` : ""})` };
+    },
     /** A template's formats, in button order. Empty when it has none. */
-    templateLinks: (t: TemplateAsset) => templateLinks(t, input.urlFor),
+    templateLinks: (t: TemplateAsset, variant?: TemplateVariant) => templateLinks(t, input.urlFor, variant ?? t.variants?.[0]),
+    /** Font groups in order, each with its locked fonts. Undefined when the brand sets no groups. Empty groups are left out. */
+    fontGroups: () => {
+      const groups = input.brand.modules.fonts?.groups;
+      if (!groups) return undefined;
+      const fonts = input.assets.filter((a): a is FontAsset => a.type === "font");
+      return groups.map((g) => ({ ...g, fonts: fonts.filter((f) => f.group === g.id), href: fontGroupZip(g.id) })).filter((g) => g.fonts.length);
+    },
     assetsOfType: <T extends AssetType>(type: T): OfType<T>[] => input.assets.filter((a): a is OfType<T> => a.type === type),
     findAsset: (id: string) => assetById.get(id),
     findRule: (id: string) => ruleById.get(id),

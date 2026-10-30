@@ -1,7 +1,9 @@
 // Home hero gradient runner (DESIGN_SYSTEM.md, section 9), used by src/scripts/hero.ts.
 // Draws the grain mesh with a WebGL2 fragment shader from the tuned tones in --hero-1 to --hero-3 (src/theme/
 // hero-tint.ts), which already follow the theme. Pauses when the tab is hidden or the hero is offscreen, holds
-// one still frame under reduced motion, and leaves the static CSS gradient in place without WebGL.
+// one still frame under reduced motion, and leaves the static CSS gradient in place without WebGL. Calm motion
+// never loads it (src/modules/home/index.astro).
+import { still } from "./motion.ts";
 
 const VERTEX = `#version 300 es
 in vec2 a;
@@ -121,7 +123,7 @@ export function start(hero: HTMLElement, preset: Preset): boolean {
   gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
   const u = (name: string) => gl.getUniformLocation(program, name);
 
-  const still = matchMedia("(prefers-reduced-motion: reduce)");
+
   let tones = readTones(hero);
   // Where the title text ends, measured from its text rather than its box (the heading spans the column).
   const titleEl = hero.querySelector(".hero-title");

@@ -1,5 +1,5 @@
 // Astro integration. Loads hub.config.ts, validates the brand folder, injects one route per enabled
-// module (plus /, the guide chapters, redirects from 0.1 routes, and, when enabled, /admin), writes
+// module (plus /, the guide chapters, redirects from 0.1 routes, and, when the editor is on for this command, /admin), writes
 // dist/_redirects, and exposes config, content and theme CSS to pages
 // through the `virtual:brand-hub` module.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -20,6 +20,9 @@ import { buildThemeCss } from "../theme/tokens.ts";
 
 export const VIRTUAL_ID = "virtual:brand-hub";
 const RESOLVED_ID = `\0${VIRTUAL_ID}`;
+/** Build-time constants for client scripts. Constants, so the bundler drops code they turn off. */
+export const CLIENT_ID = "virtual:brand-hub/client";
+const RESOLVED_CLIENT_ID = `\0${CLIENT_ID}`;
 /** The editor's adapters, chosen in hub.config.ts. Imported only by the editor. */
 export const ADMIN_ID = "virtual:brand-hub/admin";
 const RESOLVED_ADMIN_ID = `\0${ADMIN_ID}`;
@@ -69,6 +72,9 @@ export function adapterModule(spec: string, kind: "content" | "auth", root: stri
   return isAbsolute(spec) ? spec : join(root, spec);
 }
 
+/** Whether this command gets the editor: `admin.enabled` true, or "dev" under `astro dev`. */
+export const adminOn = (hub: HubConfig, command: Command) => hub.admin.enabled === true || (hub.admin.enabled === "dev" && command === "dev");
+
 /** Route entry for each page and file the integration injects. */
 export function routesFor(hub: HubConfig, command: Command = "build"): { pattern: string; entrypoint: URL; prerender: boolean }[] {
   const modulesDir = new URL("../modules/", import.meta.url);
@@ -84,7 +90,7 @@ export function routesFor(hub: HubConfig, command: Command = "build"): { pattern
   if (hub.modules.includes("guide")) routes.push(page("/guide/[chapter]", new URL("guide/chapter.astro", modulesDir)));
   // Moved 0.1 routes (src/site/redirects.ts). Last, so every real page wins over it.
   routes.push(page("/[...legacy]", new URL("redirect.astro", routesDir)));
-  if (hub.admin.enabled) {
+  if (adminOn(hub, command)) {
     const adapter = adapterFor(hub.admin.adapter, command);
     routes.push(page("/admin", new URL("../admin/index.astro", import.meta.url)));
     routes.push(page("/admin/preview", new URL("../admin/preview.astro", import.meta.url)));
@@ -117,9 +123,10 @@ export interface VirtualData {
 function virtualModule(data: VirtualData, adapters: { content: string; auth: string; mode: string }): Plugin {
   return {
     name: "brand-hub:virtual",
-    resolveId: (id) => (id === VIRTUAL_ID ? RESOLVED_ID : id === ADMIN_ID ? RESOLVED_ADMIN_ID : undefined),
+    resolveId: (id) => (id === VIRTUAL_ID ? RESOLVED_ID : id === ADMIN_ID ? RESOLVED_ADMIN_ID : id === CLIENT_ID ? RESOLVED_CLIENT_ID : undefined),
     load: (id) => {
       if (id === RESOLVED_ID) return Object.entries(data).map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`).join("\n");
+      if (id === RESOLVED_CLIENT_ID) return `export const calm = ${JSON.stringify(data.config.motion === "calm")};`;
       if (id === RESOLVED_ADMIN_ID) {
         return [
           `import content from ${JSON.stringify(adapters.content)};`,
@@ -151,7 +158,7 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
         for (const route of routesFor(hub, command)) injectRoute(route);
         const adapter = adapterFor(hub.admin.adapter, command);
         const auth = adapterFor(hub.admin.auth, command);
-        if (hub.admin.enabled && command === "build" && (adapter === "local" || auth === "local")) {
+        if (adminOn(hub, command) && command === "build" && (adapter === "local" || auth === "local")) {
           logger.warn("admin uses the local adapter, which only works under `astro dev`. The built editor will not load or save. Set admin.adapter and admin.auth for production.");
         }
 

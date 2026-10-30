@@ -4,7 +4,7 @@ An engine for brand resource sites. It builds a static site of logos, colors, fo
 
 The engine is an [Astro](https://astro.build) integration. Pages are static HTML, rendered from React components at build time. In the browser, React runs only in the search dialog and the editor; the rest is a few small page scripts.
 
-Status: 0.2.1. The engine owns the interface: a neutral shell in light and dark, with its own interface fonts, that every brand gets unchanged. The public site has three parts: Library (home, logos, colors, fonts, icons, photos, templates), Brand guide (rules grouped into chapters), and Create (the email signature, from 0.3). The editor at `/admin` has an Overview, one workspace per section, and Brand settings, and saves and publishes through adapters (`docs/ADAPTERS.md`). The signature, New to the team, the Office theme, and company descriptions arrive in 0.3 and 0.4.
+Status: 0.2.2. The engine owns the interface: a neutral shell in light and dark, with its own interface fonts, that every brand gets unchanged. The public site has three parts: Library (home, logos, colors, fonts, icons, photos, templates), Brand guide (rules grouped into chapters), and Create (the email signature, from 0.3). The editor at `/admin` has an Overview, one workspace per section, and Brand settings, and saves and publishes through adapters (`docs/ADAPTERS.md`). The signature, New to the team, the Office theme, and company descriptions arrive in 0.3 and 0.4.
 
 ![Home page of the demo brand, Pocket Comet Teapots: the sidebar, the search-first hero over a pale green gradient, and Quick downloads](docs/screenshot.png)
 
@@ -127,7 +127,7 @@ An instance is a separate, usually private, Astro project that holds one brand's
 
    ```sh
    pnpm add astro @astrojs/react react react-dom
-   pnpm add github:yon-tyzes/brand-hub#v0.2.1
+   pnpm add github:yon-tyzes/brand-hub#v0.2.2
    ```
 
 2. Register the integration in `astro.config.ts`:
@@ -161,13 +161,13 @@ The engine has no install scripts, because pnpm refuses git-hosted dependencies 
 
 ## Upgrading an instance from 0.1
 
-Change the pinned tag to `#v0.2.1`, then build. Most 0.1 data still builds and prints one warning per key to change: the shell colors, fonts, radii, and spacing in `brand.json` `tokens` are ignored (keep only `tokens.color.primary`), `topTasks` is read as `quickDownloads`, the `whats-new` module is read as `changes`, and a template `url` shows as a single "Open template" button until it moves to `formats`. One change stops the build: every rule needs a `chapter`, listed in `guide.chapters` in `brand.json`. The 0.1 routes (`/whats-new`, `/start`, `/signature`, `/boilerplate`, `/guide/<rule-id>`) redirect to their new pages.
+Change the pinned tag to `#v0.2.2`, then build. Most 0.1 data still builds and prints one warning per key to change: the shell colors, fonts, radii, and spacing in `brand.json` `tokens` are ignored (keep only `tokens.color.primary`), `topTasks` is read as `quickDownloads`, the `whats-new` module is read as `changes`, and a template `url` shows as a single "Open template" button until it moves to `formats`. One change stops the build: every rule needs a `chapter`, listed in `guide.chapters` in `brand.json`. The 0.1 routes (`/whats-new`, `/start`, `/signature`, `/boilerplate`, `/guide/<rule-id>`) redirect to their new pages.
 
 `docs/ENGINE_SPEC.md`, section 13, lists every change with how the engine handles it.
 
 ## Editor
 
-`/admin` is a React app for adding, editing, reordering, and retiring brand items without touching files. It is built when `admin.enabled` is true in `hub.config.ts`.
+`/admin` is a React app for adding, editing, reordering, and retiring brand items without touching files. It is built when `admin.enabled` is true in `hub.config.ts`. With `admin.enabled: "dev"` it runs under `pnpm dev` only, and a production build ships no `/admin` route and no editor JavaScript.
 
 | Path | What it does |
 |---|---|

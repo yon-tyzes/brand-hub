@@ -10,14 +10,23 @@
     "audience": "public",
     "family": "Inter",
     "role": "body",
-    "weights": [400, 500, 600],
+    "weights": [
+      400,
+      500,
+      600
+    ],
     "files": {
       "static": [
+        "files/fonts/inter/inter-400.ttf",
+        "files/fonts/inter/inter-500.ttf",
+        "files/fonts/inter/inter-600.ttf"
+      ],
+      "variable": [],
+      "web": [
         "files/fonts/inter/inter-latin-400-normal.woff2",
         "files/fonts/inter/inter-latin-500-normal.woff2",
         "files/fonts/inter/inter-latin-600-normal.woff2"
-      ],
-      "variable": []
+      ]
     },
     "license": "OFL-1.1",
     "install": "Download the zip, open each file, and choose Install. Restart open apps so they pick up the font."

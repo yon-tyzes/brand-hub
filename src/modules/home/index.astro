@@ -9,15 +9,20 @@ import { PageBody } from "../../site/Page.tsx";
 </Layout>
 
 <script>
-  // The hero gradient loads after the page renders and never blocks search.
+  // The hero gradient loads after the page renders and never blocks search. Under motion: "calm" the hero
+  // animation and the pointer light are never loaded: the static gradient shows, and the hint holds still.
+  import { calm } from "virtual:brand-hub/client";
+
   let started = false;
   const start = () => {
     if (started) return;
     started = true;
     setTimeout(() => {
       import("../../scripts/hero-typing.ts");
-      import("../../scripts/hero-light.ts");
-      import("../../scripts/hero.ts");
+      if (!calm) {
+        import("../../scripts/hero-light.ts");
+        import("../../scripts/hero.ts");
+      }
     }, 0);
   };
   // Wait for the browser to report the first contentful paint, which can land after the next frame. Browsers

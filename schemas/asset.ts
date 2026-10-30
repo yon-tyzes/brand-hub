@@ -19,7 +19,7 @@ export const link = z.union([z.url(), z.string().regex(/^\/(?!\/)\S*$/, "must be
 
 export const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/, "must be a 6-digit hex color like #0F3D6B");
 
-const fileWith = (ext: string) => brandPath.refine((p) => p.toLowerCase().endsWith(ext), { message: `must point to a ${ext} file` });
+export const fileWith = (ext: string) => brandPath.refine((p) => p.toLowerCase().endsWith(ext), { message: `must point to a ${ext} file` });
 
 const isoDate = z.union([z.iso.date(), z.iso.datetime({ offset: true })]);
 const oneLine = z.string().min(1).regex(/^[^\n]*$/, "must be a single line");
@@ -103,11 +103,17 @@ export const fontAsset = z
     role: z.string().min(1),
     weights: z.array(z.int().min(1).max(1000)).min(1),
     files: z.strictObject({
+      /** One TTF or OTF file per weight, in `weights` order. The download for computers. */
       static: z.array(brandPath).default([]),
+      /** A variable file covering every weight. The download for websites. */
       variable: z.array(brandPath).default([]),
+      /** WOFF2 files for the site's own @font-face only. Never in a download. */
+      web: z.array(fileWith(".woff2")).optional(),
     }),
     license: z.string().min(1),
     install: z.string().min(1),
+    /** Fonts page section, an id from modules.fonts.groups in brand.json. */
+    group: id.optional(),
   })
   .refine((f) => f.files.static.length + f.files.variable.length > 0, {
     message: "needs at least one static or variable file",
@@ -124,24 +130,43 @@ export const iconAsset = z.strictObject({
   standIn: z.boolean().optional(),
 });
 
+const templateFormats = z.strictObject({
+  /** Canva share link. */
+  canva: z.url().optional(),
+  docx: fileWith(".docx").optional(),
+  pptx: fileWith(".pptx").optional(),
+  pdf: fileWith(".pdf").optional(),
+});
+
+/** The most variants one template card offers; the stylesheet has a rule for each position. */
+export const MAX_TEMPLATE_VARIANTS = 8;
+
+export const templateVariant = z.strictObject({
+  /** Unique within the template. */
+  id,
+  label: oneLine,
+  thumbnail: brandPath,
+  /** Formats for this variant. Without it, the variant uses the template's own. */
+  formats: templateFormats.optional(),
+});
+
 export const templateAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("template"),
   category: z.string().min(1),
   /** Where to get the template. At least one is required (checked by the loader). Canva is the recommended format. */
-  formats: z
-    .strictObject({
-      /** Canva share link. */
-      canva: z.url().optional(),
-      docx: fileWith(".docx").optional(),
-      pptx: fileWith(".pptx").optional(),
-      pdf: fileWith(".pdf").optional(),
-    })
-    .default({}),
+  formats: templateFormats.default({}),
   /** 0.1 template link, read as a single "Open template" link with a build warning until moved to `formats`. */
   url: link.optional(),
   thumbnail: brandPath,
   rules: z.array(id).default([]),
+  /** Versions of one design, such as two colors. The first is the default and stands for the template everywhere. */
+  variants: z
+    .array(templateVariant)
+    .min(1)
+    .max(MAX_TEMPLATE_VARIANTS)
+    .refine((vs) => new Set(vs.map((v) => v.id)).size === vs.length, { message: "variant ids must be unique" })
+    .optional(),
 });
 
 export const photoSourceAsset = z.strictObject({
@@ -213,6 +238,7 @@ export type FontAsset = z.infer<typeof fontAsset>;
 export type IconAsset = z.infer<typeof iconAsset>;
 export type TemplateAsset = z.infer<typeof templateAsset>;
 export type TemplateFormat = keyof TemplateAsset["formats"];
+export type TemplateVariant = z.infer<typeof templateVariant>;
 export type PhotoSourceAsset = z.infer<typeof photoSourceAsset>;
 export type BoilerplateAsset = z.infer<typeof boilerplateAsset>;
 export type DocumentAsset = z.infer<typeof documentAsset>;

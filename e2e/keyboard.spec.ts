@@ -57,12 +57,27 @@ test("keyboard only: search, recolor and download an icon, download a logo and a
   expect((await download).suggestedFilename()).toBe("pocket-comet-horizontal-full-color.svg");
   await expect(page.locator("[data-toast-region]")).toHaveText("pocket-comet-horizontal-full-color.svg downloaded");
 
-  // Download a template. The demo templates offer a PDF only.
+  // Download a template. The demo templates offer a PDF only; the letterhead's first variant is the default.
   await page.goto("/templates/");
-  await tabTo(page, /^PDF: Letterhead$/);
+  await tabTo(page, /^PDF: Letterhead, Comet Green$/);
   const pdf = page.waitForEvent("download");
   await page.keyboard.press("Enter");
   expect((await pdf).suggestedFilename()).toBe("letterhead.pdf");
+});
+
+test("keyboard only: switch a template variant, and its thumbnail and download follow", async ({ page }) => {
+  await page.goto("/templates/");
+  const card = page.locator("#template-letterhead");
+  await tabTo(page, /^Comet Green$/);
+  await expect(card.locator(".variant-chip:has(:focus-visible)")).toHaveCount(1);
+  await page.keyboard.press("ArrowRight");
+  await expect(card.getByRole("radio", { name: "Ink" })).toBeChecked();
+  await expect(card.getByRole("img", { name: "Letterhead, Ink template preview" })).toBeVisible();
+  await expect(card.getByRole("img", { name: "Letterhead, Comet Green template preview" })).toBeHidden();
+  await tabTo(page, /^PDF: Letterhead, Ink$/);
+  const pdf = page.waitForEvent("download");
+  await page.keyboard.press("Enter");
+  expect((await pdf).suggestedFilename()).toBe("letterhead-ink.pdf");
 });
 
 test("the search dialog shows focus on its input row, without a full-width focus line", async ({ page }) => {

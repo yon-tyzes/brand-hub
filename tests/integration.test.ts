@@ -36,6 +36,13 @@ describe("brandHub integration", () => {
     expect(routesFor(hubConfigOf(hub(false))).map((r) => r.pattern)).toEqual(["/", ...ALWAYS, "/icons", LEGACY]);
   });
 
+  it("injects /admin under astro dev only when admin.enabled is \"dev\"", () => {
+    const hub = hubConfigOf({ brand: "demo", modules: [], admin: { enabled: "dev", adapter: "local", auth: "local" } });
+    const admin = (command: "dev" | "build") => routesFor(hub, command).map((r) => r.pattern).filter((p) => p.startsWith("/admin"));
+    expect(admin("dev")).toEqual(["/admin", "/admin/preview", "/admin/[section]", "/admin/api/local/[action]"]);
+    expect(admin("build")).toEqual([]);
+  });
+
   it("builds the record snapshot only for the demo adapter, and the disk endpoint only under astro dev", () => {
     const hub = (adapter: unknown) => hubConfigOf({ brand: "demo", modules: [], admin: { enabled: true, adapter, auth: "demo" } as never });
     const admin = (adapter: unknown, command: "dev" | "build") => routesFor(hub(adapter), command).map((r) => r.pattern).filter((p) => p.startsWith("/admin"));

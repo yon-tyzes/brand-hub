@@ -38,6 +38,8 @@ const BRAND_PARTS: [string, (b: Brand) => unknown][] = [
   ["Quick downloads", (b) => b.quickDownloads],
   ["icon colors", (b) => b.modules.icons?.colors ?? []],
   ["icon backgrounds", (b) => b.modules.icons?.grounds ?? []],
+  ["guide PDF", (b) => b.guide.pdf ?? null],
+  ["font groups", (b) => b.modules.fonts?.groups ?? []],
 ];
 
 /** One line when brand settings changed: "Brand settings: primary color, guide chapters changed". */

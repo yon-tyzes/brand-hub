@@ -28,12 +28,15 @@ export const hubConfig = z.strictObject({
   search: z.strictObject({ shortcut: z.array(z.string().min(1)).default(["mod+k", "/"]) }).default({ shortcut: ["mod+k", "/"] }),
   /** Home hero gradient: the grain mesh, or contour lines for very loud or nearly monochrome palettes. */
   hero: z.strictObject({ preset: z.enum(["mesh", "contour"]).default("mesh") }).default({ preset: "mesh" }),
+  /** "calm" turns off decorative motion for every viewer, as reduced motion does; feedback motion stays. */
+  motion: z.enum(["full", "calm"]).default("full"),
   /** When false, every page gets a noindex meta tag. */
   indexing: z.boolean().default(false),
   analytics: z.strictObject({ provider: z.literal("plausible"), domain: z.string().min(1) }).optional(),
   admin: z
     .strictObject({
-      enabled: z.boolean().default(false),
+      /** true: in every build. "dev": under `astro dev` only, so a production build ships no editor. */
+      enabled: z.union([z.boolean(), z.literal("dev")]).default(false),
       /** Content adapter: "local", "demo", or a path to a module whose default export is a ContentAdapter. */
       adapter: adapterChoice.default("local"),
       /** Auth adapter: "local", "demo", or a path to a module whose default export is an AuthAdapter. */

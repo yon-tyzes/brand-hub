@@ -1,5 +1,5 @@
 // The public site's data at build time: the brand folder loaded by the integration.
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { brand, brandDir, config, content, engineVersion } from "virtual:brand-hub";
 import { createSite } from "../site/data.ts";
@@ -25,4 +25,5 @@ export const site = createSite({
     if (svg === undefined) svgCache.set(path, (svg = readBrandFile(path)));
     return svg;
   },
+  sizeOf: (path) => statSync(join(brandDir, path)).size,
 });

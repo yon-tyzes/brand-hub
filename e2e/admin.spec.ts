@@ -192,7 +192,7 @@ test("module editors: hex updates the card live, Canva edit links get a warning,
 
   await page.locator(".ed-side-item", { hasText: "Templates" }).click();
   await page.getByRole("button", { name: "Edit Letterhead" }).click();
-  await details.getByLabel(/Canva link/).fill("https://www.canva.com/design/DAF0000/edit");
+  await details.getByLabel(/^Canva link/).fill("https://www.canva.com/design/DAF0000/edit");
   await expect(details.getByText(/This looks like an edit link/)).toBeVisible();
 
   await page.locator(".ed-side-item", { hasText: "Icons" }).click();
@@ -240,4 +240,34 @@ test("on small screens, Edit opens the details sheet on its first field and Esca
   await page.keyboard.press("Escape");
   await expect(sheet).toBeHidden();
   await expect(edit).toBeFocused();
+});
+
+test("0.2.2 editor fields: guide PDF and font groups in Brand settings, a font's group and web files, a template's variants", async ({ page }) => {
+  await open(page);
+  await page.locator(".ed-side-item", { hasText: "Brand settings" }).click();
+  const pdf = page.getByRole("region", { name: "Brand guide PDF" });
+  await expect(pdf).toContainText("pocket-comet-brand-guide.pdf");
+  await expect(pdf.getByRole("button", { name: "Replace Guide PDF" })).toBeVisible();
+  const groups = page.getByRole("region", { name: "Font groups" });
+  await expect(groups.getByLabel("Group 1 title")).toHaveValue("Headings");
+  await expect(groups.getByLabel("Group 2 title")).toHaveValue("Text");
+  await groups.getByRole("button", { name: "Remove Headings" }).click();
+  await expect(page.locator(".toast-region")).toContainText("Headings still has fonts");
+
+  await page.locator(".ed-side-item", { hasText: "Fonts" }).click();
+  await page.getByRole("button", { name: "Edit Fraunces" }).click();
+  const details = page.getByRole("complementary", { name: "Details" });
+  await expect(details.getByLabel("Group")).toHaveValue("headings");
+  await details.getByLabel("Group").selectOption("text");
+  await expect(card(page, "Fraunces")).toContainText("Edited");
+  await expect(details.getByRole("group", { name: /Web font files/ })).toContainText("fraunces-latin-wght-normal.woff2");
+
+  await page.locator(".ed-side-item", { hasText: "Templates" }).click();
+  await page.getByRole("button", { name: "Edit Letterhead" }).click();
+  const variants = details.getByRole("group", { name: /^Variants/ });
+  await expect(variants.getByLabel("Variant 1 name")).toHaveValue("Comet Green");
+  await expect(variants.getByLabel("Variant 2 name")).toHaveValue("Ink");
+  // The hidden part of the name starts with ":", and the browser puts a space before it: "Down : move ...".
+  await variants.getByRole("button", { name: /^Down\s*: move Comet Green down$/ }).click();
+  await expect(variants.getByLabel("Variant 1 name")).toHaveValue("Ink");
 });

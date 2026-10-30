@@ -1,5 +1,6 @@
 // Test fixtures: a throwaway copy of tests/fixtures/brand (a frozen, minimal brand) that each test
-// can break in one specific way. The live demo brand is validated by `pnpm check` instead.
+// can break in one specific way. The live demo brand is validated by `pnpm check` instead. The fixture's .ttf
+// files are empty stand-ins: the loader checks that files exist, not what is in them.
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

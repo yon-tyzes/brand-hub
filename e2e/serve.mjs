@@ -8,6 +8,7 @@ const port = Number(process.argv[2] ?? 4322);
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
   ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2", ".zip": "application/zip", ".txt": "text/plain",
+  ".pdf": "application/pdf", ".ttf": "font/ttf", ".otf": "font/otf",
 };
 
 createServer((req, res) => {

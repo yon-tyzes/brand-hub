@@ -174,6 +174,8 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   const assetIds = idsOf((t) => t !== "rule");
   const colorIds = idsOf((t) => t === "color");
   const chapterIds = new Set(brand?.guide.chapters.map((c) => c.id) ?? []);
+  const fontGroups = brand?.modules.fonts?.groups;
+  const groupIds = new Set(fontGroups?.map((g) => g.id) ?? []);
   for (const { record, file } of unreadable ? [] : records) {
     const missing = (field: string, kind: string, ref: string) =>
       problems.push({ file: src.label(file), id: record.id, problem: `${field}: ${kind} "${ref}" does not exist`, code: "reference", field: field.split(".")[0], ref });
@@ -191,6 +193,14 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
       problems.push({ file: src.label(file), id: record.id, code: "schema", field: "formats", problem: "formats: needs at least one of canva, docx, pptx, or pdf" });
     }
     if (record.type === "template") for (const ref of record.rules) if (!ruleIds.has(ref)) missing("rules", "rule", ref);
+    if (record.type === "font" && brand && record.status !== "retired") {
+      const listed = `Use one of: ${[...groupIds].join(", ") || "(none listed)"}`;
+      if (record.group && !groupIds.has(record.group)) {
+        problems.push({ file: src.label(file), id: record.id, code: "reference", field: "group", ref: record.group, problem: `group: font "${record.id}" names group "${record.group}", which is not in modules.fonts.groups in ${src.label("brand.json")}. ${listed}` });
+      } else if (!record.group && fontGroups) {
+        problems.push({ file: src.label(file), id: record.id, code: "reference", field: "group", problem: `group: font "${record.id}" has no group. modules.fonts.groups is set in ${src.label("brand.json")}, so every font needs one. ${listed}` });
+      }
+    }
     if (record.type === "color") {
       for (const p of record.pairings) {
         if (!colorIds.has(p.fg)) missing("pairings.fg", "color", p.fg);
@@ -214,12 +224,30 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
     }
   }
 
-  // 4. Every file path exists.
+  // 4. Every file path exists, brand.json's included.
+  const guidePdf = brand?.guide.pdf?.path;
+  if (guidePdf && !src.exists(guidePdf)) {
+    problems.push({ file: src.label("brand.json"), problem: `guide.pdf.path: file not found: ${src.label(guidePdf)}`, code: "file-not-found", field: "guide", ref: guidePdf });
+  }
   for (const { record, file } of records) {
     for (const { field, path } of filePaths(record)) {
       if (!src.exists(path)) {
         problems.push({ file: src.label(file), id: record.id, problem: `${field}: file not found: ${src.label(path)}`, code: "file-not-found", field: field.split(".")[0], ref: path });
       }
+    }
+  }
+
+  // Fonts Word cannot install: WOFF2 files and no static TTF or OTF. A warning: the site still renders them.
+  for (const { record, file } of records) {
+    if (record.type !== "font" || record.status === "retired") continue;
+    const { static: statics, variable, web = [] } = record.files;
+    const woff2 = web.length > 0 || [...statics, ...variable].some((p) => p.toLowerCase().endsWith(".woff2"));
+    if (woff2 && !statics.some((p) => /\.(ttf|otf)$/i.test(p))) {
+      warnings.push({
+        file: src.label(file), id: record.id, field: "files",
+        problem: `font "${record.id}" has only WOFF2 files, so it cannot be installed in Word`,
+        fix: "Add its static TTF or OTF files to files.static, and keep the WOFF2 files in files.web.",
+      });
     }
   }
 

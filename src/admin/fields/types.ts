@@ -1,7 +1,7 @@
 // Field definitions for the inspector. Labels and help are written for the person editing the brand:
 // plain words, one line of help, and no technical terms.
 import type { AnyRecord, AssetType } from "../../../schemas/asset.ts";
-import type { GuideChapter } from "../../../schemas/brand.ts";
+import type { FontGroup, GuideChapter } from "../../../schemas/brand.ts";
 
 export interface FieldContext {
   records: AnyRecord[];
@@ -9,6 +9,8 @@ export interface FieldContext {
   record: AnyRecord;
   /** Brand guide chapters from the draft's brand settings. */
   chapters: GuideChapter[];
+  /** Fonts page groups from the draft's brand settings. Empty when the brand sets none. */
+  fontGroups: FontGroup[];
 }
 
 export type FieldKind =
@@ -31,9 +33,13 @@ export type FieldKind =
   | { kind: "logo-files" }
   /** A template's Canva link and its Word, PowerPoint, and PDF files. */
   | { kind: "template-formats" }
+  /** A template's variants: label, thumbnail, and optional formats each. */
+  | { kind: "template-variants" }
   /** A Brand guide chapter from brand settings. */
   | { kind: "chapter" }
-  | { kind: "font-files"; variant: "static" | "variable" };
+  /** A Fonts page group from brand settings. Hidden while the brand sets none. */
+  | { kind: "font-group" }
+  | { kind: "font-files"; variant: "static" | "variable" | "web" };
 
 export type FieldDef = FieldKind & {
   key: string;

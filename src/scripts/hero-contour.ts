@@ -2,6 +2,7 @@
 // strength, every fifth line in the brand's color, bending slightly around the pointer. Uses the same loader,
 // pausing, and fallbacks as the mesh (src/scripts/hero-gl.ts).
 import { NOISE, TITLE_FADE, type Preset } from "./hero-gl.ts";
+import { still } from "./motion.ts";
 
 const CONTOUR = `#version 300 es
 precision highp float;
@@ -33,7 +34,7 @@ void main() {
 
 /** The pointer bends the lines around it, easing in and out. Ignored under reduced motion. */
 export function contour(hero: HTMLElement): Preset {
-  const still = matchMedia("(prefers-reduced-motion: reduce)");
+
   const target = { x: 0.8, y: 0.6, on: 0 };
   const now = { ...target };
   hero.addEventListener("pointermove", (e) => {

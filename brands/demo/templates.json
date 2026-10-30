@@ -19,6 +19,21 @@
     "thumbnail": "files/templates/letterhead.svg",
     "rules": [
       "logo-clear-space"
+    ],
+    "variants": [
+      {
+        "id": "comet-green",
+        "label": "Comet Green",
+        "thumbnail": "files/templates/letterhead.svg"
+      },
+      {
+        "id": "ink",
+        "label": "Ink",
+        "thumbnail": "files/templates/letterhead-ink.svg",
+        "formats": {
+          "pdf": "files/templates/letterhead-ink.pdf"
+        }
+      }
     ]
   },
   {

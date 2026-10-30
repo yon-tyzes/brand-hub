@@ -2,6 +2,34 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
+## 0.2.2 (2026-10-30)
+
+Six optional additions: a brand guide PDF, font groups, web font files, calm motion, template variants, and an editor kept to local dev. No breaking changes: 0.2.1 instances build unchanged. The one new warning is for fonts with WOFF2 files only.
+
+### Public site
+
+- Brand guide PDF: with `guide.pdf` set, `/guide` shows one secondary button, "Open the full guide (PDF, 145 KB)", with the size read at build time. It opens the PDF in a new tab in the browser's own viewer. Search lists it as "Brand guide (PDF)".
+- Font groups: with `modules.fonts.groups` set, `/fonts` shows one section per group, in order, with its title, help line, and a "Download all" zip that holds one folder per family with its license. Without groups the page is unchanged.
+- `/fonts` says that Word, PowerPoint, and Excel need the TTF or OTF files, and that WOFF2 files are for websites.
+- Template variants: a template card with variants shows a row of labeled chips on native radio inputs. Picking one, by pointer or arrow keys, swaps the thumbnail and, when the variant has its own formats, the buttons. No script. The first variant stands for the template on the home page and in search.
+- Calm motion: `motion: "calm"` in `hub.config.ts` turns off the hero animation (the static gradient shows and the hero script is not loaded), the pointer light, page transitions and the sliding indicator, the typed search hint (the first example shows, still), and the icon recolor wave. Copy confirmations, the download arrow, press feedback, focus states, and dialog and toast motion stay. It uses the reduced-motion path: one still condition, reduced motion or calm.
+
+### Editor
+
+- Brand settings gains a "Brand guide PDF" slot and a "Font groups" list (add, rename, help line, reorder, remove a group no font uses).
+- The font inspector gains a group select and a web files slot. Font files help now says the download takes TTF or OTF files.
+- The template inspector gains a Variants list: add a variant from its thumbnail, rename, reorder, remove, and give it its own Canva link or files.
+- `admin.enabled: "dev"` keeps the editor to `astro dev`. A production build then ships no `/admin` route, no editor JavaScript, and no editor search entries.
+
+### Data
+
+- `brand.json`: optional `guide.pdf` `{ path, updated }`. The build fails if the file is missing.
+- `brand.json`: optional `modules.fonts.groups`, a list of `{ id, title, help? }`. Fonts gain optional `group`. The build fails on an unknown group id, or on a font with no group once groups are set, and names the font.
+- Fonts: `files` gains optional `web[]` (WOFF2). `@font-face` uses it when present, else the 0.2.1 behavior. Download zips hold `static[]` and `variable[]` only. The build warns when a font has WOFF2 files but no static TTF or OTF: `font "<id>" has only WOFF2 files, so it cannot be installed in Word.`
+- Templates: optional `variants[]` of `{ id, label, thumbnail, formats? }`, up to eight. A variant without `formats` uses the template's. Every variant file must exist, and variant ids must be unique.
+- `hub.config.ts`: optional `motion: "full" | "calm"` (default `"full"`), and `admin.enabled` accepts `"dev"` beside `true` and `false`.
+- Demo brand: a fictional guide PDF (`scripts/build-demo-guide.ts`), static TTF files for Inter and Fraunces from their upstream releases with the WOFF2 files moved to `web[]`, two font groups (Headings and Text), and a letterhead in Comet Green and Ink. Fraunces upstream has no static 500, so its demo weights are now 400 and 600.
+
 ## 0.2.1 (2026-10-25)
 
 A polish release: glass that reads over the hero gradient, icons and logos that work in dark mode, and small interface motions. No breaking changes.

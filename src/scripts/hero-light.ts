@@ -1,9 +1,12 @@
 // The pointer light in the home search field (DESIGN_SYSTEM.md, section 8): a soft highlight that follows a fine
 // pointer. Sets --light-x and --light-y once per animation frame; the stylesheet draws it and fades it in and out.
-// Touch, reduced motion, and reduced transparency get none.
+// Touch, reduced or calm motion, and reduced transparency get none.
+import { still } from "./motion.ts";
+
 const field = document.querySelector<HTMLElement>(".hero-search");
 const fine = matchMedia("(hover: hover) and (pointer: fine)");
-const off = matchMedia("(prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce)");
+const transparencyOff = matchMedia("(prefers-reduced-transparency: reduce)");
+const off = { get matches() { return still.matches || transparencyOff.matches; } };
 
 if (field) {
   let frame = 0;

@@ -6,12 +6,12 @@
 // 3. Writes each data file as stable JSON and adds changelog entries for changes people can see.
 // 4. Validates the whole result with the loader's rules. Any problem returns errors, each tied to an
 //    item id where there is one, and no change set.
-import type { AnyRecord } from "../../schemas/asset.ts";
+import type { AnyRecord, TemplateAsset } from "../../schemas/asset.ts";
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { ChangeSet } from "../adapters/types.ts";
 import { byOrder, checkBrand, type ProblemCode } from "../content/check.ts";
-import { filePaths } from "../content/file-paths.ts";
+import { brandFilePaths, filePaths } from "../content/file-paths.ts";
 import { applyPattern, DEFAULT_PATTERNS, folderFor, type NamedType } from "./naming.ts";
 import { stableJson } from "./stable-json.ts";
 import { describeBrandChange, describeChanges, type RecordChange } from "./summary.ts";
@@ -91,13 +91,17 @@ function withPaths(r: AnyRecord, map: (p: string) => string): AnyRecord {
     case "logo":
       return { ...r, files: r.files.map((f) => ({ ...f, path: map(f.path) })) };
     case "font":
-      return { ...r, files: { static: r.files.static.map(map), variable: r.files.variable.map(map) } };
+      return { ...r, files: { static: r.files.static.map(map), variable: r.files.variable.map(map), ...(r.files.web ? { web: r.files.web.map(map) } : {}) } };
     case "icon":
       return { ...r, svgPath: map(r.svgPath) };
     case "template": {
-      const formats = { ...r.formats };
-      for (const k of ["docx", "pptx", "pdf"] as const) if (formats[k]) formats[k] = map(formats[k]);
-      return { ...r, thumbnail: map(r.thumbnail), formats };
+      const mapFormats = <F extends TemplateAsset["formats"]>(f: F): F => {
+        const out = { ...f };
+        for (const k of ["docx", "pptx", "pdf"] as const) if (out[k]) out[k] = map(out[k]);
+        return out;
+      };
+      const variants = r.variants?.map((v) => ({ ...v, thumbnail: map(v.thumbnail), ...(v.formats ? { formats: mapFormats(v.formats) } : {}) }));
+      return { ...r, thumbnail: map(r.thumbnail), formats: mapFormats(r.formats), ...(variants ? { variants } : {}) };
     }
     default:
       return r;
@@ -107,10 +111,11 @@ function withPaths(r: AnyRecord, map: (p: string) => string): AnyRecord {
 const dataText = (records: AnyRecord[]) => stableJson([...records].sort(byOrder));
 
 export function serialize(input: SerializeInput): SerializeResult {
-  const { slug, brand, base, uploads, date, author } = input;
+  const { slug, base, uploads, date, author } = input;
   const uploadByPath = new Map(uploads.map((u) => [u.path, u]));
   const baseById = new Map(base.records.map((r) => [r.id, r]));
   const baseFiles = new Set(base.records.flatMap((r) => filePaths(r).map((f) => f.path)));
+  for (const { path } of brandFilePaths(base.brand ?? input.brand)) baseFiles.add(path);
 
   // 1. Final names for uploads, in a fixed order so results never depend on input order.
   const renamed: Record<string, string> = {};
@@ -120,7 +125,7 @@ export function serialize(input: SerializeInput): SerializeResult {
     for (const { path } of filePaths(r)) {
       const up = uploadByPath.get(path);
       if (!up || renamed[path]) continue;
-      const pattern = brand.naming?.[r.type as NamedType] ?? DEFAULT_PATTERNS[r.type as NamedType];
+      const pattern = input.brand.naming?.[r.type as NamedType] ?? DEFAULT_PATTERNS[r.type as NamedType];
       const name = pattern ? applyPattern(pattern, { brand: slug, record: r, original: up.name, width: up.width }) : up.name;
       const folder = folderFor(r);
       const dot = name.lastIndexOf(".");
@@ -130,6 +135,17 @@ export function serialize(input: SerializeInput): SerializeResult {
       renamed[path] = final;
     }
   }
+  // Files brand.json points to keep their upload name in their own folder (files/guide/<name>.pdf).
+  for (const { path } of brandFilePaths(input.brand)) {
+    if (!uploadByPath.has(path) || renamed[path]) continue;
+    const dot = path.lastIndexOf(".");
+    let final = path;
+    for (let n = 2; taken.has(final); n++) final = `${path.slice(0, dot)}-${n}${path.slice(dot)}`;
+    taken.add(final);
+    renamed[path] = final;
+  }
+  const pdf = input.brand.guide?.pdf;
+  const brand = pdf && renamed[pdf.path] ? { ...input.brand, guide: { ...input.brand.guide, pdf: { ...pdf, path: renamed[pdf.path]! } } } : input.brand;
 
   // 2. Final records: paths, dates, versions.
   const changes = describeChanges(base.records, input.records);
@@ -171,7 +187,7 @@ export function serialize(input: SerializeInput): SerializeResult {
   // 4. Validate everything the brand folder would hold.
   const texts = new Map<string, string>([["brand.json", stableJson(brand)], ["changelog.json", stableJson(changelog)]]);
   for (const [file, rs] of after) texts.set(file, dataText(rs));
-  const referenced = new Set(records.flatMap((r) => filePaths(r).map((f) => f.path)));
+  const referenced = new Set([...records.flatMap((r) => filePaths(r).map((f) => f.path)), ...brandFilePaths(brand).map((f) => f.path)]);
   const finalUploads = new Set(Object.values(renamed));
   const { problems } = checkBrand({
     read: (name) => texts.get(name),
