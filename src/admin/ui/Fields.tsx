@@ -601,7 +601,7 @@ function TemplateVariantsField({ def, record, error, id }: Sub & { record: Templ
                     />
                   ))}
                 </ul>
-                <label className="ed-sublabel" htmlFor={`${id}-v${i}-canva`}>Canva link <span className="ed-optional">(optional)</span></label>
+                <label className="ed-sublabel" htmlFor={`${id}-v${i}-canva`}><span className="visually-hidden">{v.label}: </span>Canva link <span className="ed-optional">(optional)</span></label>
                 <input
                   className="field"
                   id={`${id}-v${i}-canva`}
