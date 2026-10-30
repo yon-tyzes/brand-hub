@@ -798,6 +798,12 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 .font-tester input[type="range"] { width: 160px; accent-color: var(--fill-primary); }
 .font-tester output { width: 44px; font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); }
 
+.font-group { display: flex; flex-direction: column; gap: 20px; }
+.font-group-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.font-group-head .library-section-title { margin: 0; }
+.font-group-help { margin: 4px 0 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
+@media (max-width: 767.98px) { .font-group { gap: 16px; } }
+
 .font-office-note { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
 
 .font-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); overflow: hidden; }

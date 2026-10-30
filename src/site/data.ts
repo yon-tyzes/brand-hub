@@ -74,6 +74,9 @@ export function templateLinks(t: TemplateAsset, urlFor: (path: string) => string
   return out;
 }
 
+/** The "Download all" zip of one font group: every family's static and variable files. */
+export const fontGroupZip = (groupId: string) => `/downloads/fonts-${groupId}.zip`;
+
 export function fontZips(f: FontAsset): { kind: "static" | "variable"; href: string; files: string[] }[] {
   const out: { kind: "static" | "variable"; href: string; files: string[] }[] = [];
   if (f.files.static.length) out.push({ kind: "static", href: `/downloads/font-${f.id}-static.zip`, files: f.files.static });
@@ -115,6 +118,13 @@ export function createSite(input: SiteInput) {
     },
     /** A template's formats, in button order. Empty when it has none. */
     templateLinks: (t: TemplateAsset) => templateLinks(t, input.urlFor),
+    /** Font groups in order, each with its locked fonts. Undefined when the brand sets no groups. Empty groups are left out. */
+    fontGroups: () => {
+      const groups = input.brand.modules.fonts?.groups;
+      if (!groups) return undefined;
+      const fonts = input.assets.filter((a): a is FontAsset => a.type === "font");
+      return groups.map((g) => ({ ...g, fonts: fonts.filter((f) => f.group === g.id), href: fontGroupZip(g.id) })).filter((g) => g.fonts.length);
+    },
     assetsOfType: <T extends AssetType>(type: T): OfType<T>[] => input.assets.filter((a): a is OfType<T> => a.type === type),
     findAsset: (id: string) => assetById.get(id),
     findRule: (id: string) => ruleById.get(id),

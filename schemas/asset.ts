@@ -112,6 +112,8 @@ export const fontAsset = z
     }),
     license: z.string().min(1),
     install: z.string().min(1),
+    /** Fonts page section, an id from modules.fonts.groups in brand.json. */
+    group: id.optional(),
   })
   .refine((f) => f.files.static.length + f.files.variable.length > 0, {
     message: "needs at least one static or variable file",

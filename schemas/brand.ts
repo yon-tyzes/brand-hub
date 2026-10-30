@@ -16,6 +16,9 @@ export const brandTokens = z.strictObject({
 
 export const guideChapter = z.strictObject({ id, title: z.string().min(1) });
 
+/** A section of the Fonts page. Fonts name theirs in `group`. */
+export const fontGroup = z.strictObject({ id, title: z.string().min(1), help: z.string().min(1).optional() });
+
 export const brand = z.strictObject({
   $schema: z.string().optional(),
   name: z.string().min(1),
@@ -66,10 +69,17 @@ export const brand = z.strictObject({
        * locked colors.
        */
       icons: z.strictObject({ colors: z.array(id).default([]), grounds: z.array(id).optional() }).optional(),
+      /** Sections of the Fonts page, in order, each with its own "Download all" zip. Every font then names one. */
+      fonts: z
+        .strictObject({
+          groups: z.array(fontGroup).refine((gs) => new Set(gs.map((g) => g.id)).size === gs.length, { message: "group ids must be unique" }),
+        })
+        .optional(),
     })
     .default({}),
 });
 
 export type GuideChapter = z.infer<typeof guideChapter>;
+export type FontGroup = z.infer<typeof fontGroup>;
 export type BrandTokens = z.infer<typeof brandTokens>;
 export type Brand = z.infer<typeof brand>;

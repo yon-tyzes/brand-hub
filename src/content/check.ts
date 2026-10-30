@@ -174,6 +174,8 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   const assetIds = idsOf((t) => t !== "rule");
   const colorIds = idsOf((t) => t === "color");
   const chapterIds = new Set(brand?.guide.chapters.map((c) => c.id) ?? []);
+  const fontGroups = brand?.modules.fonts?.groups;
+  const groupIds = new Set(fontGroups?.map((g) => g.id) ?? []);
   for (const { record, file } of unreadable ? [] : records) {
     const missing = (field: string, kind: string, ref: string) =>
       problems.push({ file: src.label(file), id: record.id, problem: `${field}: ${kind} "${ref}" does not exist`, code: "reference", field: field.split(".")[0], ref });
@@ -191,6 +193,14 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
       problems.push({ file: src.label(file), id: record.id, code: "schema", field: "formats", problem: "formats: needs at least one of canva, docx, pptx, or pdf" });
     }
     if (record.type === "template") for (const ref of record.rules) if (!ruleIds.has(ref)) missing("rules", "rule", ref);
+    if (record.type === "font" && brand && record.status !== "retired") {
+      const listed = `Use one of: ${[...groupIds].join(", ") || "(none listed)"}`;
+      if (record.group && !groupIds.has(record.group)) {
+        problems.push({ file: src.label(file), id: record.id, code: "reference", field: "group", ref: record.group, problem: `group: font "${record.id}" names group "${record.group}", which is not in modules.fonts.groups in ${src.label("brand.json")}. ${listed}` });
+      } else if (!record.group && fontGroups) {
+        problems.push({ file: src.label(file), id: record.id, code: "reference", field: "group", problem: `group: font "${record.id}" has no group. modules.fonts.groups is set in ${src.label("brand.json")}, so every font needs one. ${listed}` });
+      }
+    }
     if (record.type === "color") {
       for (const p of record.pairings) {
         if (!colorIds.has(p.fg)) missing("pairings.fg", "color", p.fg);

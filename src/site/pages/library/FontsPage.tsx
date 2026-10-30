@@ -1,5 +1,6 @@
 // Fonts (Fonts.dc.html, FontsMobile.dc.html): a type tester, then one card per family with its weights,
 // downloads named by use, install steps, and license. Phones get "Copy page link", since fonts install on a computer.
+// With modules.fonts.groups set, the cards sit in one section per group, each with a "Download all" zip.
 import type { CSSProperties } from "react";
 import type { FontAsset } from "../../../../schemas/asset.ts";
 import { MODULES } from "../../../modules/registry.ts";
@@ -31,7 +32,8 @@ export const DEFAULT_SAMPLE_SIZE = 56;
 /** Install steps for Office (ENGINE_SPEC.md, section 5, Font files). */
 export const OFFICE_NOTE = "Word, PowerPoint, and Excel need the TTF or OTF files. WOFF2 files are for websites and do not install.";
 
-function FamilyCard({ font: f, sample }: { font: FontAsset; sample: string }) {
+function FamilyCard({ font: f, sample, level = 2 }: { font: FontAsset; sample: string; level?: 2 | 3 }) {
+  const Name = level === 2 ? "h2" : "h3";
   const family = `"${f.family}", var(--font-sans)`;
   const { computer, web } = fontDownloads(f);
   return (
@@ -49,7 +51,7 @@ function FamilyCard({ font: f, sample }: { font: FontAsset; sample: string }) {
       </div>
       <div className="font-card-body">
         <div className="font-card-text">
-          <h2 className="font-card-name" id={`${f.id}-name`}>{f.label}</h2>
+          <Name className="font-card-name" id={`${f.id}-name`}>{f.label}</Name>
           {f.help && <p className="font-card-help">{f.help}</p>}
           <p className="font-card-install"><span>To install:</span> {f.install}</p>
           <p className="font-card-license">{LICENSE[f.license] ?? `License: ${f.license}`}</p>
@@ -79,6 +81,7 @@ export function FontsPage() {
   const strip = ruleStrip(site, "fonts", fonts);
   const shown = strip && others.length ? { ...strip, lines: strip.lines.slice(1) } : undefined;
   const sample = site.brand.name;
+  const groups = site.fontGroups();
   return (
     <div className="library fonts-page" data-font-tester-root="" style={{ "--sample-size": `${DEFAULT_SAMPLE_SIZE}px` } as CSSProperties}>
       <LibraryHead
@@ -99,7 +102,20 @@ export function FontsPage() {
         <p><Icon name="monitor" size={20} /><span>Fonts install on a computer. Open this page there, or copy the link to send it to yourself.</span></p>
         <button className="btn btn-secondary btn-block" type="button" data-copy-page="">Copy page link</button>
       </div>
-      {fonts.map((f) => <FamilyCard key={f.id} font={f} sample={sample} />)}
+      {groups
+        ? groups.map((g) => (
+            <section key={g.id} className="font-group" aria-labelledby={`fonts-${g.id}`}>
+              <div className="font-group-head">
+                <div>
+                  <h2 className="library-section-title" id={`fonts-${g.id}`}>{g.title}</h2>
+                  {g.help && <p className="font-group-help">{g.help}</p>}
+                </div>
+                <Button href={g.href} download icon="download" format="ZIP" className="hide-phone-flex" suffix={g.title}>Download all</Button>
+              </div>
+              {g.fonts.map((f) => <FamilyCard key={f.id} font={f} sample={sample} level={3} />)}
+            </section>
+          ))
+        : fonts.map((f) => <FamilyCard key={f.id} font={f} sample={sample} />)}
     </div>
   );
 }
