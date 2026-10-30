@@ -1,6 +1,9 @@
 // Route, label, tab, and sidebar icon for each module (spec section 6). Labels are plain words (docs/STANDARDS.md).
 import type { ModuleId } from "../../schemas/hub-config.ts";
-import type { AssetType } from "../../schemas/asset.ts";
+import type { Asset, AssetType } from "../../schemas/asset.ts";
+import type { Brand } from "../../schemas/brand.ts";
+import type { Onboarding } from "../../schemas/onboarding.ts";
+import type { Signature } from "../../schemas/signature.ts";
 
 export interface ModuleDef {
   id: ModuleId;
@@ -32,3 +35,23 @@ export const MODULES: Record<ModuleId, ModuleDef> = {
   signature: { id: "signature", label: "Email signature", route: "/create/signature", help: "Email signature generator", icon: "pen", tab: "create" },
   changes: { id: "changes", label: "Change log", route: "/changes", help: "Published changes, newest first", icon: "clock", tab: "footer" },
 };
+
+/** Brand data a module's page is built from. */
+export interface ModuleData {
+  brand: Brand;
+  /** Locked assets. */
+  assets: Asset[];
+  signature?: Signature;
+  onboarding?: Onboarding;
+}
+
+/** Modules whose page is built from brand data, and whether the brand has it (spec section 4). */
+const HAS_DATA: Partial<Record<ModuleId, (d: ModuleData) => boolean>> = {
+  office: (d) => d.brand.modules.office !== undefined,
+  start: (d) => (d.onboarding?.steps.length ?? 0) > 0,
+  signature: (d) => (d.signature?.designs.length ?? 0) > 0,
+  boilerplate: (d) => d.assets.some((a) => a.type === "boilerplate"),
+};
+
+/** The listed modules that have something to show. A module without its data gets no page, nav item, search entry, or redirect. */
+export const modulesWithData = (ids: ModuleId[], data: ModuleData): ModuleId[] => ids.filter((id) => HAS_DATA[id]?.(data) ?? true);

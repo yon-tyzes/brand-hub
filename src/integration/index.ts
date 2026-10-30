@@ -1,5 +1,5 @@
 // Astro integration. Loads hub.config.ts, validates the brand folder, injects one route per enabled
-// module (plus /, the guide chapters, redirects from 0.1 routes, and, when the editor is on for this command, /admin), writes
+// module that has its data (plus /, the guide chapters, redirects from 0.1 routes, and, when the editor is on for this command, /admin), writes
 // dist/_redirects, and exposes config, content and theme CSS to pages
 // through the `virtual:brand-hub` module.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -11,7 +11,7 @@ import { hubConfig, MODULE_ALIASES, type HubConfig, type HubConfigInput } from "
 import { formatWarning, loadBrand, type BrandContent } from "../content/load.ts";
 import type { FontAsset } from "../../schemas/asset.ts";
 import { fileUrl } from "../lib/paths.ts";
-import { MODULES, type ModuleDef } from "../modules/registry.ts";
+import { MODULES, modulesWithData, type ModuleDef } from "../modules/registry.ts";
 import { createSite } from "../site/data.ts";
 import { netlifyRedirects, redirectsFor, type Redirect } from "../site/redirects.ts";
 import { fontFaceCss } from "../theme/fonts.ts";
@@ -112,7 +112,7 @@ export interface VirtualData {
   config: HubConfig;
   modules: ModuleDef[];
   brand: BrandContent["brand"];
-  content: Pick<BrandContent, "assets" | "rules" | "pending" | "changelog">;
+  content: Pick<BrandContent, "assets" | "rules" | "pending" | "changelog" | "signature" | "onboarding">;
   themeCss: string;
   /** --hero-1 to --hero-3, tuned from the brand's primary color (spec section 10). */
   heroCss: string;
@@ -147,11 +147,13 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
     hooks: {
       "astro:config:setup": async ({ config: astroConfig, command, injectRoute, updateConfig, addWatchFile, logger }) => {
         const root = fileURLToPath(astroConfig.root);
-        const hub = await resolveHubConfig(root, config, (m) => logger.warn(m));
+        const listed = await resolveHubConfig(root, config, (m) => logger.warn(m));
         if (!config) addWatchFile(join(root, "hub.config.ts"));
 
-        const brandDir = join(root, "brands", hub.brand);
+        const brandDir = join(root, "brands", listed.brand);
         const content = loadBrand(brandDir);
+        // From here on, a listed module without its data is off (spec section 4).
+        const hub: HubConfig = { ...listed, modules: modulesWithData(listed.modules, content) };
         for (const w of content.warnings) logger.warn(formatWarning(w));
         for (const name of readdirSync(brandDir)) if (name.endsWith(".json")) addWatchFile(join(brandDir, name));
 
@@ -169,7 +171,11 @@ export function brandHub(config?: HubConfigInput): AstroIntegration {
           config: hub,
           modules: hub.modules.map((id) => MODULES[id]),
           brand: content.brand,
-          content: { assets: content.assets, rules: content.rules, pending: content.pending, changelog: content.changelog },
+          content: {
+            assets: content.assets, rules: content.rules, pending: content.pending, changelog: content.changelog,
+            ...(content.signature ? { signature: content.signature } : {}),
+            ...(content.onboarding ? { onboarding: content.onboarding } : {}),
+          },
           themeCss: buildThemeCss(),
           heroCss: heroCss(
             heroTones({

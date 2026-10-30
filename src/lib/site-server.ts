@@ -18,6 +18,8 @@ export const site = createSite({
   assets: content.assets,
   rules: content.rules,
   changelog: content.changelog,
+  signature: content.signature,
+  onboarding: content.onboarding,
   urlFor: fileUrl,
   svgFor: (path) => {
     if (!path.endsWith(".svg")) return undefined;

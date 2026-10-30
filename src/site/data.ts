@@ -4,6 +4,8 @@ import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, Rul
 import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
+import type { Onboarding } from "../../schemas/onboarding.ts";
+import type { Signature } from "../../schemas/signature.ts";
 import type { SearchAction } from "../lib/search-config.ts";
 import { fileName, isExternal } from "../lib/paths.ts";
 import { TYPE_LABEL } from "../lib/labels.ts";
@@ -17,6 +19,9 @@ export interface SiteInput {
   assets: Asset[];
   rules: RuleAsset[];
   changelog: ChangelogEntry[];
+  /** signature.json and onboarding.json, when the brand has them (spec section 14). */
+  signature?: Signature;
+  onboarding?: Onboarding;
   /** Public URL of a file in the brand folder. */
   urlFor: (path: string) => string;
   /** SVG markup of a brand file, when available. */
