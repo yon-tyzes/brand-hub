@@ -1,0 +1,89 @@
+{
+  "title": "Brand Hub onboarding.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "steps": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[^\\n]*$"
+          },
+          "body": {
+            "type": "string",
+            "minLength": 1
+          },
+          "links": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "asset": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    }
+                  },
+                  "required": [
+                    "asset"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "module": {
+                      "type": "string",
+                      "enum": [
+                        "logos",
+                        "colors",
+                        "fonts",
+                        "icons",
+                        "photos",
+                        "templates",
+                        "office",
+                        "boilerplate",
+                        "guide",
+                        "start",
+                        "signature",
+                        "changes"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "module"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "links"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "steps"
+  ],
+  "additionalProperties": false
+}

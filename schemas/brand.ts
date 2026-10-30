@@ -19,6 +19,18 @@ export const guideChapter = z.strictObject({ id, title: z.string().min(1) });
 /** A section of the Fonts page. Fonts name theirs in `group`. */
 export const fontGroup = z.strictObject({ id, title: z.string().min(1), help: z.string().min(1).optional() });
 
+/** The twelve color slots of an Office theme, in the order Office lists them (spec section 7). */
+export const OFFICE_COLOR_SLOTS = ["dk1", "lt1", "dk2", "lt2", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6", "hlink", "folHlink"] as const;
+
+/** Office theme (.thmx) settings. Every slot names a locked color or font from brand data. */
+export const officeTheme = z.strictObject({
+  /** Theme name inside Office, and the base of the file name. */
+  themeName: z.string().min(1),
+  colors: z.strictObject(Object.fromEntries(OFFICE_COLOR_SLOTS.map((s) => [s, id])) as Record<(typeof OFFICE_COLOR_SLOTS)[number], typeof id>),
+  /** Heading and body font ids. */
+  fonts: z.strictObject({ major: id, minor: id }),
+});
+
 export const brand = z.strictObject({
   $schema: z.string().optional(),
   name: z.string().min(1),
@@ -75,11 +87,14 @@ export const brand = z.strictObject({
           groups: z.array(fontGroup).refine((gs) => new Set(gs.map((g) => g.id)).size === gs.length, { message: "group ids must be unique" }),
         })
         .optional(),
+      /** Office theme. Without it there is no /office page (spec sections 7 and 14). */
+      office: officeTheme.optional(),
     })
     .default({}),
 });
 
 export type GuideChapter = z.infer<typeof guideChapter>;
 export type FontGroup = z.infer<typeof fontGroup>;
+export type OfficeTheme = z.infer<typeof officeTheme>;
 export type BrandTokens = z.infer<typeof brandTokens>;
 export type Brand = z.infer<typeof brand>;

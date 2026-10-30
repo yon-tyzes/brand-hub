@@ -3,27 +3,29 @@
 // apply the same rules. No Node imports.
 import type { z } from "zod";
 import {
-  asset as assetSchema, brand as brandSchema, changelogEntry, ruleAsset,
-  type AnyRecord, type Asset, type AssetType, type Brand, type ChangelogEntry, type ColorAsset, type RuleAsset,
+  asset as assetSchema, brand as brandSchema, changelogEntry, onboarding as onboardingSchema, ruleAsset, signature as signatureSchema,
+  type AnyRecord, type Asset, type AssetType, type Brand, type ChangelogEntry, type ColorAsset, type Onboarding, type RuleAsset, type Signature,
 } from "../../schemas/index.ts";
 import { checkPairingContrast, formatContrastFailure } from "../theme/contrast.ts";
 import { filePaths } from "./file-paths.ts";
 import { migrateBrand, migrateRecord, type Warning } from "./legacy.ts";
 
-/** Optional per-module split files and the asset type each may hold. assets.json may hold any type. */
-export const SPLIT_FILES: Record<string, AssetType> = {
-  "logos.json": "logo",
-  "colors.json": "color",
-  "fonts.json": "font",
-  "icons.json": "icon",
-  "templates.json": "template",
-  "photos.json": "photo-source",
-  "boilerplate.json": "boilerplate",
-  "documents.json": "document",
-  "signature.json": "signature-layout",
+/** Optional per-module split files and the asset types each may hold. assets.json may hold any type. */
+export const SPLIT_FILES: Record<string, AssetType[]> = {
+  "logos.json": ["logo"],
+  "colors.json": ["color", "gradient"],
+  "fonts.json": ["font"],
+  "icons.json": ["icon"],
+  "templates.json": ["template"],
+  "photos.json": ["photo-source"],
+  "boilerplate.json": ["boilerplate"],
+  "documents.json": ["document"],
 };
 
-export const DATA_FILES = ["assets.json", ...Object.keys(SPLIT_FILES), "rules.json"];
+/** Optional files that hold one object, not records (spec section 14). */
+export const OBJECT_FILES = ["signature.json", "onboarding.json"];
+
+export const DATA_FILES = ["assets.json", ...Object.keys(SPLIT_FILES), "rules.json", ...OBJECT_FILES];
 
 export type ProblemCode =
   | "missing-file" | "invalid-json" | "not-array" | "schema" | "wrong-file"
@@ -65,6 +67,10 @@ export interface CheckedContent {
   /** Data file each record was read from, by id. */
   sources: Record<string, string>;
   changelog: ChangelogEntry[];
+  /** signature.json, when the brand has one. */
+  signature?: Signature;
+  /** onboarding.json, when the brand has one. */
+  onboarding?: Onboarding;
   /** 0.1 data read with a fallback (src/content/legacy.ts). The build prints them and goes on. */
   warnings: Warning[];
 }
@@ -145,8 +151,8 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   for (const name of ["assets.json", ...Object.keys(SPLIT_FILES)]) {
     for (const a of validateItems(name, assetSchema, readJson(name, false), (item) => migrate(migrateRecord(item, src.label(name))))) {
       const expected = SPLIT_FILES[name];
-      if (expected && a.type !== expected) {
-        problems.push({ file: src.label(name), id: a.id, problem: `type "${a.type}" does not belong in ${name} (expects "${expected}")`, code: "wrong-file" });
+      if (expected && !expected.includes(a.type)) {
+        problems.push({ file: src.label(name), id: a.id, problem: `type "${a.type}" does not belong in ${name} (expects ${expected.map((t) => `"${t}"`).join(" or ")})`, code: "wrong-file" });
       }
       records.push({ record: a, file: name });
     }
@@ -155,6 +161,19 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
     records.push({ record: r, file: "rules.json" });
   }
   const changelog = validateItems("changelog.json", changelogEntry, readJson("changelog.json", false));
+
+  const signatureRaw = readJson("signature.json", false);
+  let signature: Signature | undefined;
+  if (Array.isArray(signatureRaw)) {
+    problems.push({
+      file: src.label("signature.json"), code: "schema",
+      problem: "holds 0.2 signature-layout records. From 0.3 it is one object with fields and designs (ENGINE_SPEC.md, section 14)",
+    });
+  } else if (signatureRaw !== undefined) {
+    signature = validate("signature.json", signatureSchema, signatureRaw);
+  }
+  const onboardingRaw = readJson("onboarding.json", false);
+  const onboarding = onboardingRaw === undefined ? undefined : validate("onboarding.json", onboardingSchema, onboardingRaw);
 
   // 2. Unique ids across assets and rules.
   const seen = new Map<string, string>();
@@ -173,6 +192,7 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   const ruleIds = idsOf((t) => t === "rule");
   const assetIds = idsOf((t) => t !== "rule");
   const colorIds = idsOf((t) => t === "color");
+  const statusOf = new Map(records.map((r) => [r.record.id, r.record.status]));
   const chapterIds = new Set(brand?.guide.chapters.map((c) => c.id) ?? []);
   const fontGroups = brand?.modules.fonts?.groups;
   const groupIds = new Set(fontGroups?.map((g) => g.id) ?? []);
@@ -212,7 +232,6 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   // brand.json references into the records.
   if (brand && !unreadable) {
     const at = src.label("brand.json");
-    const statusOf = new Map(records.map((r) => [r.record.id, r.record.status]));
     for (const ref of brand.quickDownloads) {
       if (!assetIds.has(ref)) problems.push({ file: at, problem: `quickDownloads: asset "${ref}" does not exist`, code: "reference", field: "quickDownloads", ref });
       else if (statusOf.has(ref) && statusOf.get(ref) !== "locked") {
@@ -222,6 +241,58 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
     for (const key of ["colors", "grounds"] as const) {
       for (const ref of brand.modules.icons?.[key] ?? []) if (!colorIds.has(ref)) problems.push({ file: at, problem: `modules.icons.${key}: color "${ref}" does not exist`, code: "reference", field: "modules", ref });
     }
+
+    // Office theme slots: each names a locked color or font (spec section 7).
+    const office = brand.modules.office;
+    if (office) {
+      const fontIds = idsOf((t) => t === "font");
+      const slots = [
+        ...Object.entries(office.colors).map(([slot, ref]) => ({ slot: `colors.${slot}`, ref, kind: "color", ids: colorIds })),
+        ...Object.entries(office.fonts).map(([slot, ref]) => ({ slot: `fonts.${slot}`, ref, kind: "font", ids: fontIds })),
+      ];
+      for (const { slot, ref, kind, ids } of slots) {
+        const field = `modules.office.${slot}`;
+        if (!ids.has(ref)) problems.push({ file: at, problem: `${field}: ${kind} "${ref}" does not exist`, code: "reference", field: "modules", ref });
+        else if (statusOf.has(ref) && statusOf.get(ref) !== "locked") {
+          problems.push({ file: at, problem: `${field}: ${kind} "${ref}" is ${statusOf.get(ref)}. Only locked ${kind}s may fill an Office theme slot`, code: "reference", field: "modules", ref });
+        }
+      }
+    }
+  }
+
+  // signature.json: fields each design uses, and the colors each variant names.
+  if (signature && !unreadable) {
+    const at = src.label("signature.json");
+    const fieldIds = new Set(signature.fields.map((f) => f.id));
+    signature.designs.forEach((d, di) => {
+      for (const ref of d.fields) {
+        if (!fieldIds.has(ref)) problems.push({ file: at, id: d.id, problem: `designs.${di}.fields: field "${ref}" is not in fields. Use one of: ${[...fieldIds].join(", ")}`, code: "reference", field: "fields", ref });
+      }
+      d.variants.forEach((v, vi) => {
+        for (const [name, ref] of Object.entries(v.colors)) {
+          const where = `designs.${di}.variants.${vi}.colors.${name}`;
+          if (!colorIds.has(ref)) problems.push({ file: at, id: d.id, problem: `${where}: color "${ref}" does not exist`, code: "reference", field: "variants", ref });
+          else if (statusOf.has(ref) && statusOf.get(ref) !== "locked") {
+            problems.push({ file: at, id: d.id, problem: `${where}: color "${ref}" is ${statusOf.get(ref)}. Only locked colors may fill a signature variant`, code: "reference", field: "variants", ref });
+          }
+        }
+      });
+    });
+  }
+
+  // onboarding.json: each link names an asset that exists. A link to an asset that is not locked is left out.
+  if (onboarding && !unreadable) {
+    const at = src.label("onboarding.json");
+    onboarding.steps.forEach((step, si) => {
+      step.links.forEach((link, li) => {
+        if (!("asset" in link)) return;
+        const where = `steps.${si}.links.${li}.asset`;
+        if (!assetIds.has(link.asset)) problems.push({ file: at, id: step.id, problem: `${where}: asset "${link.asset}" does not exist`, code: "reference", field: "links", ref: link.asset });
+        else if (statusOf.has(link.asset) && statusOf.get(link.asset) !== "locked") {
+          warnings.push({ file: at, id: step.id, field: where, problem: `asset "${link.asset}" is ${statusOf.get(link.asset)}, so the link is left out`, fix: "Lock the asset or link to another one." });
+        }
+      });
+    });
   }
 
   // 4. Every file path exists, brand.json's included.
@@ -229,6 +300,11 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
   if (guidePdf && !src.exists(guidePdf)) {
     problems.push({ file: src.label("brand.json"), problem: `guide.pdf.path: file not found: ${src.label(guidePdf)}`, code: "file-not-found", field: "guide", ref: guidePdf });
   }
+  signature?.designs.forEach((d, i) => {
+    if (!src.exists(d.template)) {
+      problems.push({ file: src.label("signature.json"), id: d.id, problem: `designs.${i}.template: file not found: ${src.label(d.template)}`, code: "file-not-found", field: "template", ref: d.template });
+    }
+  });
   for (const { record, file } of records) {
     for (const { field, path } of filePaths(record)) {
       if (!src.exists(path)) {
@@ -271,6 +347,8 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
       all,
       sources: Object.fromEntries(records.map((r) => [r.record.id, r.file])),
       changelog,
+      ...(signature ? { signature } : {}),
+      ...(onboarding ? { onboarding } : {}),
       warnings,
     },
   };

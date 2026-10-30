@@ -63,8 +63,18 @@ export function migrateBrand(raw: unknown, file: string): { data: unknown; warni
   return { data, warnings };
 }
 
-/** One asset record: drops a template's fallbackUrl and flags a 0.1 url. Other records pass through. */
+/**
+ * One asset record: drops a template's fallbackUrl and flags a 0.1 url, and flags a 0.2 signature-layout record,
+ * which 0.3 loads but does not use. Other records pass through.
+ */
 export function migrateRecord(raw: unknown, file: string): { data: unknown; warnings: Warning[] } {
+  if (isObject(raw) && raw.type === "signature-layout") {
+    const id = typeof raw.id === "string" ? raw.id : undefined;
+    return {
+      data: raw,
+      warnings: [{ file, id, field: "type", problem: "signature-layout records are not used from 0.3", fix: "Move the design to signature.json (ENGINE_SPEC.md, section 14), then remove this record." }],
+    };
+  }
   if (!isObject(raw) || raw.type !== "template") return { data: raw, warnings: [] };
   const warnings: Warning[] = [];
   const data: Record<string, unknown> = { ...raw };

@@ -2,12 +2,12 @@
 // Messages never mention data formats, paths, or field keys.
 import type { z } from "zod";
 import {
-  boilerplateAsset, colorAsset, documentAsset, fontAsset, iconAsset, logoAsset, photoSourceAsset,
+  boilerplateAsset, colorAsset, documentAsset, gradientAsset, fontAsset, iconAsset, logoAsset, photoSourceAsset,
   ruleAsset, signatureLayoutAsset, templateAsset, type AnyRecord,
 } from "../../../schemas/asset.ts";
 
 const SCHEMAS: Record<AnyRecord["type"], z.ZodType> = {
-  logo: logoAsset, color: colorAsset, font: fontAsset, icon: iconAsset, template: templateAsset,
+  logo: logoAsset, color: colorAsset, gradient: gradientAsset, font: fontAsset, icon: iconAsset, template: templateAsset,
   "photo-source": photoSourceAsset, boilerplate: boilerplateAsset, document: documentAsset,
   rule: ruleAsset, "signature-layout": signatureLayoutAsset,
 };
