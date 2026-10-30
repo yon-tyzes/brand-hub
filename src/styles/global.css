@@ -868,6 +868,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   --icon-text: var(--pair-dark-text, var(--text));
 }
 .icon-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+/* "Clear search" is the one clear control; the browser's own is hidden. */
+.icon-toolbar input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
 .icon-toolbar input[type="search"] {
   flex: 0 1 320px; min-width: 0; height: 40px; padding: 0 12px; box-sizing: border-box;
   border-radius: var(--radius-md); border: 1px solid var(--border-control); background: var(--bg); color: var(--text); font: 400 15px var(--font-sans);
