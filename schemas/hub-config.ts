@@ -35,7 +35,8 @@ export const hubConfig = z.strictObject({
   analytics: z.strictObject({ provider: z.literal("plausible"), domain: z.string().min(1) }).optional(),
   admin: z
     .strictObject({
-      enabled: z.boolean().default(false),
+      /** true: in every build. "dev": under `astro dev` only, so a production build ships no editor. */
+      enabled: z.union([z.boolean(), z.literal("dev")]).default(false),
       /** Content adapter: "local", "demo", or a path to a module whose default export is a ContentAdapter. */
       adapter: adapterChoice.default("local"),
       /** Auth adapter: "local", "demo", or a path to a module whose default export is an AuthAdapter. */

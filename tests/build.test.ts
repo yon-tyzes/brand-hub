@@ -1,6 +1,6 @@
 // Real builds of the demo brand with a config the repo does not use, into a temporary folder: what ships for
-// motion: "calm" (ENGINE_SPEC.md, section 6, Calm motion).
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+// motion: "calm" (ENGINE_SPEC.md, section 6, Calm motion) and admin.enabled "dev" (section 4).
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import react from "@astrojs/react";
@@ -58,5 +58,20 @@ describe("motion: calm", () => {
     expect(html).toMatch(/<html[^>]* data-motion="calm"/);
     expect(html).toContain("@view-transition{navigation:none}");
     expect(readFileSync(join(full, "index.html"), "utf8")).not.toContain("data-motion");
+  });
+});
+
+describe("admin.enabled: \"dev\"", () => {
+  it("ships no admin route, no editor JavaScript, and no editor search entries in a production build", { timeout: 120_000 }, async () => {
+    const dev = await buildWith({ admin: { enabled: "dev", adapter: "local", auth: "local" } });
+    const on = await buildWith({ admin: { enabled: true, adapter: "demo", auth: "demo" } });
+    const editorJs = (dir: string) => scripts(dir).filter((n) => /^(AdminApp|PreviewApp)\./.test(n));
+
+    expect(existsSync(join(on, "admin", "index.html"))).toBe(true);
+    expect(editorJs(on)).not.toEqual([]);
+
+    expect(existsSync(join(dev, "admin"))).toBe(false);
+    expect(editorJs(dev)).toEqual([]);
+    expect(readFileSync(join(dev, "search-index.json"), "utf8")).not.toMatch(/\/admin/);
   });
 });
