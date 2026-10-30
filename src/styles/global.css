@@ -150,6 +150,9 @@ h4, .h4 { font-size: var(--h3-size); line-height: var(--h3-leading); letter-spac
 .btn-secondary:hover { background: var(--surface-subtle); }
 .btn-ghost, .btn-text { background: transparent; color: var(--text); padding-inline: 6px; }
 .btn-ghost:hover, .btn-text:hover { background: var(--surface-subtle); }
+/* Quiet: a secondary action with no fill and a faint edge ("Copy hex code"). */
+.btn-quiet { background: transparent; border-color: var(--border); color: var(--text); }
+.btn-quiet:hover { background: var(--surface-subtle); }
 .btn-icon { padding: 0; width: 40px; }
 .btn-block { width: 100%; }
 .btn-format { font-size: 12px; font-weight: 500; color: var(--text-muted); }
@@ -742,6 +745,7 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 .support-card-block { width: 88px; flex: none; border-right: 1px solid var(--border); }
 .support-card-body { padding: 14px 16px; min-width: 0; }
 .support-card .color-card-help { margin-bottom: 8px; }
+.copy-hex { margin-top: 12px; }
 .support-copy {
   display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 6px; margin-left: -6px;
   border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text);
@@ -776,6 +780,8 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   .support-copy svg { display: none; }
   .support-copy-swatch { display: block; width: 32px; height: 32px; flex: none; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--border); }
   .support-copy-name { display: block; flex: 1; font-family: var(--font-sans); font-size: 14px; font-weight: 500; }
+  .color-card .copy-hex { margin: 12px 0 8px; }
+  .support-card .copy-hex { margin: 0 16px 12px; }
 }
 
 /* ---------- Fonts ---------- */
