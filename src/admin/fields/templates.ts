@@ -10,5 +10,9 @@ export const templateFields: FieldDef[] = [
     when: (r) => r.type === "template" && !!r.url,
   },
   { key: "thumbnail", kind: "file", accept: [".png", ".jpg", ".jpeg", ".webp", ".svg"], label: "Thumbnail", help: "An image of the template, shown on its card. A 4 by 3 image works best." },
+  {
+    key: "variants", kind: "template-variants", label: "Variants", optional: true,
+    help: "Versions of this design, such as two colors. People switch between them on the card. The first one shows by default.",
+  },
   { key: "rules", kind: "records", types: ["rule"], label: "Template rules", help: "Rules shown on this template's card.", optional: true },
 ];

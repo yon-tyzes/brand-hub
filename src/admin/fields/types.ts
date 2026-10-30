@@ -33,6 +33,8 @@ export type FieldKind =
   | { kind: "logo-files" }
   /** A template's Canva link and its Word, PowerPoint, and PDF files. */
   | { kind: "template-formats" }
+  /** A template's variants: label, thumbnail, and optional formats each. */
+  | { kind: "template-variants" }
   /** A Brand guide chapter from brand settings. */
   | { kind: "chapter" }
   /** A Fonts page group from brand settings. Hidden while the brand sets none. */

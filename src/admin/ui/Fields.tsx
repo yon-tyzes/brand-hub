@@ -1,15 +1,15 @@
 // Inspector field controls, one per field kind (src/admin/fields/types.ts). Each shows its label, one line
 // of help, and a validation message as the person types.
 import { useId, useRef, useState, type ReactNode } from "react";
-import type { AnyRecord, ColorAsset, ColorPairing, FontAsset, LogoAsset, TemplateAsset } from "../../../schemas/asset.ts";
+import { MAX_TEMPLATE_VARIANTS, type AnyRecord, type ColorAsset, type ColorPairing, type FontAsset, type LogoAsset, type TemplateAsset, type TemplateVariant } from "../../../schemas/asset.ts";
 import { canvaLinkWarning } from "../editor/links.ts";
 import { filePaths } from "../../content/file-paths.ts";
 import { TYPE_LABEL } from "../../lib/labels.ts";
 import { contrastRatio } from "../../theme/color.ts";
 import { MIN_RATIO } from "../../theme/contrast.ts";
-import { extension } from "../editor/files.ts";
+import { cleanName, extension } from "../editor/files.ts";
 import { ingest } from "../editor/ingest.ts";
-import { EDITOR_MODULES } from "../editor/modules.ts";
+import { EDITOR_MODULES, uniqueId } from "../editor/modules.ts";
 import { attachFiles, updateRecord } from "../editor/state.ts";
 import type { FieldContext, FieldDef } from "../fields/types.ts";
 import { useEditor } from "./context.tsx";
@@ -108,6 +108,8 @@ export function Field({ def, record, error }: FieldProps) {
       return <LogoFilesField def={def} record={record as LogoAsset} error={error} id={id} />;
     case "template-formats":
       return <TemplateFormatsField def={def} record={record as TemplateAsset} error={error} id={id} />;
+    case "template-variants":
+      return <TemplateVariantsField def={def} record={record as TemplateAsset} error={error} id={id} />;
     case "chapter":
       return (
         <Shell def={def} error={error} id={id}>
@@ -541,6 +543,116 @@ function TemplateFormatsField({ def, record, error, id }: Sub & { record: Templa
 }
 
 const ADD_FONT_LABEL = { static: "Add font files", variable: "Add a variable font file", web: "Add web font files" } as const;
+
+const THUMB_ACCEPT = [".png", ".jpg", ".jpeg", ".webp", ".svg"];
+
+/** A template's variants: each with a label, a thumbnail, and optional formats of its own. Add starts from a thumbnail. */
+function TemplateVariantsField({ def, record, error, id }: Sub & { record: TemplateAsset }) {
+  const { apply } = useEditor();
+  const upload = useUpload(record);
+  const picker = useRef<HTMLInputElement>(null);
+  const variants = record.variants ?? [];
+  // No variants left means a plain template, as in 0.2.1: the key goes away.
+  const save = (next: TemplateVariant[]) => updateRecord(record.id, { variants: next.length ? next : undefined } as Partial<TemplateAsset>);
+  const change = (i: number, patch: Partial<TemplateVariant>) => variants.map((v, j) => (j === i ? { ...v, ...patch } : v));
+  const move = (i: number, to: number) => {
+    if (to < 0 || to >= variants.length) return;
+    const next = [...variants];
+    const [v] = next.splice(i, 1);
+    next.splice(to, 0, v!);
+    apply(save(next));
+  };
+  return (
+    <Shell def={def} error={error} id={id} group>
+      {variants.length > 0 && (
+        <ol className="ed-variants" role="list">
+          {variants.map((v, i) => {
+            const formats = v.formats ?? {};
+            const setFormats = (next: TemplateAsset["formats"]) => {
+              const kept = Object.fromEntries(Object.entries(next).filter(([, x]) => !!x));
+              apply(save(change(i, { formats: Object.keys(kept).length ? kept : undefined })), `${record.id}.variants.${i}.formats`);
+            };
+            return (
+              <li key={v.id} className="ed-variant">
+                <label className="ed-sublabel" htmlFor={`${id}-v${i}`}>Variant {i + 1} name</label>
+                <input className="field" id={`${id}-v${i}`} value={v.label} onChange={(e) => apply(save(change(i, { label: e.target.value })), `${record.id}.variants.${i}.label`)} />
+                <ul className="ed-slots" role="list">
+                  <Slot
+                    label="Thumbnail"
+                    accept={THUMB_ACCEPT}
+                    file={{ path: v.thumbnail }}
+                    onUpload={async (file) => {
+                      const u = await upload(file, THUMB_ACCEPT);
+                      if (u) apply(attachFiles(record.id, [u], { variants: change(i, { thumbnail: u.path }) } as Partial<TemplateAsset>));
+                    }}
+                  />
+                  {TEMPLATE_FILES.map((t) => (
+                    <Slot
+                      key={t.key}
+                      label={t.label}
+                      accept={[...t.accept]}
+                      file={formats[t.key] ? { path: formats[t.key]! } : undefined}
+                      note="Optional. Without it, the template's own is used."
+                      onUpload={async (file) => {
+                        const u = await upload(file, [...t.accept]);
+                        if (u) apply(attachFiles(record.id, [u], { variants: change(i, { formats: { ...formats, [t.key]: u.path } }) } as Partial<TemplateAsset>));
+                      }}
+                      onRemove={() => setFormats({ ...formats, [t.key]: undefined })}
+                    />
+                  ))}
+                </ul>
+                <label className="ed-sublabel" htmlFor={`${id}-v${i}-canva`}>Canva link <span className="ed-optional">(optional)</span></label>
+                <input
+                  className="field"
+                  id={`${id}-v${i}-canva`}
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://www.canva.com/design/..."
+                  value={formats.canva ?? ""}
+                  onChange={(e) => setFormats({ ...formats, canva: e.target.value || undefined })}
+                />
+                {formats.canva && canvaLinkWarning(formats.canva) && <p className="ed-warning" role="status">{canvaLinkWarning(formats.canva)}</p>}
+                <span className="ed-variant-actions">
+                  <button type="button" className="btn btn-text btn-sm" onClick={() => move(i, i - 1)} aria-disabled={i === 0 || undefined}>
+                    Up<span className="visually-hidden">: move {v.label} up</span>
+                  </button>
+                  <button type="button" className="btn btn-text btn-sm" onClick={() => move(i, i + 1)} aria-disabled={i === variants.length - 1 || undefined}>
+                    Down<span className="visually-hidden">: move {v.label} down</span>
+                  </button>
+                  <button type="button" className="btn btn-text btn-sm" onClick={() => apply(save(variants.filter((_, j) => j !== i)))}>
+                    Remove<span className="visually-hidden"> {v.label}</span>
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {variants.length < MAX_TEMPLATE_VARIANTS && (
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => picker.current?.click()}>
+          <Icon name="plus" /> Add a variant from its thumbnail
+        </button>
+      )}
+      <input
+        ref={picker}
+        type="file"
+        hidden
+        accept={THUMB_ACCEPT.join(",")}
+        aria-label="Add a variant from its thumbnail"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file) return;
+          const u = await upload(file, THUMB_ACCEPT);
+          if (!u) return;
+          const label = cleanName(file.name);
+          const variant = { id: uniqueId(label, new Set(variants.map((v) => v.id))), label, thumbnail: u.path };
+          apply(attachFiles(record.id, [u], { variants: [...variants, variant] } as Partial<TemplateAsset>));
+        }}
+      />
+    </Shell>
+  );
+}
 
 function FontFilesField({ def, record, error, id, variant }: Sub & { record: FontAsset; variant: "static" | "variable" | "web" }) {
   const { apply, fileLabel } = useEditor();

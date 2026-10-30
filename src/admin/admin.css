@@ -253,6 +253,9 @@
 .ed-file img { width: 64px; height: 48px; object-fit: contain; background: var(--logo-ground-light); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; }
 .ed-files { display: grid; gap: var(--space-2); }
 .ed-slots { display: grid; gap: 8px; }
+.ed-variants { display: grid; gap: 12px; margin: 0; padding: 0; }
+.ed-variant { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.ed-variant-actions { display: flex; flex-wrap: wrap; gap: 4px; }
 .ed-slot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); }
 .ed-slot-text { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
 .ed-slot-text strong { font-size: var(--label-size); font-weight: 500; }
