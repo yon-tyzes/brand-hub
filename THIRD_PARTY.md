@@ -19,7 +19,7 @@ The interface font files are the Latin subsets published by Fontsource (`@fontso
 | `brands/demo/files/fonts/inter/` | [Inter](https://github.com/rsms/inter) | SIL Open Font License 1.1 | `brands/demo/files/fonts/inter/OFL.txt` |
 | `brands/demo/files/fonts/fraunces/` | [Fraunces](https://github.com/undercasetype/Fraunces) | SIL Open Font License 1.1 | `brands/demo/files/fonts/fraunces/OFL.txt` |
 
-The icon SVGs are unchanged apart from removing the `class` attribute and adding `aria-hidden="true"`. The font files are the Latin subsets published by Fontsource.
+The icon SVGs are unchanged apart from removing the `class` attribute and adding `aria-hidden="true"`. The WOFF2 font files are the Latin subsets published by Fontsource. The TTF font files are unchanged from the upstream releases: Inter 4.1 (`Inter-Regular.ttf`, `Inter-Medium.ttf`, `Inter-SemiBold.ttf`, `InterVariable.ttf`) and Fraunces from its repository's `fonts/ttf/` and `fonts/variable/` folders (`Fraunces72pt-Regular.ttf`, `Fraunces72pt-SemiBold.ttf`, and `Fraunces[SOFT,WONK,opsz,wght].ttf`, saved as `Fraunces-Variable.ttf`).
 
 The demo brand's name, logo, colors, rules, and changelog are fictional and part of this repository under its MIT license.
 

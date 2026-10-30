@@ -13,16 +13,20 @@
     "role": "display",
     "weights": [
       400,
-      500,
       600
     ],
     "files": {
       "static": [
-        "files/fonts/fraunces/fraunces-latin-400-normal.woff2",
-        "files/fonts/fraunces/fraunces-latin-500-normal.woff2",
-        "files/fonts/fraunces/fraunces-latin-600-normal.woff2"
+        "files/fonts/fraunces/Fraunces72pt-Regular.ttf",
+        "files/fonts/fraunces/Fraunces72pt-SemiBold.ttf"
       ],
       "variable": [
+        "files/fonts/fraunces/Fraunces-Variable.ttf"
+      ],
+      "web": [
+        "files/fonts/fraunces/fraunces-latin-400-normal.woff2",
+        "files/fonts/fraunces/fraunces-latin-500-normal.woff2",
+        "files/fonts/fraunces/fraunces-latin-600-normal.woff2",
         "files/fonts/fraunces/fraunces-latin-wght-normal.woff2"
       ]
     },
@@ -56,11 +60,17 @@
     ],
     "files": {
       "static": [
-        "files/fonts/inter/inter-latin-400-normal.woff2",
-        "files/fonts/inter/inter-latin-500-normal.woff2",
-        "files/fonts/inter/inter-latin-600-normal.woff2"
+        "files/fonts/inter/Inter-Regular.ttf",
+        "files/fonts/inter/Inter-Medium.ttf",
+        "files/fonts/inter/Inter-SemiBold.ttf"
       ],
       "variable": [
+        "files/fonts/inter/InterVariable.ttf"
+      ],
+      "web": [
+        "files/fonts/inter/inter-latin-400-normal.woff2",
+        "files/fonts/inter/inter-latin-500-normal.woff2",
+        "files/fonts/inter/inter-latin-600-normal.woff2",
         "files/fonts/inter/inter-latin-wght-normal.woff2"
       ]
     },
