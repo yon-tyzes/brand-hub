@@ -6,11 +6,18 @@ import type { CSSProperties } from "react";
 import type { IconAsset } from "../../../../schemas/asset.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import { fileName } from "../../../lib/paths.ts";
+import { MIN_RATIO } from "../../../theme/contrast.ts";
 import { defaultPairs, iconPairs, ruleStrip, type IconPair } from "../../library.ts";
 import { Icon, LibraryHead, RuleStrip, useSite } from "../../ui.tsx";
 
 /** What a query matches: the name, the id without a shared "icon-" prefix, and the keywords. */
 const searchText = (i: IconAsset) => [i.label, i.id.replace(/^icon-/, ""), ...(i.keywords ?? [])].join(" ").toLowerCase();
+
+/**
+ * A color chip is drawn in its own pair, the icon color on the ground, when that text passes 4.5:1. Otherwise it
+ * falls back to a neutral chip with a dot of the pair.
+ */
+const ownColors = (p: IconPair) => p.ratio >= MIN_RATIO.text;
 
 export function IconsPage() {
   const site = useSite();
@@ -51,11 +58,12 @@ export function IconsPage() {
             {pairs.map((p) => (
               <button
                 key={p.id}
-                className="chip"
+                className={ownColors(p) ? "chip pair-chip pair-chip-own" : "chip pair-chip"}
                 type="button"
                 role="radio"
                 aria-checked={p === first}
                 tabIndex={p === first ? 0 : -1}
+                style={ownColors(p) ? ({ "--chip-ground": p.ground.hex, "--chip-ink": p.icon.hex } as CSSProperties) : undefined}
                 data-pair={p.id}
                 data-icon-color={p.icon.hex}
                 data-ground={p.ground.hex}
@@ -63,7 +71,8 @@ export function IconsPage() {
                 data-color-id={p.icon.id}
                 data-color-name={p.label}
               >
-                <span className="pair-dot" style={{ background: p.ground.hex, color: p.icon.hex }} aria-hidden="true" />
+                <span className="pair-check" aria-hidden="true"><Icon name="check" size={16} /></span>
+                {!ownColors(p) && <span className="pair-dot" style={{ background: p.ground.hex, color: p.icon.hex }} aria-hidden="true" />}
                 {p.label}
               </button>
             ))}

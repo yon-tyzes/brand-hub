@@ -873,7 +873,13 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   border-radius: var(--radius-md); border: 1px solid var(--border-control); background: var(--bg); color: var(--text); font: 400 15px var(--font-sans);
 }
 .icon-colors { display: flex; flex-wrap: wrap; gap: 8px; }
-.icon-colors .chip[aria-checked="true"] { background: var(--surface-subtle); border-color: var(--text); }
+/* Each chip shows its pair: the icon color on the ground. The chosen one adds a check and a 2px ring, with a
+   band of page color inside so the ring shows on any ground. */
+.pair-chip-own, .pair-chip-own:hover { background: var(--chip-ground); color: var(--chip-ink); }
+.pair-chip-own:hover { border-color: var(--chip-ink); }
+.pair-check { display: none; }
+.pair-chip[aria-checked="true"] .pair-check { display: inline-flex; }
+.pair-chip[aria-checked="true"] { border-color: var(--text); box-shadow: 0 0 0 1px var(--text), inset 0 0 0 2px var(--bg); }
 /* A pair's ground with its icon color inside. Brand colors, shown as they are. */
 .pair-dot { display: grid; place-items: center; width: 16px; height: 16px; flex: none; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--border); }
 .pair-dot::after { content: ""; width: 6px; height: 6px; border-radius: 2px; background: currentColor; }
