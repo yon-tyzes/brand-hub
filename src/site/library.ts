@@ -133,6 +133,16 @@ export function iconPairs(colors: ColorAsset[], settings: { colors: string[]; gr
   );
 }
 
+/**
+ * The text color of a pair's chip on the Icons page: the icon color when it reaches 4.5:1 on the ground, else the
+ * darkest shell text value that does. The chip keeps the ground as its fill and the icon color for its mark.
+ */
+export function chipText(p: IconPair): string {
+  if (p.ratio >= MIN_RATIO.text) return p.icon.hex;
+  const darkFirst = [SHELL_COLORS.text.light, SHELL_COLORS.text.dark].sort((a, b) => relativeLuminance(a) - relativeLuminance(b));
+  return darkFirst.find((t) => contrastRatio(t, p.ground.hex) >= MIN_RATIO.text) ?? p.text;
+}
+
 /** The pair each theme opens on: the first with a light ground in light, the first with a dark ground in dark. */
 export function defaultPairs(pairs: IconPair[]): { light?: IconPair; dark?: IconPair } {
   return { light: pairs.find((p) => p.light) ?? pairs[0], dark: pairs.find((p) => !p.light) ?? pairs[0] };

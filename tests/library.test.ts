@@ -3,7 +3,7 @@ import type { ColorAsset, LogoAsset } from "../schemas/asset.ts";
 import type { ModuleId } from "../schemas/hub-config.ts";
 import { loadBrand } from "../src/content/load.ts";
 import { createSite } from "../src/site/data.ts";
-import { colorPairs, colorRows, copiedMessage, defaultPairs, iconPairs, logoDownloads, ruleStrip, splitColors } from "../src/site/library.ts";
+import { chipText, colorPairs, colorRows, copiedMessage, defaultPairs, iconPairs, logoDownloads, ruleStrip, splitColors } from "../src/site/library.ts";
 import { demoCopy } from "./helpers.ts";
 
 function site(modules: ModuleId[] = ["colors", "guide"]) {
@@ -124,6 +124,16 @@ describe("icon color pairs", () => {
     const d = defaultPairs(iconPairs(palette, { colors: ["ink", "comet-green", "copper", "kiln-white"], grounds: ["kiln-white", "ink", "comet-green"] }));
     expect(d.light?.id).toBe("ink-on-kiln-white");
     expect(d.dark?.id).toBe("kiln-white-on-ink");
+  });
+
+  it("writes chip text in the icon color at 4.5:1, else in the darkest shell text that reaches it", () => {
+    const sky = color("sky", "accent", { label: "Sky", hex: "#3E8EBF" });
+    const pairs = iconPairs([...palette, sky], { colors: ["comet-green", "sky", "kiln-white"] });
+    const text = (id: string) => chipText(pairs.find((p) => p.id === id)!);
+    expect(pairs.find((p) => p.id === "sky-on-kiln-white")?.ratio).toBeLessThan(4.5);
+    expect(text("comet-green-on-kiln-white")).toBe("#1E5B4A");
+    expect(text("sky-on-kiln-white")).toBe("#0b0d10");
+    expect(text("kiln-white-on-ink")).toBe("#F7F6F2");
   });
 
   it("skips ids that are not live colors and offers nothing without icon colors", () => {
