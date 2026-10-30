@@ -377,6 +377,8 @@ Never default to a blue and purple gradient. Every hub would look the same.
 - Filtered grids move items to their new positions instead of jumping.
 - No fade-up sections on scroll, no parallax, no glows, no blur-in headings.
 - Under `prefers-reduced-motion`, transitions are instant and the hero holds still.
+- `motion: "calm"` (ENGINE_SPEC.md, section 6, Calm motion) takes the same still path for decoration only: the hero, the pointer light, page transitions, the typed hint, and the recolor wave stop, while copy, download, press, focus, dialog, and toast motion stay.
+- A template's variant switcher is a row of small chips on native radio inputs. The checked chip takes the pressed chip style, and the card's thumbnail and format buttons swap with no motion.
 
 ## 11. States
 

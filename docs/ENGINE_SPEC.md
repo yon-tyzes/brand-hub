@@ -70,9 +70,10 @@ export default defineHub({
             "boilerplate", "guide", "start", "signature", "changes"],
   search: { shortcut: ["mod+k", "/"] },
   hero: { preset: "mesh" },           // "mesh" (default) or "contour"
+  motion: "full",                     // "full" (default) or "calm"
   indexing: false,                    // adds noindex when false
   analytics: { provider: "plausible", domain: "brand.example.com" },
-  admin: { enabled: true, adapter: "./adapters/github.ts", auth: "./adapters/auth.ts" },
+  admin: { enabled: true, adapter: "./adapters/github.ts", auth: "./adapters/auth.ts" },  // enabled: true, false, or "dev"
   uploads: { maxBytes: 25_000_000 },
 });
 ```
@@ -80,6 +81,8 @@ export default defineHub({
 - A module that is off produces no route, no navigation item, and no search entries.
 - A top tab with no enabled modules is hidden. With `signature` off, there is no Create tab.
 - The module id `whats-new` from 0.1 is accepted as an alias of `changes` and prints a build warning.
+- `motion: "calm"` turns off decorative motion for every viewer, as section 6, Motion, describes.
+- `admin.enabled: "dev"` keeps the editor for `astro dev` only. A production build then ships no `/admin` route, no editor JavaScript, and no editor entries in search. `true` and `false` behave as before: the editor is in every build, or in none.
 
 ## 5. Data model
 
@@ -110,9 +113,9 @@ Module extensions (summary):
 |---|---|
 | logo | `lockup`, `colorway`, `background` (light, dark), `files[]` { ext: svg, png, pdf, eps; path; width? } |
 | color | `hex`, `rgb`, `cmyk?`, `pms?`, `role`, `pairings[]` (contrast-checked fg/bg) |
-| font | `family`, `role`, `weights[]`, `files` { static[], variable[] }, `license`, `install` |
+| font | `family`, `role`, `weights[]`, `files` { static[], variable[], web[]? }, `license`, `install`, `group?` |
 | icon | `svgPath`, `group`, `pinned`, `source`, `standIn?` |
-| template | `category`, `formats` { canva?, docx?, pptx?, pdf? }, `thumbnail`, `rules[]` |
+| template | `category`, `formats` { canva?, docx?, pptx?, pdf? }, `thumbnail`, `rules[]`, `variants[]?` |
 | photo-source | `provider` (dropbox, drive, sharepoint, url), `url`, `access` (open, sign-in), `guidelines[]` |
 | boilerplate | `lengths` { short, medium, long }, `context` |
 | rule | `title`, `chapter`, `body` (markdown), `do[]`, `dont[]`, `appliesTo[]` (asset ids) |
@@ -127,9 +130,47 @@ Each template offers up to four formats: Canva, Word (.docx), PowerPoint (.pptx)
 - Canva is the recommended format. When a template has a Canva link, its card's primary button is "Open in Canva," and the other formats follow as secondary buttons labeled "Word," "PowerPoint," and "PDF."
 - Only the formats a template has are shown. No empty or disabled buttons.
 
+### Template variants
+
+A template may offer variants of one design, such as two color versions: `variants: [{ "id": "green", "label": "Green", "thumbnail": "files/templates/letterhead-green.svg", "formats": { ... } }, ...]`.
+
+- `id` is unique within the template. `thumbnail` is required. `formats` is optional and takes the same keys as the template's own; a variant without it uses the template's formats.
+- The first variant is the default. With variants set, its thumbnail stands for the template everywhere: the card, the home page preview, and search. The template's own `thumbnail` stays required, so data from 0.2.1 stays valid.
+- The card shows a variant switcher: one labeled chip per variant, built on native radio inputs, so arrow keys move between variants. Picking one swaps the thumbnail and, when that variant sets `formats`, the format buttons. It needs no script.
+- Every variant file must exist. The build fails on a missing one, or on a duplicate variant id.
+
 ### Brand guide chapters
 
 `brand.json` lists the chapters under `guide.chapters`, in reading order: `[{ "id": "logo-use", "title": "Logo use" }, ...]`. Every rule names one chapter in `chapter`. The build fails on a rule whose chapter is not listed.
+
+### Brand guide PDF
+
+`brand.json` may point to the full brand guide as one PDF: `"guide": { "chapters": [...], "pdf": { "path": "files/guide/<name>.pdf", "updated": "YYYY-MM-DD" } }`. The build fails if the file does not exist. When set:
+
+- The Brand guide landing page (`/guide`) shows one secondary button, "Open the full guide (PDF, 1.2 MB)", with the size read from the file at build time. It opens the PDF in a new tab in the browser's own viewer. The engine ships no PDF viewer.
+- Search lists it as "Brand guide (PDF)" in the Brand guide group, with an Open action.
+
+### Font groups
+
+`brand.json` may group the font families on `/fonts`: `"modules": { "fonts": { "groups": [{ "id": "office", "title": "...", "help": "..." }, ...] } }`, in display order. Each font names its group in `group`.
+
+- With groups set, `/fonts` shows one section per group, in order, with its title and help line and a "Download all" zip of the group's static and variable files. Without groups, `/fonts` is unchanged.
+- The loader fails the build on a font whose `group` is not listed, and, when groups are set, on a font with no `group`. Both messages name the font id. Group ids must be unique.
+
+### Font files
+
+A font's `files` holds three lists:
+
+| List | Holds | Used for |
+|---|---|---|
+| `static[]` | One TTF or OTF file per weight, in `weights` order | The "For your computer" download |
+| `variable[]` | A variable file covering every weight | The "For websites" download |
+| `web[]` | WOFF2 files, optional | `@font-face` on the site only |
+
+- `@font-face` uses `web[]` when present: a file whose name contains `wght` or `variable` covers the weight range, otherwise the files map to `weights` by position. Without `web[]`, the 0.2.1 behavior holds: the variable file, else the static files.
+- Download zips hold `static[]` and `variable[]` files only, never `web[]`.
+- Install steps on `/fonts` say: "Word, PowerPoint, and Excel need the TTF or OTF files. WOFF2 files are for websites and do not install."
+- The build warns, without failing, when a font has `web[]` or WOFF2 files but no static TTF or OTF: `font "<id>" has only WOFF2 files, so it cannot be installed in Word.`
 
 ### Rendering rules
 
@@ -143,7 +184,7 @@ Files per brand:
 
 ```
 brands/<slug>/
-  brand.json          name, short name, primary color, guide chapters, quick downloads, module settings
+  brand.json          name, short name, primary color, guide chapters and PDF, quick downloads, module settings
   assets.json         all Asset records (or split per module: logos.json, icons.json ...)
   rules.json
   changelog.json      written by the serializer on publish
@@ -173,13 +214,13 @@ The footer links to the change log and the brand contact. The engine version nev
 | `/` | Library | Search-first hero, quick downloads, then a preview of each category |
 | `/logos` | Library | Lockups, logo rules, downloads named by use |
 | `/colors` | Library | Main and supporting colors, every value copyable, approved text-on-color pairs |
-| `/fonts` | Library | Type tester, family cards, downloads, install steps |
+| `/fonts` | Library | Type tester, family cards (in groups when set), downloads, install steps |
 | `/icons` | Library | Grouped library, recolor, filter, detail panel |
 | `/photos` | Library | Photo library link, photo rules, headshot standard |
 | `/templates` | Library | Category filters, template cards with their formats, template rules |
 | `/office` | Library | Office theme download and install steps (section 7) |
 | `/descriptions` | Library | Approved company descriptions in three lengths |
-| `/guide` | Brand guide | Chapter list |
+| `/guide` | Brand guide | Chapter list, and the full guide PDF when set |
 | `/guide/new-to-the-team` | Brand guide | New team member path: signature, font install, where things live |
 | `/guide/<chapter>` | Brand guide | A chapter: its rules, with diagrams and do and don't examples |
 | `/create/signature` | Create | Signature generator with live preview and install steps |
@@ -234,6 +275,20 @@ The hero search field and chips use their own recipe so they read over the gradi
 - The hero gradient drifts slowly, loads after the page renders, and pauses when the tab is hidden or the hero is offscreen.
 - Under `prefers-reduced-motion`, transitions are instant and the hero shows one still frame. Without WebGL, the hero shows a static gradient.
 - No scroll-triggered fades, parallax, glows, or blur-in headings.
+
+#### Calm motion
+
+`motion: "calm"` in `hub.config.ts` is for brands that want a still site for every viewer. It uses the reduced-motion path: one "still" condition, true under `prefers-reduced-motion` or when the page has `data-motion="calm"` on its root, drives every decorative motion below.
+
+| Off under calm | Kept under calm |
+|---|---|
+| The hero animation. The hero script is not loaded; the static gradient frame shows. | Copy confirmations |
+| The pointer light | The download arrow |
+| Page transitions and the sliding tab and sidebar indicator | Press feedback |
+| The placeholder typing. The placeholder shows its first example, still. | Focus states |
+| The icon recolor wave. Icons recolor at once. | Dialog and toast open and close |
+
+The kept motions are feedback, not decoration. `prefers-reduced-motion` still makes every transition instant, calm or not.
 
 ### Performance and access budgets
 
@@ -344,6 +399,8 @@ Route `/admin`. Hidden from nav and search. Requires a session from the `AuthAda
 | Status | Live, Pending, Draft, Retired. Only Live shows on the public site. |
 
 The inspector covers the 0.2 data additions: template formats (a Canva link field plus Word, PowerPoint, and PDF file slots), the rule chapter (a select from `guide.chapters`), and PDF and EPS slots on logos. Brand settings edit the brand name, primary color, guide chapters, and quick downloads.
+
+From 0.2.2: the font inspector has a group select (from `modules.fonts.groups`) and a web files slot, and the template inspector has a variants list (label, thumbnail, and optional format files per variant). Brand settings add the brand guide PDF slot and the font group list.
 
 ### Upload handling
 
@@ -475,6 +532,7 @@ CI blocks merge on failure.
 | 0.1 | Public site for logos, colors, fonts, icons, photos, templates, search, guide pages, What's new. Admin editor with local and demo adapters, serializer, preview. Demo brand. | Released (v0.1.0) |
 | 0.2 | Redesign. Engine-owned shell and interface fonts, Library, Brand guide, and Create navigation, search-first home with tuned hero gradient, frosted surfaces, motion, guide chapters, template formats, logo print files, rebuilt editor with Overview. | Released (v0.2.0) |
 | 0.2.1 | Polish: glass, dark mode icons and logos, micro-interactions. | Released (v0.2.1) |
+| 0.2.2 | Brand guide PDF, font groups, web font files, calm motion, template variants, editor in local dev only. All optional; 0.2.1 instances build unchanged. | In progress |
 | 0.3 | Email signature generator, New to the team, Office theme download. | Planned |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 
