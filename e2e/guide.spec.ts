@@ -88,3 +88,24 @@ test("Library rule strips link to the matching chapter", async ({ page }) => {
     await expect(page.locator(".rule-strip-link"), route).toHaveAttribute("href", chapter);
   }
 });
+
+test("the index opens the full guide PDF in a new tab, with its size", async ({ page, request }) => {
+  await page.goto("/guide/");
+  const button = page.getByRole("link", { name: /^Open the full guide \(PDF, \d+ KB\)/ });
+  await expect(button).toHaveAttribute("href", "/files/guide/pocket-comet-brand-guide.pdf");
+  await expect(button).toHaveAttribute("target", "_blank");
+  await expect(button).toHaveClass(/btn-secondary/);
+  const res = await request.get("/files/guide/pocket-comet-brand-guide.pdf");
+  expect(res.ok()).toBe(true);
+  expect(res.headers()["content-type"]).toBe("application/pdf");
+  const kb = Math.round((await res.body()).length / 1000);
+  await expect(button).toContainText(`(PDF, ${kb} KB)`);
+});
+
+test("search lists the guide PDF", async ({ page }) => {
+  await page.goto("/guide/");
+  await page.keyboard.press("/");
+  await page.keyboard.type("guide pdf");
+  const dialog = page.getByRole("dialog", { name: "Search the brand" });
+  await expect(dialog.getByText("Brand guide (PDF)")).toBeVisible();
+});
