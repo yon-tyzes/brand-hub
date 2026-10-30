@@ -213,7 +213,7 @@ Buttons run an action on the asset in front of the person: download, copy, open.
 - Primary: `fill-primary` with `on-primary`, one per view. It is ink, never the brand's color, so it reads the same for every brand.
 - Secondary: `bg` with a `border-control` boundary, for every other action.
 - Ghost: for low-weight links such as "View rules".
-- Quiet: transparent fill with the `border` hairline, for a second way to do what a nearby control already does, such as "Copy hex code" on a color card.
+- Quiet: transparent fill with a `border-control` boundary, for a second way to do what a nearby control already does, such as "Copy hex code" on a color card.
 - Logo and icon downloads read "Download" with the format in `small` beside it. Visually hidden text names the asset, so each button's accessible name is unique: "Download Stacked logo, PNG".
 - Height 40px, 32px for the small size. Radius `radius-md`. Hover and press change color over `duration-fast`.
 - Never disabled. Keep it active and explain on use.
@@ -399,7 +399,7 @@ Empty, loading, and error states follow the copy rules in section 13: say what i
 - Render at 16px or 18px with a 1.75px stroke, and at 20px in the search field.
 - Shell icons are always one color, inherited from the text beside them.
 - Brand icons are content. They live in the brand's data and show in the brand's colors on the Icons page.
-- On the Icons page every color choice is a brand pair: an icon color on a ground, labeled "<icon color> on <ground>". Pairs come from `modules.icons.colors` and `modules.icons.grounds` (default: the lightest and darkest locked colors), and only pairs at 3:1 or better are offered, ordered by icon color, then ground. Each color chip shows its own pair, the icon color on the ground, when that text passes 4.5:1, else a neutral chip with a dot of the pair. The chosen chip adds a check icon and a 2px `text` ring with a band of `bg` inside it, so selection never rests on color alone. The grid sits on one panel filled with the ground. Tiles are transparent with a hairline in the icon color at low opacity, and labels use whichever of the two `text` values passes 4.5:1 on the ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground. The viewer's pick is remembered.
+- On the Icons page every color choice is a brand pair: an icon color on a ground, labeled "<icon color> on <ground>". Pairs come from `modules.icons.colors` and `modules.icons.grounds` (default: the lightest and darkest locked colors), and only pairs at 3:1 or better are offered, ordered by icon color, then ground. Each color chip shows its own pair: the ground as fill, the icon color for text and marks. When the icon color is under 4.5:1 on the ground, the text takes the darkest `text` value that reaches 4.5:1, and a dot keeps the icon color on the chip. The chosen chip adds a check icon and a 2px `text` ring with a band of `bg` inside it, so selection never rests on color alone. The grid sits on one panel filled with the ground. Tiles are transparent with a hairline in the icon color at low opacity, and labels use whichever of the two `text` values passes 4.5:1 on the ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground. The viewer's pick is remembered.
 - Icon downloads are the exact icon color hex on a transparent background. Brand colors are never adjusted for display.
 - No emoji anywhere in the shell.
 
