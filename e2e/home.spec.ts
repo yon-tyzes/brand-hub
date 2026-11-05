@@ -21,6 +21,18 @@ function requested(page: Page): string[] {
 /** Waits past first paint plus the hero's start, so a script that would load has loaded. */
 const settle = (page: Page) => page.waitForFunction(() => performance.now() > 2500);
 
+test("home links to the email signature, then New to the team, below Quick downloads", async ({ page }) => {
+  await page.goto("/");
+  const entries = page.locator(".home-entry");
+  await expect(entries).toHaveCount(2);
+  await expect(entries.first()).toHaveAttribute("href", "/create/signature/");
+  await expect(entries.first().getByRole("heading", { level: 2 })).toHaveText("Email signature");
+  await expect(entries.first()).toContainText("Email signature generator");
+  await expect(entries.nth(1)).toHaveAttribute("href", "/guide/new-to-the-team/");
+  const order = await page.locator("#quick-downloads, .home-entries, #preview-logos").evaluateAll((els) => els.map((e) => e.id || e.className));
+  expect(order).toEqual(["quick-downloads", "home-entries", "preview-logos"]);
+});
+
 test("the home page shows the first template variant in Quick downloads", async ({ page }) => {
   await page.goto("/");
   const card = page.locator(".quick-grid .asset-card").filter({ hasText: "Letterhead" });

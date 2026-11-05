@@ -1,11 +1,11 @@
-// The home page (spec section 6, Home hero): search first, then Quick downloads, the New to the team entry when
-// that page is on, then a preview of each Library category. It is the Library's "All files"; nothing stands in
+// The home page (spec section 6, Home hero): search first, then Quick downloads, the entries to the signature and
+// New to the team when those pages are on, then a preview of each Library category. It is the Library's "All files"; nothing stands in
 // front of it.
 import type { ReactNode } from "react";
 import type { Asset, ColorAsset, FontAsset, IconAsset, LogoAsset, TemplateAsset } from "../../../schemas/asset.ts";
 import { MODULES } from "../../modules/registry.ts";
 import { fontZips, logoFile, templateThumbnail } from "../data.ts";
-import { colorRows, logoDownloads, logoGround } from "../library.ts";
+import { colorRows, homeEntries, logoDownloads, logoGround } from "../library.ts";
 import { AssetCard, Button, Chip, ColorRows, DownloadButton, Icon, useSite } from "../ui.tsx";
 
 /** The file to draw a logo with: SVG when there is one. */
@@ -268,6 +268,7 @@ export function HomePage() {
   const quick = site.brand.quickDownloads
     .map((id) => site.findAsset(id))
     .filter((a): a is Asset => !!a && !!site.assetHref(a) && !(a.type === "template" && !site.templateLinks(a).length));
+  const entries = homeEntries(site);
   return (
     <>
       <Hero />
@@ -280,14 +281,18 @@ export function HomePage() {
             </div>
           </section>
         )}
-        {site.isEnabled("start") && (
-          <a className="start-entry" href={`${MODULES.start.route}/`}>
-            <span className="start-entry-text">
-              <h2 className="start-entry-title">{MODULES.start.label}</h2>
-              <span className="start-entry-help">{MODULES.start.help}</span>
-            </span>
-            <Icon name="arrow-right" />
-          </a>
+        {entries.length > 0 && (
+          <div className="home-entries">
+            {entries.map((m) => (
+              <a key={m.id} className="home-entry" href={`${m.route}/`}>
+                <span className="home-entry-text">
+                  <h2 className="home-entry-title">{m.label}</h2>
+                  <span className="home-entry-help">{m.help}</span>
+                </span>
+                <Icon name="arrow-right" />
+              </a>
+            ))}
+          </div>
         )}
         <CategoryPreviews />
       </div>

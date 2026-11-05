@@ -7,11 +7,10 @@ const THEME = "/downloads/pocket-comet-office-theme.thmx";
 
 test("home links to New to the team once, below Quick downloads", async ({ page }) => {
   await page.goto("/");
-  const entry = page.locator(".start-entry");
+  const entry = page.locator('.home-entry[href="/guide/new-to-the-team/"]');
   await expect(entry).toHaveCount(1);
-  await expect(entry).toHaveAttribute("href", "/guide/new-to-the-team/");
-  const order = await page.locator("#quick-downloads, .start-entry, #preview-logos").evaluateAll((els) => els.map((e) => e.id || e.className));
-  expect(order).toEqual(["quick-downloads", "start-entry", "preview-logos"]);
+  const order = await page.locator("#quick-downloads, .home-entries, #preview-logos").evaluateAll((els) => els.map((e) => e.id || e.className));
+  expect(order).toEqual(["quick-downloads", "home-entries", "preview-logos"]);
 });
 
 test("the steps are numbered in order, and every link opens a page on the site", async ({ page, request }) => {

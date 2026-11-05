@@ -241,7 +241,7 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 - Logo and icon download buttons, on their Library page and in Quick downloads, read "Download" with the format beside it in small type. Visually hidden text names the asset, so each button has its own accessible name: "Download Stacked logo, PNG", "Download Hot cup icon, SVG".
 - Color values are labeled Web, RGB, Print, and Sign.
 - The home page shows "Quick downloads": the items in `brand.json` `quickDownloads`, chosen in the editor. The label stays "Quick downloads" until the site collects download counts.
-- With New to the team on, the home page shows one entry to it below Quick downloads: the module's label and help line, linked to the page (section 14).
+- Below Quick downloads, the home page shows one entry to each of these pages that is on: Email signature first, then New to the team. Each entry is the module's label and help line, linked to the page (section 14).
 - Cards show the real asset in their preview area, never an icon standing in for it. Card actions are always visible, on touch and keyboard too.
 
 ### Home hero
@@ -624,6 +624,7 @@ Designs come from instance data, so a brand's signature designs never enter the 
   - The plain text fallback is each filled value in the design's form order, one per line, then the site address.
   - Values and the photo stay in the page: nothing is stored or sent. The preview sits on `paper`, white in both themes.
   - Install steps cover new Outlook (Windows and web), classic Outlook on Windows, and Outlook on Mac.
+- From 0.3.1, the home page shows one entry to the page below Quick downloads, built like the New to the team entry: the module's label and help line. It comes before the New to the team entry when both show.
 - The loader fails the build on a design that names a field not in `fields`, a variant color that does not exist or is not locked, a template file that does not exist, and on duplicate ids among fields, designs, or a design's variants. Each message names the id.
 - A `signature.json` in the 0.2 shape (an array of `signature-layout` records) fails the build with a message that points to this section. `signature-layout` records in `assets.json` load with a warning and are not used.
 
@@ -642,7 +643,7 @@ An ordered list of first-week steps, from `onboarding.json`:
 
 - Each step has an id, a title, an optional one-paragraph `body`, and at least one link to the hub: `{ "asset": "<id>" }` for an asset or `{ "module": "<id>" }` for a module page. A link's text is the asset's or module's label, so the data holds no link copy.
 - The page lists the steps in order, numbered. A link to a module that is off, or to an asset that is not on the site, is left out.
-- The home page shows one entry to the page, below Quick downloads. Search lists the page in the Brand guide group.
+- The home page shows one entry to the page, below Quick downloads and after the Email signature entry when that shows. Search lists the page in the Brand guide group.
 - The loader fails the build on a link to an asset id that does not exist, on an unknown module id, and on duplicate step ids. It warns on a link to an asset that is not locked.
 
 ### Office theme
