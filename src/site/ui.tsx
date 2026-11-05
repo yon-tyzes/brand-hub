@@ -68,16 +68,14 @@ export function Button({ variant = "secondary", size = "md", href, icon, iconEnd
   );
 }
 
-/** A button or link that downloads a file, named by use with the format beside it. */
-export function DownloadButton({ d, variant = "secondary", size, short, bare, assetLabel }: { d: Download; variant?: "primary" | "secondary"; size?: "md" | "sm"; short?: boolean; bare?: boolean; assetLabel: string }) {
+/**
+ * A link that downloads a file: "Download" with the format beside it. Hidden text names the asset, so each
+ * button reads apart from its neighbors: "Download Stacked logo, PNG".
+ */
+export function DownloadButton({ d, variant = "secondary", size, assetLabel }: { d: Download; variant?: "primary" | "secondary"; size?: "md" | "sm"; assetLabel: string }) {
   return (
-    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={bare ? undefined : d.format} suffix={bare ? `${d.format}, ${assetLabel}` : assetLabel}>
-      {short ? d.short : (
-        <>
-          <span className="label-long">{d.label}</span>
-          <span className="label-short">{d.short}</span>
-        </>
-      )}
+    <Button variant={variant} size={size} href={d.href} download={d.filename} icon={variant === "primary" ? "download" : undefined} format={d.format}>
+      Download<span className="visually-hidden"> {assetLabel}, </span>
     </Button>
   );
 }

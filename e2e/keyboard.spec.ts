@@ -44,14 +44,14 @@ test("keyboard only: search, recolor and download an icon, download a logo and a
   await expect(panel).toContainText("Tea · Comet Green on Kiln White");
 
   // Download the recolored SVG and see it confirmed.
-  await tabTo(page, /^For print and slides/);
+  await tabTo(page, /^Download Hot cup icon, SVG$/);
   const svg = page.waitForEvent("download");
   await page.keyboard.press("Enter");
   expect((await svg).suggestedFilename()).toBe("cup-hot-comet-green.svg");
 
-  // Download a logo, named by use.
+  // Download a logo: the hidden text names it.
   await page.goto("/logos/");
-  await tabTo(page, /^For print and web.*Horizontal logo$/);
+  await tabTo(page, /^Download Horizontal logo, SVG$/);
   const download = page.waitForEvent("download");
   await page.keyboard.press("Enter");
   expect((await download).suggestedFilename()).toBe("pocket-comet-horizontal-full-color.svg");

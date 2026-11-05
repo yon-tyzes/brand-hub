@@ -5,6 +5,16 @@ import { MODULES } from "../../../modules/registry.ts";
 import { colorPairs, colorRows, gradientCss, isLight, ruleStrip, splitColors } from "../../library.ts";
 import { ColorRows, Icon, LibraryHead, RuleStrip, useSite } from "../../ui.tsx";
 
+/** A secondary button that copies the hex, as clicking the hex does. Hidden text adds the color's name. */
+function CopyHex({ color: c }: { color: ColorAsset }) {
+  return (
+    <button className="btn btn-quiet copy-hex" type="button" data-copy={c.hex} data-copy-name={c.label}>
+      <Icon name="copy" size={16} />
+      Copy hex code<span className="visually-hidden"> {c.label}</span>
+    </button>
+  );
+}
+
 function MainColor({ color: c }: { color: ColorAsset }) {
   return (
     <article className="color-card" id={c.id}>
@@ -13,6 +23,7 @@ function MainColor({ color: c }: { color: ColorAsset }) {
         <h3 className="color-card-name">{c.label}</h3>
         {c.help && <p className="color-card-help">{c.help}</p>}
         <ColorRows color={c} rows={colorRows(c)} />
+        <CopyHex color={c} />
       </div>
     </article>
   );
@@ -32,6 +43,7 @@ function SupportingColor({ color: c }: { color: ColorAsset }) {
           <Icon name="copy" size={16} />
           <span className="support-copy-hex">{c.hex}</span>
         </button>
+        <CopyHex color={c} />
       </div>
     </article>
   );

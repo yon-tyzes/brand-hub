@@ -213,7 +213,8 @@ Buttons run an action on the asset in front of the person: download, copy, open.
 - Primary: `fill-primary` with `on-primary`, one per view. It is ink, never the brand's color, so it reads the same for every brand.
 - Secondary: `bg` with a `border-control` boundary, for every other action.
 - Ghost: for low-weight links such as "View rules".
-- Name downloads by use when the format is not obvious: "For Word and PowerPoint" with "PNG" in `small` beside it.
+- Quiet: transparent fill with a `border-control` boundary, for a second way to do what a nearby control already does, such as "Copy hex code" on a color card.
+- Logo and icon downloads read "Download" with the format in `small` beside it. Visually hidden text names the asset, so each button's accessible name is unique: "Download Stacked logo, PNG".
 - Height 40px, 32px for the small size. Radius `radius-md`. Hover and press change color over `duration-fast`.
 - Never disabled. Keep it active and explain on use.
 
@@ -226,7 +227,7 @@ Chips are quick picks under the hero search and filters above a grid. A chip tak
 - Every chip and button scales to 0.98 while pressed.
 - A selected filter chip uses `fill-primary` and `on-primary`.
 - A color dot uses the brand color it names.
-- Labels say what someone came for ("Logo for slides"), not the asset's internal name.
+- Labels say what someone came for ("Font files"), not the asset's internal name.
 
 ### ColorSwatch
 
@@ -235,6 +236,7 @@ A swatch shows one brand color and every value someone might need, each copyable
 - The color block shows the brand's real value. This is brand content, not shell.
 - Each value row is labeled by use: Web (HEX), RGB, Print (CMYK), and Sign (PMS). Values in `value`, labels in `caption`.
 - Clicking a row copies its value and shows a toast naming the color and value: "Comet Green #1E5B4A copied".
+- On `/colors` each card also has a quiet "Copy hex code" button with the copy icon. It copies the hex like the Web row and shows the same confirmation. Hidden text adds the color's name.
 
 ### Hero
 
@@ -243,7 +245,7 @@ The home hero puts search first: the brand's name, a large search field, and fou
 - It sits inside the content column beside the sidebar, about 320px tall.
 - Title in `display-xl` from 992px and `display` below, on two lines: "<Brand>" then "brand files". Nothing above it.
 - The search field is the hero size of SearchField. Its hint types out real asset names from the brand's data and stops under reduced motion.
-- Quick picks are chips naming what people come for: "Logo for slides", the primary color, "Font files", the most used template.
+- Quick picks are chips naming what people come for: the logo by its label, the primary color, "Font files", the most used template.
 - The search field and chips are frosted (section 8), and solid under reduced transparency. The search field carries the pointer light (section 8).
 - The mesh follows the hero gradient rules in section 9.
 - On phones the title drops to two short lines, the search goes full width, and the chips wrap to two rows.
@@ -397,7 +399,7 @@ Empty, loading, and error states follow the copy rules in section 13: say what i
 - Render at 16px or 18px with a 1.75px stroke, and at 20px in the search field.
 - Shell icons are always one color, inherited from the text beside them.
 - Brand icons are content. They live in the brand's data and show in the brand's colors on the Icons page.
-- On the Icons page every color choice is a brand pair: an icon color on a ground, labeled "<icon color> on <ground>". Pairs come from `modules.icons.colors` and `modules.icons.grounds` (default: the lightest and darkest locked colors), and only pairs at 3:1 or better are offered, ordered by icon color, then ground. The grid sits on one panel filled with the ground. Tiles are transparent with a hairline in the icon color at low opacity, and labels use whichever of the two `text` values passes 4.5:1 on the ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground. The viewer's pick is remembered.
+- On the Icons page every color choice is a brand pair: an icon color on a ground, labeled "<icon color> on <ground>". Pairs come from `modules.icons.colors` and `modules.icons.grounds` (default: the lightest and darkest locked colors), and only pairs at 3:1 or better are offered, ordered by icon color, then ground. Each color chip shows its own pair: the ground as fill, the icon color for text and marks. When the icon color is under 4.5:1 on the ground, the text takes the darkest `text` value that reaches 4.5:1, and a dot keeps the icon color on the chip. The chosen chip adds a check icon and a 2px `text` ring with a band of `bg` inside it, so selection never rests on color alone. The grid sits on one panel filled with the ground. Tiles are transparent with a hairline in the icon color at low opacity, and labels use whichever of the two `text` values passes 4.5:1 on the ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground. The viewer's pick is remembered.
 - Icon downloads are the exact icon color hex on a transparent background. Brand colors are never adjusted for display.
 - No emoji anywhere in the shell.
 
@@ -406,7 +408,7 @@ Empty, loading, and error states follow the copy rules in section 13: say what i
 People open the hub to get something, learn a rule, or make something. Every label answers one of those jobs in plain words.
 
 - Sentence case everywhere: "Download PNG", "Brand guide".
-- Name things by use, not by format or internal type. Write "For Word and PowerPoint" with "PNG" beside it, not "Raster export". Color rows read Web, RGB, Print, and Sign.
+- Name things plainly, not by internal type. Logo and icon downloads read "Download" with the format beside it, not "Raster export". Color rows read Web, RGB, Print, and Sign.
 - The navigation vocabulary is fixed: Library, Brand guide, Create. The home row is "Quick downloads". The engine version never appears on public pages.
 - Nothing above a heading. No small labels over section titles, no type tags above card titles.
 - No em dashes. No exclamation marks in system copy. No "successfully", "please", "simply", or "easy".

@@ -37,6 +37,9 @@ if (root) {
   const thumb = root.querySelector<HTMLElement>("[data-icon-thumb]");
   const nameOut = root.querySelector<HTMLElement>("[data-icon-name-out]");
   const metaOut = root.querySelector<HTMLElement>("[data-icon-meta]");
+  const board = root.querySelector<HTMLElement>("[data-icon-board]");
+  const clear = root.querySelector<HTMLButtonElement>("[data-icon-clear]");
+  const empty = root.querySelector<HTMLElement>("[data-icon-empty]");
   let tile = tiles.find((t) => t.getAttribute("aria-pressed") === "true") ?? tiles[0];
   let color = radios.find((r) => r.getAttribute("aria-checked") === "true") ?? radios[0];
   let picked = radios.find((r) => r.dataset.pair === savedPair());
@@ -61,7 +64,8 @@ if (root) {
     if (preview) preview.innerHTML = markup.replace(/\swidth="[^"]*"/, ' width="64"').replace(/\sheight="[^"]*"/, ' height="64"');
     if (thumb) thumb.innerHTML = markup;
     if (nameOut) nameOut.textContent = tile.dataset.iconName ?? "";
-    if (metaOut) metaOut.textContent = [tile.dataset.iconGroup, color?.dataset.colorName].filter(Boolean).join(" · ");
+    for (const n of root!.querySelectorAll("[data-icon-name-hidden]")) n.textContent = tile.dataset.iconName ?? "";
+    if (metaOut) metaOut.textContent = [tile.dataset.iconGroupName, color?.dataset.colorName].filter(Boolean).join(" · ");
   }
 
   function pickColor(r: HTMLButtonElement | undefined, { focus = false, save = false } = {}) {
@@ -112,20 +116,46 @@ if (root) {
     pickColor(radios[(radios.indexOf(color) + step + radios.length) % radios.length]!, { focus: true, save: true });
   });
 
-  filter?.addEventListener("input", () => {
+  // A query shows one flat grid of matches across all groups (the board's data-searching); an empty query, the
+  // clear button, or Escape brings the groups back. Every word of the query must appear in the icon's text.
+  function search() {
+    if (!filter) return;
     const q = filter.value.trim().toLowerCase();
+    const words = q.split(/\s+/).filter(Boolean);
     let shown = 0;
-    const items = [...root.querySelectorAll<HTMLElement>("[data-icon-item]")];
+    const items = [...root!.querySelectorAll<HTMLElement>("[data-icon-item]")];
     flip(items, () => {
       for (const item of items) {
-        const ok = !q || (item.dataset.text ?? "").includes(q);
-        item.hidden = !ok;
-        if (ok) shown++;
+        const text = item.dataset.text ?? "";
+        item.hidden = !words.every((w) => text.includes(w));
+        if (!item.hidden) shown++;
       }
-      for (const g of root.querySelectorAll<HTMLElement>("[data-icon-group]")) g.hidden = !g.querySelector("[data-icon-item]:not([hidden])");
+      for (const g of root!.querySelectorAll<HTMLElement>("section[data-icon-group]")) g.hidden = !g.querySelector("[data-icon-item]:not([hidden])");
+      board?.toggleAttribute("data-searching", !!q);
     });
-    if (count) count.textContent = `${shown} of ${count.dataset.total} icons`;
+    const quoted = `"${filter.value.trim()}"`;
+    if (clear) clear.hidden = !q;
+    if (empty) {
+      empty.hidden = !q || shown > 0;
+      empty.textContent = `No icons match ${quoted}.`;
+    }
+    if (count) count.textContent = !q ? `${shown} of ${count.dataset.total} icons` : `${shown} ${shown === 1 ? "icon matches" : "icons match"} ${quoted}`;
+  }
+
+  function reset() {
+    if (!filter) return;
+    filter.value = "";
+    search();
+    filter.focus();
+  }
+
+  filter?.addEventListener("input", search);
+  filter?.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || !filter.value) return;
+    e.preventDefault();
+    reset();
   });
+  clear?.addEventListener("click", reset);
 
   async function png(svg: string, size: number): Promise<Blob> {
     const img = new Image();
