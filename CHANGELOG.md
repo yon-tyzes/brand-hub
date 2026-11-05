@@ -2,6 +2,16 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
+## 0.3.1 (2026-11-05)
+
+Makes the email signature easier to find. No data or config changes: 0.3.0 instances build unchanged.
+
+### Public site
+
+- While the Create tab holds only one page, the tab and its sidebar take that page's label: "Email signature" for the signature. With two or more pages, they read "Create". The route stays `/create/signature`.
+- With the signature on, the home page shows an entry to it below Quick downloads, built like the New to the team entry: the module's label and help line. It comes first when both entries show.
+- Search lists the signature page in its own group, Email signature, under "email", "signature", "outlook", and "mail".
+
 ## 0.3.0 (2026-11-05)
 
 ### Email signature
