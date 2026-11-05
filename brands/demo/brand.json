@@ -85,6 +85,27 @@
           "help": "Body text, interface, and small headings."
         }
       ]
+    },
+    "office": {
+      "themeName": "Pocket Comet",
+      "colors": {
+        "dk1": "ink",
+        "lt1": "kiln-white",
+        "dk2": "comet-green",
+        "lt2": "mist",
+        "accent1": "comet-green",
+        "accent2": "copper",
+        "accent3": "clay",
+        "accent4": "slate",
+        "accent5": "mist",
+        "accent6": "ink",
+        "hlink": "comet-green",
+        "folHlink": "slate"
+      },
+      "fonts": {
+        "major": "fraunces",
+        "minor": "inter"
+      }
     }
   }
 }
