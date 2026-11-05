@@ -542,7 +542,7 @@ CI blocks merge on failure.
 | 0.2.1 | Polish: glass, dark mode icons and logos, micro-interactions. | Released (v0.2.1) |
 | 0.2.2 | Brand guide PDF, font groups, web font files, calm motion, template variants, editor in local dev only. All optional; 0.2.1 instances build unchanged. | Released (v0.2.2) |
 | 0.2.3 | Stabilization: "Download" button labels, "Copy hex code" on color cards, icon search results, color chips in their own pair. 0.2.2 instances build unchanged. | Released (v0.2.3) |
-| 0.3 | Email signature generator, New to the team, Office theme download, gradient colors, download analytics. All optional; 0.2.2 instances build unchanged. Section 14. | In progress |
+| 0.3 | Email signature generator, New to the team, Office theme download, gradient colors. All optional; 0.2.2 instances build unchanged. Section 14. | Released (v0.3.0) |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 
 Work beyond 0.4 is tracked in the product roadmap document, outside this repo.
@@ -670,4 +670,4 @@ A brand gradient is a record in `colors.json` with `type: "gradient"`:
 
 ### Download analytics
 
-Decided by the prompt 28 spike.
+On hold. Not part of 0.3.

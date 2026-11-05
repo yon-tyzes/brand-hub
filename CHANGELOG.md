@@ -2,7 +2,7 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
-## 0.3.0 (in progress)
+## 0.3.0 (2026-11-05)
 
 ### Email signature
 
@@ -20,6 +20,16 @@ Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, 
 
 - With `modules.office` in `brand.json`, the build writes `/downloads/<theme-name>-office-theme.thmx` with the twelve theme colors, the heading and body fonts, and a thumbnail drawn from the palette. Two builds of the same data give the same bytes. `/office` shows the colors in slot order, both fonts, the download with its date and size, and install steps for Windows and Mac. `/colors` and `/fonts` end with the download and one line per platform on how to apply it. Search lists it under Office, Word, PowerPoint, Excel, and theme.
 - The loader warns when two adjacent accents in `modules.office` differ by less than 15 in CIELAB delta E, since charts use them as neighboring series.
+
+### Gradient colors
+
+- `colors.json` takes records with `type: "gradient"`. `stops` holds two or more hex values in order; a stop may set `at`, its position from 0 to 100, on every stop or on none, and positions must not go down. `angle` is in degrees, 0 to 360, default 90 (left to right). Stops are hex values, not color ids, because a brand gradient may pass through tones that are not palette colors.
+- `/colors` shows each gradient as a card after the colors: its stops in order as solid swatches, each with its hex, and a "Copy CSS" action that copies a `linear-gradient()` value. Search lists gradients in the Colors group with the "Copy CSS" action.
+- The demo adds one gradient, Ink to Mist.
+
+### Modules
+
+- A module whose page is built from brand data stays off until the brand has that data, even when it is listed: `office` needs `modules.office` in `brand.json`, `start` needs `onboarding.json`, `signature` needs `signature.json`, and `boilerplate` needs a locked boilerplate record.
 
 ## 0.2.3 (2026-10-30)
 
