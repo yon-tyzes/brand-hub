@@ -81,6 +81,7 @@ export default defineHub({
 - A module that is off produces no route, no navigation item, and no search entries.
 - From 0.3, a module whose page is built from brand data stays off until the brand has that data, even when it is listed: `office` needs `modules.office` in `brand.json`, `start` needs `onboarding.json`, `signature` needs `signature.json`, and `boilerplate` needs a locked boilerplate record. Section 14 has the details.
 - A top tab with no enabled modules is hidden. With `signature` off, there is no Create tab.
+- While the Create tab holds only one page, the tab and its sidebar take that page's module label: "Email signature" for the signature. With two or more pages, they read "Create". Routes do not change.
 - The module id `whats-new` from 0.1 is accepted as an alias of `changes` and prints a build warning.
 - `motion: "calm"` turns off decorative motion for every viewer, as section 6, Motion, describes.
 - `admin.enabled: "dev"` keeps the editor for `astro dev` only. A production build then ships no `/admin` route, no editor JavaScript, and no editor entries in search. `true` and `false` behave as before: the editor is in every build, or in none.
@@ -206,6 +207,8 @@ The top bar holds the brand name and mark, three tabs, search, and the theme tog
 | Library | Get a file or a value | All files (the home page), Logos, Colors, Fonts, Icons, Photos, Templates, Office theme, Company descriptions |
 | Brand guide | Learn how to use the brand | New to the team, then the chapters from `guide.chapters` |
 | Create | Make something with your own details on it | Email signature, and later tools such as the logo helper |
+
+The Create tab reads "Email signature" while the signature is its only page (section 4).
 
 Below 992px the sidebar becomes a horizontal chip row under the tabs. Below 768px the tabs become a segmented control under the top bar.
 
@@ -577,6 +580,7 @@ Release 0.3 adds four features and plans a fifth. Every one is optional and driv
 - The 0.1 paths `/start` and `/signature` stay redirects to `/guide/new-to-the-team` and `/create/signature`. They are built only when the target page is. Without the data, both paths answer 404, as they do today with the module off.
 - `/start` does not become a page of its own: New to the team belongs under the Brand guide tab, and existing links to `/guide/new-to-the-team` keep working.
 - With `signature` off or without data, there is no Create tab (section 4).
+- With the signature as its only page, the Create tab reads "Email signature" (from 0.3.1, section 4). The route stays `/create/signature`.
 
 ### Email signature
 

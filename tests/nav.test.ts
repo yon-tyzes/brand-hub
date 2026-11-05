@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { ModuleId } from "../schemas/hub-config.ts";
 import { loadBrand } from "../src/content/load.ts";
+import { MODULES } from "../src/modules/registry.ts";
 import { createSite } from "../src/site/data.ts";
 import { currentTab, navTabs, sidebarFor } from "../src/site/nav.ts";
 import { netlifyRedirects, redirectsFor } from "../src/site/redirects.ts";
@@ -24,8 +25,22 @@ describe("top tabs", () => {
     expect(navTabs(siteWith(["logos", "guide"])).map((t) => t.label)).toEqual(["Library", "Brand guide"]);
     expect(navTabs(siteWith(["logos"])).map((t) => t.label)).toEqual(["Library"]);
     expect(navTabs(siteWith(["logos", "guide", "signature"])).map((t) => [t.label, t.href])).toEqual([
-      ["Library", "/"], ["Brand guide", "/guide"], ["Create", "/create/signature"],
+      ["Library", "/"], ["Brand guide", "/guide"], ["Email signature", "/create/signature"],
     ]);
+  });
+
+  it("names the Create tab and its sidebar after the page while it holds only one", () => {
+    const site = siteWith(["logos", "signature"]);
+    expect(navTabs(site).find((t) => t.id === "create")?.label).toBe("Email signature");
+    expect(sidebarFor(site, "/create/signature").label).toBe("Email signature");
+  });
+
+  it("keeps the Create label with two or more pages in the tab", () => {
+    // Only the signature lives under Create today, so a second page is another module moved into the tab.
+    const base = siteWith(["logos", "signature"]);
+    const site = { ...base, modules: [...base.modules, { ...MODULES.office, tab: "create" as const }] };
+    expect(navTabs(site).find((t) => t.id === "create")).toEqual({ id: "create", label: "Create", href: "/create/signature" });
+    expect(sidebarFor(site, "/create/signature").label).toBe("Create");
   });
 
   it("points Brand guide at New to the team when the guide itself is off", () => {
