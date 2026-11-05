@@ -813,6 +813,58 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 
 .font-office-note { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
 
+/* ---------- New to the team (spec section 14) ---------- */
+
+.start-entry {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 20px; border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-raised); color: var(--text); text-decoration: none;
+  transition: border-color var(--duration-base) var(--ease-out), background-color var(--duration-base) var(--ease-out);
+}
+.start-entry:hover { border-color: var(--border-strong); background: var(--surface-subtle); }
+.start-entry-text { display: grid; gap: 2px; }
+.start-entry-title { margin: 0; font-size: var(--label-size); line-height: var(--label-leading); font-weight: 600; letter-spacing: 0; }
+.start-entry-help { font-size: var(--small-size); color: var(--text-secondary); }
+.start-steps { margin: 32px 0 0; padding: 0; display: grid; gap: 0; max-width: var(--reading-max); }
+.start-step { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 16px; padding: 24px 0; border-top: 1px solid var(--border); }
+.start-step:last-child { border-bottom: 1px solid var(--border); }
+.start-step-number {
+  width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong); font-size: var(--small-size); font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.start-step-title { margin: 4px 0 0; font-size: var(--h3-size); line-height: var(--h3-leading); font-weight: 600; letter-spacing: var(--h3-tracking); }
+.start-step-help { margin: 8px 0 0; font-size: var(--body-size); line-height: var(--body-leading); color: var(--text-secondary); }
+.start-step-links { margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.start-step-links a { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; font-weight: 500; color: var(--text); text-decoration: none; }
+.start-step-links a:hover { text-decoration: underline; }
+@media (max-width: 767.98px) {
+  .start-step-links { display: grid; gap: 0; }
+  .start-step-links a { min-height: 44px; }
+}
+
+/* ---------- Office theme (spec section 7) ---------- */
+
+.office-download { display: grid; justify-items: start; gap: 6px; }
+.office-download .caption { margin: 0; }
+.office-slot-color { display: block; margin-top: 2px; font-size: 12px; color: var(--text-secondary); }
+.office-note { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
+.office-note a { color: var(--text); }
+.office-card {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px;
+  padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised);
+}
+.office-card-text { display: grid; gap: 6px; max-width: var(--reading-max); }
+.office-card-text p { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
+.office-fonts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.office-font { display: grid; gap: 12px; align-content: start; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.office-font p { margin: 0; }
+.office-font-heading { font-size: var(--h1-size); line-height: var(--h1-leading); font-weight: 600; }
+.office-font-body { font-size: var(--body-size); line-height: var(--body-leading); }
+.office-install { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.office-steps h3 { margin: 0; }
+.office-steps ol { margin: 12px 0 0; padding-left: 1.25em; display: grid; gap: 8px; font-size: var(--body-size); line-height: var(--body-leading); }
+@media (max-width: 767.98px) { .office-card { padding: 16px; } .office-card .btn { width: 100%; } .office-download { justify-items: stretch; } }
+
 .font-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); overflow: hidden; }
 .font-card-specimen { padding: 32px 32px 28px; background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
 .font-sample { margin: 0; font-size: var(--sample-size, 56px); line-height: 1.1; overflow-wrap: anywhere; transition: font-weight var(--duration-fast) var(--ease-out); }

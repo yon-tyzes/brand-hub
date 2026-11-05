@@ -1,13 +1,14 @@
 // Everything a public page needs, built from plain data. The build creates one from the brand folder
 // (src/lib/site-server.ts); the editor's preview creates one from the draft. No file system access here.
 import type { Asset, AssetType, ColorAsset, FontAsset, IconAsset, LogoAsset, RuleAsset, TemplateAsset, TemplateFormat, TemplateVariant } from "../../schemas/asset.ts";
-import type { Brand } from "../../schemas/brand.ts";
+import { OFFICE_COLOR_SLOTS, type Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
 import type { Onboarding } from "../../schemas/onboarding.ts";
 import { headshotOf, type Signature, type SignatureHeadshot } from "../../schemas/signature.ts";
 import type { SearchAction } from "../lib/search-config.ts";
 import { fileName, isExternal } from "../lib/paths.ts";
+import { officeThemeFileName, type OfficeColorSlot, type OfficeThemeInput } from "../office/index.ts";
 import { gradientCss } from "./library.ts";
 import { TYPE_LABEL } from "../lib/labels.ts";
 import { MODULES, type ModuleDef } from "../modules/registry.ts";
@@ -33,6 +34,22 @@ export interface SiteInput {
   textFor?: (path: string) => string | undefined;
   /** The site's address with no trailing slash, when the build has one. */
   address?: string;
+  /** Size in bytes of the built Office theme, when known (the build writes it; the editor preview does not). */
+  officeThemeSize?: () => number | undefined;
+}
+
+/** The Office theme with its slots filled from brand data (spec section 7). */
+export interface OfficeTheme {
+  name: string;
+  href: string;
+  filename: string;
+  /** Slot order, as Office lists them. */
+  colors: { slot: OfficeColorSlot; color: ColorAsset }[];
+  fonts: { major: FontAsset; minor: FontAsset };
+  /** The latest `updated` among the slot colors and fonts. */
+  updated: string;
+  /** What the writer builds the file from. */
+  input: OfficeThemeInput;
 }
 
 /** A signature design ready for the page: its template text and each variant's colors as hex (spec section 14). */
@@ -109,6 +126,31 @@ export function fontZips(f: FontAsset): { kind: "static" | "variable"; href: str
   return out;
 }
 
+/** Fills the Office theme slots from locked assets. Undefined when the brand sets none or a slot has no locked item. */
+export function officeThemeOf(brand: Brand, findAsset: (id: string) => Asset | undefined): OfficeTheme | undefined {
+  const o = brand.modules.office;
+  if (!o) return undefined;
+  const colors = OFFICE_COLOR_SLOTS.map((slot) => ({ slot, color: findAsset(o.colors[slot]) }));
+  const major = findAsset(o.fonts.major);
+  const minor = findAsset(o.fonts.minor);
+  if (major?.type !== "font" || minor?.type !== "font" || colors.some((c) => c.color?.type !== "color")) return undefined;
+  const filled = colors as { slot: OfficeColorSlot; color: ColorAsset }[];
+  const filename = officeThemeFileName(o.themeName);
+  return {
+    name: o.themeName,
+    href: `/downloads/${filename}`,
+    filename,
+    colors: filled,
+    fonts: { major, minor },
+    updated: [...filled.map((c) => c.color.updated), major.updated, minor.updated].sort().at(-1)!,
+    input: {
+      name: o.themeName,
+      colors: Object.fromEntries(filled.map((c) => [c.slot, c.color.hex])) as OfficeThemeInput["colors"],
+      fonts: { major: major.family, minor: minor.family },
+    },
+  };
+}
+
 export function createSite(input: SiteInput) {
   const assetById = new Map(input.assets.map((a) => [a.id, a]));
   const ruleById = new Map(input.rules.map((r) => [r.id, r]));
@@ -141,6 +183,24 @@ export function createSite(input: SiteInput) {
       const size = input.sizeOf?.(pdf.path);
       return { href: input.urlFor(pdf.path), label: `Open the full guide (PDF${size ? `, ${formatBytes(size)}` : ""})` };
     },
+    /**
+     * New to the team steps in order, each link resolved to its label and page (spec section 14). A link to a
+     * module that is off, or to an asset that is not on the site, is left out.
+     */
+    onboardingSteps: (): { id: string; title: string; body?: string; links: { label: string; href: string }[] }[] =>
+      (input.onboarding?.steps ?? []).map((step) => ({
+        id: step.id,
+        title: step.title,
+        ...(step.body ? { body: step.body } : {}),
+        links: step.links.flatMap((l) => {
+          if ("module" in l) return isEnabled(l.module) ? [{ label: MODULES[l.module].label, href: `${MODULES[l.module].route}/` }] : [];
+          const a = assetById.get(l.asset);
+          const href = a && assetHref(a);
+          return a && href ? [{ label: a.label, href }] : [];
+        }),
+      })),
+    /** The Office theme download, when the module is on. */
+    officeTheme: (): OfficeTheme | undefined => (isEnabled("office") ? officeThemeOf(input.brand, (id) => assetById.get(id)) : undefined),
     /** A template's formats, in button order. Empty when it has none. */
     templateLinks: (t: TemplateAsset, variant?: TemplateVariant) => templateLinks(t, input.urlFor, variant ?? t.variants?.[0]),
     /** Signature designs in picker order, with templates read and colors resolved. Empty without signature.json. */

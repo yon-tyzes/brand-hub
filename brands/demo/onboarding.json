@@ -24,6 +24,15 @@
       ]
     },
     {
+      "id": "office",
+      "title": "Add the Office theme",
+      "links": [
+        {
+          "module": "office"
+        }
+      ]
+    },
+    {
       "id": "logos",
       "title": "Find the logo for your file",
       "links": [

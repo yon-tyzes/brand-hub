@@ -52,7 +52,7 @@ test.describe("desktop at 1440px", () => {
     await page.goto("/colors/");
     const side = page.getByRole("navigation", { name: "Library" });
     expect(Math.round((await box(side)).width)).toBe(248);
-    await expect(side.getByRole("link")).toHaveText([/^All files$/, /^Logos\s*4$/, /^Colors\s*7$/, /^Fonts\s*2$/, /^Icons\s*\d+$/, /^Photos/, /^Templates\s*3$/, "brand@example.com"]);
+    await expect(side.getByRole("link")).toHaveText([/^All files$/, /^Logos\s*4$/, /^Colors\s*7$/, /^Fonts\s*2$/, /^Icons\s*\d+$/, /^Photos/, /^Templates\s*3$/, /^Office theme$/, "brand@example.com"]);
     await expect(side.getByRole("link", { name: /^Colors/ })).toHaveAttribute("aria-current", "page");
     await expect(side.getByRole("link", { name: /^Photos/ })).toHaveAttribute("target", "_blank");
     await expect(side.getByRole("img", { name: "Opens in a new tab" })).toBeVisible();
@@ -63,12 +63,13 @@ test.describe("desktop at 1440px", () => {
     await expect(page.getByRole("navigation", { name: "Library" }).getByRole("link", { name: "All files" })).toHaveAttribute("aria-current", "page");
   });
 
-  test("Brand guide lists its chapters", async ({ page }) => {
+  test("Brand guide lists New to the team, then its chapters", async ({ page }) => {
     await page.goto("/");
     await mainTabs(page).getByRole("link", { name: "Brand guide" }).click();
     await expect(page).toHaveURL(/\/guide\/?$/);
     const side = page.getByRole("navigation", { name: "Brand guide" });
-    await expect(side.getByRole("link").first()).toHaveText("Logo use");
+    await expect(side.getByRole("link").nth(0)).toHaveText("New to the team");
+    await expect(side.getByRole("link").nth(1)).toHaveText("Logo use");
     await side.getByRole("link", { name: "Color use" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Use Comet Green for one action per screen");
     await expect(side.getByRole("link", { name: "Color use" })).toHaveAttribute("aria-current", "page");

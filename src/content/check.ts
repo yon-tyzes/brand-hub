@@ -6,6 +6,7 @@ import {
   asset as assetSchema, brand as brandSchema, changelogEntry, onboarding as onboardingSchema, ruleAsset, signature as signatureSchema,
   type AnyRecord, type Asset, type AssetType, type Brand, type ChangelogEntry, type ColorAsset, type Onboarding, type RuleAsset, type Signature,
 } from "../../schemas/index.ts";
+import { deltaE } from "../theme/color.ts";
 import { checkPairingContrast, formatContrastFailure } from "../theme/contrast.ts";
 import { filePaths } from "./file-paths.ts";
 import { migrateBrand, migrateRecord, type Warning } from "./legacy.ts";
@@ -255,6 +256,20 @@ export function checkBrand(src: BrandSource): { problems: Problem[]; warnings: W
         if (!ids.has(ref)) problems.push({ file: at, problem: `${field}: ${kind} "${ref}" does not exist`, code: "reference", field: "modules", ref });
         else if (statusOf.has(ref) && statusOf.get(ref) !== "locked") {
           problems.push({ file: at, problem: `${field}: ${kind} "${ref}" is ${statusOf.get(ref)}. Only locked ${kind}s may fill an Office theme slot`, code: "reference", field: "modules", ref });
+        }
+      }
+      // Charts take series colors in accent order, so neighbors must tell apart.
+      const hexOf = new Map(records.flatMap(({ record: r }) => (r.type === "color" ? [[r.id, r.hex] as const] : [])));
+      const accents = ["accent1", "accent2", "accent3", "accent4", "accent5", "accent6"] as const;
+      for (let i = 1; i < accents.length; i++) {
+        const [a, b] = [accents[i - 1]!, accents[i]!];
+        const [x, y] = [hexOf.get(office.colors[a]), hexOf.get(office.colors[b])];
+        if (x && y && deltaE(x, y) < 15) {
+          warnings.push({
+            file: at, field: `modules.office.colors.${b}`,
+            problem: `${a} and ${b} differ by ${deltaE(x, y).toFixed(1)} in delta E, under 15, so chart series in them are hard to tell apart`,
+            fix: `Fill ${b} with a color further from ${a}.`,
+          });
         }
       }
     }
