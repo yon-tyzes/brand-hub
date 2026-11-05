@@ -10,6 +10,7 @@ import { IconsPage } from "./pages/library/IconsPage.tsx";
 import { FontsPage } from "./pages/library/FontsPage.tsx";
 import { ColorsPage } from "./pages/library/ColorsPage.tsx";
 import { LogosPage } from "./pages/library/LogosPage.tsx";
+import { OfficePage } from "./pages/library/OfficePage.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
 import { ChangesPage, PlaceholderPage } from "./pages/OtherPages.tsx";
 import { GuideIndex } from "./pages/guide/GuideIndex.tsx";
@@ -27,6 +28,7 @@ const BODIES: Partial<Record<ModuleId | "home", () => ReactNode>> = {
   icons: IconsPage,
   photos: PhotosPage,
   templates: TemplatesPage,
+  office: OfficePage,
   changes: ChangesPage,
   guide: GuideIndex,
 };

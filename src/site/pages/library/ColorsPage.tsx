@@ -4,6 +4,7 @@ import type { ColorAsset, GradientAsset } from "../../../../schemas/asset.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import { colorPairs, colorRows, gradientCss, isLight, ruleStrip, splitColors } from "../../library.ts";
 import { ColorRows, Icon, LibraryHead, RuleStrip, useSite } from "../../ui.tsx";
+import { OfficeThemeCard } from "./OfficePage.tsx";
 
 /** A secondary button that copies the hex, as clicking the hex does. Hidden text adds the color's name. */
 function CopyHex({ color: c }: { color: ColorAsset }) {
@@ -128,6 +129,7 @@ export function ColorsPage() {
           </ul>
         </section>
       )}
+      <OfficeThemeCard />
     </div>
   );
 }

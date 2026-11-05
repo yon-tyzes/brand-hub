@@ -813,6 +813,28 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 
 .font-office-note { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
 
+/* ---------- Office theme (spec section 7) ---------- */
+
+.office-download { display: grid; justify-items: start; gap: 6px; }
+.office-download .caption { margin: 0; }
+.office-note { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
+.office-note a { color: var(--text); }
+.office-card {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px;
+  padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised);
+}
+.office-card-text { display: grid; gap: 6px; max-width: var(--reading-max); }
+.office-card-text p { margin: 0; font-size: var(--small-size); line-height: 1.5; color: var(--text-secondary); }
+.office-fonts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.office-font { display: grid; gap: 12px; align-content: start; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.office-font p { margin: 0; }
+.office-font-heading { font-size: var(--h1-size); line-height: var(--h1-leading); font-weight: 600; }
+.office-font-body { font-size: var(--body-size); line-height: var(--body-leading); }
+.office-install { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.office-steps h3 { margin: 0; }
+.office-steps ol { margin: 12px 0 0; padding-left: 1.25em; display: grid; gap: 8px; font-size: var(--body-size); line-height: var(--body-leading); }
+@media (max-width: 767.98px) { .office-card { padding: 16px; } .office-card .btn { width: 100%; } .office-download { justify-items: stretch; } }
+
 .font-card { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-raised); overflow: hidden; }
 .font-card-specimen { padding: 32px 32px 28px; background: var(--surface-subtle); border-bottom: 1px solid var(--border); }
 .font-sample { margin: 0; font-size: var(--sample-size, 56px); line-height: 1.1; overflow-wrap: anywhere; transition: font-weight var(--duration-fast) var(--ease-out); }

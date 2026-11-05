@@ -35,6 +35,17 @@ export function searchDocs(): SearchDoc[] {
       actions: site.actionsFor(a),
     });
   }
+  const theme = site.officeTheme();
+  if (theme) {
+    docs.push({
+      id: "office-theme", type: "document", typeLabel: "THMX", group: MODULES.office.label, label: MODULES.office.label, help: MODULES.office.help,
+      keywords: "office word powerpoint excel theme thmx",
+      actions: [
+        { kind: "download", label: "THMX", href: theme.href, filename: theme.filename },
+        { kind: "open", label: "Open", href: `${MODULES.office.route}/` },
+      ],
+    });
+  }
   if (site.isEnabled("guide")) {
     const pdf = site.guidePdf();
     if (pdf) {
