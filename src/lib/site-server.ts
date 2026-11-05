@@ -2,6 +2,7 @@
 import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { brand, brandDir, config, content, engineVersion } from "virtual:brand-hub";
+import { buildOfficeTheme } from "../office/index.ts";
 import { createSite } from "../site/data.ts";
 import { fileUrl } from "./paths.ts";
 
@@ -28,4 +29,8 @@ export const site = createSite({
     return svg;
   },
   sizeOf: (path) => statSync(join(brandDir, path)).size,
+  officeThemeSize: () => {
+    const theme = site.officeTheme();
+    return theme && buildOfficeTheme(theme.input).length;
+  },
 });
