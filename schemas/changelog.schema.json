@@ -28,6 +28,7 @@
         "enum": [
           "logo",
           "color",
+          "gradient",
           "font",
           "icon",
           "template",

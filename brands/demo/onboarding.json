@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/onboarding.schema.json",
+  "steps": [
+    {
+      "id": "signature",
+      "title": "Set up your email signature",
+      "links": [
+        {
+          "module": "signature"
+        }
+      ]
+    },
+    {
+      "id": "fonts",
+      "title": "Install the brand fonts",
+      "body": "Word and PowerPoint need them for headings in the brand font.",
+      "links": [
+        {
+          "module": "fonts"
+        },
+        {
+          "asset": "fraunces"
+        }
+      ]
+    },
+    {
+      "id": "logos",
+      "title": "Find the logo for your file",
+      "links": [
+        {
+          "module": "logos"
+        },
+        {
+          "asset": "logo-horizontal"
+        }
+      ]
+    }
+  ]
+}

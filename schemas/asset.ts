@@ -22,13 +22,13 @@ export const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/, "must be a 6-digit hex 
 export const fileWith = (ext: string) => brandPath.refine((p) => p.toLowerCase().endsWith(ext), { message: `must point to a ${ext} file` });
 
 const isoDate = z.union([z.iso.date(), z.iso.datetime({ offset: true })]);
-const oneLine = z.string().min(1).regex(/^[^\n]*$/, "must be a single line");
+export const oneLine = z.string().min(1).regex(/^[^\n]*$/, "must be a single line");
 
 export const STATUSES = ["locked", "pending", "draft", "retired"] as const;
 export const status = z.enum(STATUSES);
 
 export const ASSET_TYPES = [
-  "logo", "color", "font", "icon", "template", "photo-source",
+  "logo", "color", "gradient", "font", "icon", "template", "photo-source",
   "boilerplate", "document", "rule", "signature-layout",
 ] as const;
 export type AssetType = (typeof ASSET_TYPES)[number];
@@ -94,6 +94,30 @@ export const colorAsset = z
     },
     { message: "rgb does not match hex", path: ["rgb"] },
   );
+
+/** One stop of a gradient: a hex value, and optionally its position from 0 to 100. */
+export const gradientStop = z.strictObject({ hex, at: percent.optional() });
+
+/**
+ * A brand gradient (spec section 14). Stops are hex values, not color ids: a gradient may pass through tones that
+ * are not palette colors. Set `at` on every stop or on none.
+ */
+export const gradientAsset = z
+  .strictObject({
+    ...baseAsset,
+    type: z.literal("gradient"),
+    /** Degrees, as in CSS linear-gradient(). 90 runs left to right. */
+    angle: z.number().min(0).max(360).default(90),
+    stops: z.array(gradientStop).min(2),
+  })
+  .refine((g) => g.stops.every((s) => s.at === undefined) || g.stops.every((s) => s.at !== undefined), {
+    message: "set at on every stop or on none",
+    path: ["stops"],
+  })
+  .refine((g) => g.stops.every((s, i) => i === 0 || s.at === undefined || g.stops[i - 1]!.at === undefined || s.at >= g.stops[i - 1]!.at!), {
+    message: "stop positions (at) must not go down",
+    path: ["stops"],
+  });
 
 export const fontAsset = z
   .strictObject({
@@ -192,6 +216,7 @@ export const documentAsset = z.strictObject({
   type: z.literal("document"),
 });
 
+/** 0.2 signature record. Replaced by signature.json in 0.3 (schemas/signature.ts): still accepted, with a warning, and not used. */
 export const signatureLayoutAsset = z.strictObject({
   ...baseAsset,
   type: z.literal("signature-layout"),
@@ -223,7 +248,7 @@ export const ruleAsset = z.strictObject({
 
 /** Any record allowed in assets.json or a per-module split file. Rules belong in rules.json. */
 export const asset = z.discriminatedUnion("type", [
-  logoAsset, colorAsset, fontAsset, iconAsset, templateAsset, photoSourceAsset,
+  logoAsset, colorAsset, gradientAsset, fontAsset, iconAsset, templateAsset, photoSourceAsset,
   boilerplateAsset, documentAsset, signatureLayoutAsset,
 ]);
 
@@ -234,6 +259,7 @@ export type Status = z.infer<typeof status>;
 export type LogoAsset = z.infer<typeof logoAsset>;
 export type ColorAsset = z.infer<typeof colorAsset>;
 export type ColorPairing = z.infer<typeof colorPairing>;
+export type GradientAsset = z.infer<typeof gradientAsset>;
 export type FontAsset = z.infer<typeof fontAsset>;
 export type IconAsset = z.infer<typeof iconAsset>;
 export type TemplateAsset = z.infer<typeof templateAsset>;

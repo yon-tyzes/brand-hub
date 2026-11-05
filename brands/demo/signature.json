@@ -1,0 +1,59 @@
+{
+  "$schema": "../../schemas/signature.schema.json",
+  "fields": [
+    {
+      "id": "name",
+      "label": "Name",
+      "kind": "text",
+      "required": true
+    },
+    {
+      "id": "job-title",
+      "label": "Job title",
+      "kind": "text"
+    },
+    {
+      "id": "email",
+      "label": "Email",
+      "kind": "email",
+      "required": true
+    },
+    {
+      "id": "phone",
+      "label": "Phone",
+      "kind": "phone"
+    }
+  ],
+  "designs": [
+    {
+      "id": "classic",
+      "label": "Classic",
+      "template": "files/signatures/classic.html",
+      "fields": [
+        "name",
+        "job-title",
+        "email",
+        "phone"
+      ],
+      "headshot": true,
+      "variants": [
+        {
+          "id": "green",
+          "label": "Green",
+          "colors": {
+            "accent": "comet-green",
+            "text": "ink"
+          }
+        },
+        {
+          "id": "copper",
+          "label": "Copper",
+          "colors": {
+            "accent": "copper",
+            "text": "ink"
+          }
+        }
+      ]
+    }
+  ]
+}

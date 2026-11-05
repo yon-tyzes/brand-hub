@@ -1,7 +1,7 @@
 // What the Library pages show for each asset, worked out from brand data: downloads by format, color
 // values by use, the rules that apply to a page, and the ground a logo sits on (spec section 6, Library pages).
 // Pure: shared by the build and the editor's preview.
-import type { Asset, ColorAsset, LogoAsset, RuleAsset } from "../../schemas/asset.ts";
+import type { Asset, ColorAsset, GradientAsset, LogoAsset, RuleAsset } from "../../schemas/asset.ts";
 import type { ModuleId } from "../../schemas/hub-config.ts";
 import { contrastRatio, hexToRgb, relativeLuminance } from "../theme/color.ts";
 import { MIN_RATIO } from "../theme/contrast.ts";
@@ -48,6 +48,10 @@ export function colorRows(c: ColorAsset): ColorRow[] {
   if (c.pms) rows.push({ use: "Sign", value: c.pms, name: "PMS" });
   return rows;
 }
+
+/** A gradient as a CSS value: its stops in order, with positions when the data sets them. */
+export const gradientCss = (g: GradientAsset) =>
+  `linear-gradient(${g.angle}deg, ${g.stops.map((s) => (s.at === undefined ? s.hex : `${s.hex} ${s.at}%`)).join(", ")})`;
 
 /** Confirmation for a copied value: "Comet Green #1E5B4A copied". */
 export const copiedMessage = (name: string, value: string) => `${name} ${value} copied`;

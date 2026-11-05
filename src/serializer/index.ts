@@ -75,9 +75,9 @@ export type SerializeResult =
   | { ok: false; errors: SerializeError[] };
 
 const DEFAULT_FILE: Record<string, string> = {
-  logo: "logos.json", color: "colors.json", font: "fonts.json", icon: "icons.json", template: "templates.json",
+  logo: "logos.json", color: "colors.json", gradient: "colors.json", font: "fonts.json", icon: "icons.json", template: "templates.json",
   "photo-source": "photos.json", boilerplate: "boilerplate.json", document: "documents.json",
-  "signature-layout": "signature.json", rule: "rules.json",
+  "signature-layout": "assets.json", rule: "rules.json",
 };
 
 export function bumpVersion(version: string): string {

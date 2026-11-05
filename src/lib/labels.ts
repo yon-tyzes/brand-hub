@@ -2,6 +2,6 @@
 import type { AssetType } from "../../schemas/asset.ts";
 
 export const TYPE_LABEL: Record<AssetType, string> = {
-  logo: "Logo", color: "Color", font: "Font", icon: "Icon", template: "Template", "photo-source": "Photo library",
+  logo: "Logo", color: "Color", gradient: "Gradient", font: "Font", icon: "Icon", template: "Template", "photo-source": "Photo library",
   boilerplate: "Boilerplate", document: "Document", rule: "Rule", "signature-layout": "Signature layout",
 };

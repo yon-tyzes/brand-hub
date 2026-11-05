@@ -3,7 +3,7 @@
 //        node scripts/build-schemas.ts --check  exit 1 if any file is missing or stale
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
-import { assetsFile, rulesFile, brand, changelogFile } from "../schemas/index.ts";
+import { assetsFile, rulesFile, brand, changelogFile, onboarding, signature } from "../schemas/index.ts";
 
 const OUT = new URL("../schemas/", import.meta.url);
 
@@ -12,6 +12,8 @@ const targets = {
   "assets.schema.json": { schema: assetsFile, title: "Brand Hub assets file (assets.json or a per-module split file)" },
   "rules.schema.json": { schema: rulesFile, title: "Brand Hub rules.json" },
   "changelog.schema.json": { schema: changelogFile, title: "Brand Hub changelog.json" },
+  "signature.schema.json": { schema: signature, title: "Brand Hub signature.json" },
+  "onboarding.schema.json": { schema: onboarding, title: "Brand Hub onboarding.json" },
 };
 
 const check = process.argv.includes("--check");

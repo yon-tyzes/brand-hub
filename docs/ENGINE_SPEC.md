@@ -79,6 +79,7 @@ export default defineHub({
 ```
 
 - A module that is off produces no route, no navigation item, and no search entries.
+- From 0.3, a module whose page is built from brand data stays off until the brand has that data, even when it is listed: `office` needs `modules.office` in `brand.json`, `start` needs `onboarding.json`, `signature` needs `signature.json`, and `boilerplate` needs a locked boilerplate record. Section 14 has the details.
 - A top tab with no enabled modules is hidden. With `signature` off, there is no Create tab.
 - The module id `whats-new` from 0.1 is accepted as an alias of `changes` and prints a build warning.
 - `motion: "calm"` turns off decorative motion for every viewer, as section 6, Motion, describes.
@@ -93,7 +94,7 @@ type Status = "locked" | "pending" | "draft" | "retired";
 
 interface Asset {
   id: string;                 // kebab-case, unique per brand
-  type: "logo" | "color" | "font" | "icon" | "template" | "photo-source"
+  type: "logo" | "color" | "gradient" | "font" | "icon" | "template" | "photo-source"
       | "boilerplate" | "document" | "rule" | "signature-layout";
   label: string;              // plain name shown in UI and search
   help?: string;              // one line: when to use it
@@ -113,13 +114,14 @@ Module extensions (summary):
 |---|---|
 | logo | `lockup`, `colorway`, `background` (light, dark), `files[]` { ext: svg, png, pdf, eps; path; width? } |
 | color | `hex`, `rgb`, `cmyk?`, `pms?`, `role`, `pairings[]` (contrast-checked fg/bg) |
+| gradient | `stops[]` { hex, at? }, `angle?` (from 0.3, section 14) |
 | font | `family`, `role`, `weights[]`, `files` { static[], variable[], web[]? }, `license`, `install`, `group?` |
 | icon | `svgPath`, `group`, `pinned`, `source`, `standIn?` |
 | template | `category`, `formats` { canva?, docx?, pptx?, pdf? }, `thumbnail`, `rules[]`, `variants[]?` |
 | photo-source | `provider` (dropbox, drive, sharepoint, url), `url`, `access` (open, sign-in), `guidelines[]` |
 | boilerplate | `lengths` { short, medium, long }, `context` |
 | rule | `title`, `chapter`, `body` (markdown), `do[]`, `dont[]`, `appliesTo[]` (asset ids) |
-| signature-layout | `name`, `html` (template with tokens), `fields[]`, `fixed` { address, website } |
+| signature-layout | `name`, `html` (template with tokens), `fields[]`, `fixed` { address, website }. Replaced in 0.3 by `signature.json` (section 14); still accepted with a build warning, and not used. |
 
 ### Template formats
 
@@ -187,6 +189,8 @@ brands/<slug>/
   brand.json          name, short name, primary color, guide chapters and PDF, quick downloads, module settings
   assets.json         all Asset records (or split per module: logos.json, icons.json ...)
   rules.json
+  signature.json      signature designs, from 0.3 (section 14)
+  onboarding.json     New to the team steps, from 0.3 (section 14)
   changelog.json      written by the serializer on publish
   files/              logos, fonts, icons, thumbnails, template files, documents
 ```
@@ -226,7 +230,7 @@ The footer links to the change log and the brand contact. The engine version nev
 | `/create/signature` | Create | Signature generator with live preview and install steps |
 | `/changes` | Footer | Published changes, newest first |
 
-Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to `/create/signature`, `/boilerplate` to `/descriptions`, `/whats-new` to `/changes`, and `/guide/<rule-id>` to its chapter page.
+Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to `/create/signature`, `/boilerplate` to `/descriptions`, `/whats-new` to `/changes`, and `/guide/<rule-id>` to its chapter page. A redirect is built only when its target page is, so it always lands on a page.
 
 ### Library pages
 
@@ -306,7 +310,7 @@ An Office theme file (`.thmx`) loads the brand's colors and fonts into the Desig
 
 ### Data
 
-Set in `brand.json` under `modules.office`. Every slot references a color or font that already exists in brand data, so the theme can't drift from the site.
+Set in `brand.json` under `modules.office`, which is optional. Without it there is no `/office` page, nav item, or search entry, even with `office` in `modules`. Every slot references a color or font that already exists in brand data, so the theme can't drift from the site.
 
 ```json
 {
@@ -537,7 +541,7 @@ CI blocks merge on failure.
 | 0.2.1 | Polish: glass, dark mode icons and logos, micro-interactions. | Released (v0.2.1) |
 | 0.2.2 | Brand guide PDF, font groups, web font files, calm motion, template variants, editor in local dev only. All optional; 0.2.1 instances build unchanged. | Released (v0.2.2) |
 | 0.2.3 | Stabilization: "Download" button labels, "Copy hex code" on color cards, icon search results, color chips in their own pair. 0.2.2 instances build unchanged. | In progress |
-| 0.3 | Email signature generator, New to the team, Office theme download. | Planned |
+| 0.3 | Email signature generator, New to the team, Office theme download, gradient colors, download analytics. All optional; 0.2.2 instances build unchanged. Section 14. | In progress |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 
 Work beyond 0.4 is tracked in the product roadmap document, outside this repo.
@@ -554,3 +558,106 @@ Work beyond 0.4 is tracked in the product roadmap document, outside this repo.
 | Template `url`, `fallbackUrl` | `formats` | `url` is read as a single link with an "Open template" button and a build warning, until migrated. |
 | Rules with no chapter | `chapter` required | Build fails. Add `guide.chapters` to `brand.json` and a `chapter` to each rule. |
 | `pending` items listed on What's new | Editor only | No action. |
+
+## 14. Release 0.3
+
+Release 0.3 adds four features and plans a fifth. Every one is optional and driven by brand data: a 0.2.2 instance builds unchanged, with no new warnings, and a feature without data adds no page, no nav item, no search entry, and no redirect.
+
+### Routes
+
+0.3 keeps the routes section 6 already defines. No new paths.
+
+| Feature | Module | Route | Tab | On when |
+|---|---|---|---|---|
+| Email signature | `signature` | `/create/signature` | Create | `signature` is in `modules` and `signature.json` has a design |
+| New to the team | `start` | `/guide/new-to-the-team` | Brand guide | `start` is in `modules` and `onboarding.json` has a step |
+| Office theme | `office` | `/office` | Library | `office` is in `modules` and `brand.json` sets `modules.office` |
+
+- The 0.1 paths `/start` and `/signature` stay redirects to `/guide/new-to-the-team` and `/create/signature`. They are built only when the target page is. Without the data, both paths answer 404, as they do today with the module off.
+- `/start` does not become a page of its own: New to the team belongs under the Brand guide tab, and existing links to `/guide/new-to-the-team` keep working.
+- With `signature` off or without data, there is no Create tab (section 4).
+
+### Email signature
+
+Designs come from instance data, so a brand's signature designs never enter the engine. `signature.json` sits in the brand folder:
+
+```json
+{
+  "fields": [
+    { "id": "name", "label": "Name", "kind": "text", "required": true },
+    { "id": "job-title", "label": "Job title", "kind": "text" },
+    { "id": "email", "label": "Email", "kind": "email", "required": true },
+    { "id": "phone", "label": "Phone", "kind": "phone" }
+  ],
+  "designs": [
+    {
+      "id": "classic",
+      "label": "Classic",
+      "template": "files/signatures/classic.html",
+      "fields": ["name", "job-title", "email", "phone"],
+      "headshot": true,
+      "variants": [
+        { "id": "green", "label": "Green", "colors": { "accent": "comet-green" } },
+        { "id": "ink", "label": "Ink", "colors": { "accent": "ink" } }
+      ]
+    }
+  ]
+}
+```
+
+- `fields` lists every field any design uses: an id, a label, a `kind` (`text`, `email`, `phone`, or `url`), and `required`. `help` is optional, one line.
+- Each design names an HTML template file under `files/`, the field ids it uses in form order, and one or more color variants. The first design and its first variant are the defaults.
+- A variant maps template color names to color ids from brand data. Only locked colors may fill a variant.
+- `headshot: true` offers an optional headshot. The photo is read in the browser, never uploaded, and embedded in the copied signature.
+- Template tokens: `{{field-id}}` for a field value (HTML-escaped), `{{color.<name>}}` for a variant color's hex, `{{headshot}}` for the headshot image, and `{{site}}` for the site's own address, for images the signature loads. `{{#field-id}} ... {{/field-id}}` keeps its content only when the field has a value; `{{#headshot}} ... {{/headshot}}` works the same way.
+- The page: a design picker, a variant picker, the form, a live preview, and one primary action, "Copy signature," which puts the signature on the clipboard as rich HTML with a plain text fallback. Install steps follow the preview.
+- The loader fails the build on a design that names a field not in `fields`, a variant color that does not exist or is not locked, a template file that does not exist, and on duplicate ids among fields, designs, or a design's variants. Each message names the id.
+- A `signature.json` in the 0.2 shape (an array of `signature-layout` records) fails the build with a message that points to this section. `signature-layout` records in `assets.json` load with a warning and are not used.
+
+### New to the team
+
+An ordered list of first-week steps, from `onboarding.json`:
+
+```json
+{
+  "steps": [
+    { "id": "signature", "title": "Set up your email signature", "links": [{ "module": "signature" }] },
+    { "id": "fonts", "title": "Install the brand fonts", "body": "Word and PowerPoint need them for headings in the brand font.", "links": [{ "module": "fonts" }, { "asset": "inter" }] }
+  ]
+}
+```
+
+- Each step has an id, a title, an optional one-paragraph `body`, and at least one link to the hub: `{ "asset": "<id>" }` for an asset or `{ "module": "<id>" }` for a module page. A link's text is the asset's or module's label, so the data holds no link copy.
+- The page lists the steps in order, numbered. A link to a module that is off, or to an asset that is not on the site, is left out.
+- The loader fails the build on a link to an asset id that does not exist, on an unknown module id, and on duplicate step ids. It warns on a link to an asset that is not locked.
+
+### Office theme
+
+Section 7 defines the theme, its `modules.office` data, the build, and the page. From 0.3:
+
+- `modules.office` is validated: all twelve color slots, both font slots, and `themeName`.
+- The loader fails the build on a slot that names a color or font that does not exist or is not locked. The message names the slot.
+- The `.thmx` is built at build time from those colors and the two fonts, as section 7 describes.
+
+### Gradient colors
+
+A brand gradient is a record in `colors.json` with `type: "gradient"`:
+
+```json
+{
+  "id": "comet-dusk", "type": "gradient", "label": "Comet dusk",
+  "angle": 90,
+  "stops": [{ "hex": "#1C2430" }, { "hex": "#1E5B4A" }, { "hex": "#B5653A" }],
+  "status": "locked", "version": "1.0", "updated": "2026-10-30", "audience": "public"
+}
+```
+
+- `stops` holds two or more hex values in order. A stop may set `at`, its position from 0 to 100. Set `at` on every stop or on none; positions must not go down.
+- Stops are hex values, not color ids, because a brand gradient may pass through tones that are not palette colors.
+- `angle` is in degrees, 0 to 360, default 90 (left to right).
+- `/colors` shows each gradient as a card after the colors: its stops in order as solid swatches, each with its hex, and a "Copy CSS" action that copies a `linear-gradient()` value. The card shows the stops, not a blended fill: the only gradient in the shell stays the home hero (section 10, `docs/STANDARDS.md`).
+- Search lists gradients in the Colors group with the "Copy CSS" action.
+
+### Download analytics
+
+Decided by the prompt 28 spike.

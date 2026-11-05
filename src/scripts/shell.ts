@@ -73,7 +73,8 @@ document.addEventListener("click", (e) => {
   const btn = (e.target as Element).closest<HTMLElement>("[data-copy]");
   if (!btn) return;
   const value = btn.dataset.copy ?? "";
-  copyText(value, btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`).then((ok) => {
+  const message = btn.dataset.copyMessage ?? (btn.dataset.copyName ? `${btn.dataset.copyName} ${value} copied` : `${value} copied`);
+  copyText(value, message).then((ok) => {
     if (!ok) return;
     checked(btn);
     flash(btn);
