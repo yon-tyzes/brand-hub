@@ -169,6 +169,22 @@ export function createSite(input: SiteInput) {
       const size = input.sizeOf?.(pdf.path);
       return { href: input.urlFor(pdf.path), label: `Open the full guide (PDF${size ? `, ${formatBytes(size)}` : ""})` };
     },
+    /**
+     * New to the team steps in order, each link resolved to its label and page (spec section 14). A link to a
+     * module that is off, or to an asset that is not on the site, is left out.
+     */
+    onboardingSteps: (): { id: string; title: string; body?: string; links: { label: string; href: string }[] }[] =>
+      (input.onboarding?.steps ?? []).map((step) => ({
+        id: step.id,
+        title: step.title,
+        ...(step.body ? { body: step.body } : {}),
+        links: step.links.flatMap((l) => {
+          if ("module" in l) return isEnabled(l.module) ? [{ label: MODULES[l.module].label, href: `${MODULES[l.module].route}/` }] : [];
+          const a = assetById.get(l.asset);
+          const href = a && assetHref(a);
+          return a && href ? [{ label: a.label, href }] : [];
+        }),
+      })),
     /** The Office theme download, when the module is on. */
     officeTheme: (): OfficeTheme | undefined => (isEnabled("office") ? officeThemeOf(input.brand, (id) => assetById.get(id)) : undefined),
     /** A template's formats, in button order. Empty when it has none. */

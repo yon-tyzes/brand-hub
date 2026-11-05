@@ -46,6 +46,14 @@ export function searchDocs(): SearchDoc[] {
       ],
     });
   }
+  if (site.isEnabled("start")) {
+    const steps = site.onboardingSteps();
+    docs.push({
+      id: "new-to-the-team", type: "document", typeLabel: "Page", group: MODULES.guide.label, label: MODULES.start.label, help: MODULES.start.help,
+      keywords: ["new start onboarding first week", ...steps.map((s) => s.title)].join(" "),
+      actions: [{ kind: "open", label: "Open", href: `${MODULES.start.route}/` }],
+    });
+  }
   if (site.isEnabled("guide")) {
     const pdf = site.guidePdf();
     if (pdf) {

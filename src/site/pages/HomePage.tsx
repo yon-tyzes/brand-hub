@@ -1,5 +1,6 @@
-// The home page (spec section 6, Home hero): search first, then Quick downloads, then a preview of each
-// Library category. It is the Library's "All files"; nothing stands in front of it.
+// The home page (spec section 6, Home hero): search first, then Quick downloads, the New to the team entry when
+// that page is on, then a preview of each Library category. It is the Library's "All files"; nothing stands in
+// front of it.
 import type { ReactNode } from "react";
 import type { Asset, ColorAsset, FontAsset, IconAsset, LogoAsset, TemplateAsset } from "../../../schemas/asset.ts";
 import { MODULES } from "../../modules/registry.ts";
@@ -278,6 +279,15 @@ export function HomePage() {
               {quick.map((a) => <QuickCard key={a.id} asset={a} />)}
             </div>
           </section>
+        )}
+        {site.isEnabled("start") && (
+          <a className="start-entry" href={`${MODULES.start.route}/`}>
+            <span className="start-entry-text">
+              <h2 className="start-entry-title">{MODULES.start.label}</h2>
+              <span className="start-entry-help">{MODULES.start.help}</span>
+            </span>
+            <Icon name="arrow-right" />
+          </a>
         )}
         <CategoryPreviews />
       </div>

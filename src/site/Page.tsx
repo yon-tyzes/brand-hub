@@ -14,6 +14,7 @@ import { OfficePage } from "./pages/library/OfficePage.tsx";
 import { HomePage } from "./pages/HomePage.tsx";
 import { ChangesPage, PlaceholderPage } from "./pages/OtherPages.tsx";
 import { GuideIndex } from "./pages/guide/GuideIndex.tsx";
+import { StartPage } from "./pages/guide/StartPage.tsx";
 import { ChapterPage } from "./pages/guide/ChapterPage.tsx";
 import { chapterHref, guideChapters } from "./nav.ts";
 import { SiteContext } from "./ui.tsx";
@@ -31,6 +32,7 @@ const BODIES: Partial<Record<ModuleId | "home", () => ReactNode>> = {
   office: OfficePage,
   changes: ChangesPage,
   guide: GuideIndex,
+  start: StartPage,
 };
 
 /** Path a page lives at on the site. */
