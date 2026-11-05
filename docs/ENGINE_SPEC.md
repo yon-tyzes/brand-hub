@@ -613,6 +613,12 @@ Designs come from instance data, so a brand's signature designs never enter the 
 - The site address is the build's (`URL`), or the page's own origin when the build has none. A root-relative `src` or `href` in a template is made absolute from it, so every image in a copied signature loads from the site.
 - Every value is HTML-escaped, in text and in attributes. A url field keeps only `http` and `https` addresses; one typed with no scheme gets `https://`, and any other scheme counts as empty. Every `img` in a template needs alt text.
 - The page: a design picker, a variant picker, the form, a live preview, and one primary action, "Copy signature," which puts the signature on the clipboard as rich HTML with a plain text fallback. Install steps follow the preview.
+  - Designs and variants are radio chips, shown only when there is more than one. A design chip holds the design at half size with each field's label as its value; a variant chip has the dot of its first color.
+  - The form shows the picked design's fields in its order. Values typed in one design carry over to another. Until something is typed, the preview shows each field's label as its value.
+  - "Copy signature" stays enabled. With a required field empty, it copies nothing, marks each empty required field with "Fill in <label> to copy.", and moves focus to the first one.
+  - The plain text fallback is each filled value in the design's form order, one per line, then the site address.
+  - Values and the photo stay in the page: nothing is stored or sent. The preview sits on `paper`, white in both themes.
+  - Install steps cover new Outlook (Windows and web), classic Outlook on Windows, and Outlook on Mac.
 - The loader fails the build on a design that names a field not in `fields`, a variant color that does not exist or is not locked, a template file that does not exist, and on duplicate ids among fields, designs, or a design's variants. Each message names the id.
 - A `signature.json` in the 0.2 shape (an array of `signature-layout` records) fails the build with a message that points to this section. `signature-layout` records in `assets.json` load with a warning and are not used.
 
