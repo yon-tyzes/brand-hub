@@ -625,6 +625,7 @@ Designs come from instance data, so a brand's signature designs never enter the 
   - Values and the photo stay in the page: nothing is stored or sent. The preview sits on `paper`, white in both themes.
   - Install steps cover new Outlook (Windows and web), classic Outlook on Windows, and Outlook on Mac.
 - From 0.3.1, the home page shows one entry to the page below Quick downloads, built like the New to the team entry: the module's label and help line. It comes before the New to the team entry when both show.
+- Search lists the page in its own group, Email signature, with an "Open" action (from 0.3.1).
 - The loader fails the build on a design that names a field not in `fields`, a variant color that does not exist or is not locked, a template file that does not exist, and on duplicate ids among fields, designs, or a design's variants. Each message names the id.
 - A `signature.json` in the 0.2 shape (an array of `signature-layout` records) fails the build with a message that points to this section. `signature-layout` records in `assets.json` load with a warning and are not used.
 
