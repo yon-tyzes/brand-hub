@@ -118,7 +118,8 @@ export function OfficePage() {
                 <span className="swatch-tile-color" style={{ background: c.hex }} />
                 <span className="swatch-tile-text">
                   <span className="swatch-tile-name">{SLOT_LABEL[slot]}</span>
-                  <span className="swatch-tile-hex">{c.label} · {c.hex}</span>
+                  <span className="office-slot-color">{c.label}</span>
+                  <span className="swatch-tile-hex">{c.hex}</span>
                 </span>
               </button>
             </li>
