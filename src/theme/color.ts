@@ -1,5 +1,5 @@
 // Color math: hex parsing, OKLab mixing (matches CSS `color-mix(in oklab, ...)`), OKLCH conversion for the
-// hero tuning, and WCAG 2.x relative luminance and contrast ratio.
+// hero tuning, WCAG 2.x relative luminance and contrast ratio, and CIELAB delta E.
 
 export type Rgb = [number, number, number];
 
@@ -94,4 +94,23 @@ export function relativeLuminance(hex: string): number {
 export function contrastRatio(fg: string, bg: string): number {
   const [hi, lo] = [relativeLuminance(fg), relativeLuminance(bg)].sort((p, q) => q - p) as [number, number];
   return (hi + 0.05) / (lo + 0.05);
+}
+
+/** sRGB to CIELAB, D65 white. */
+function rgbToLab(rgb: Rgb): Rgb {
+  const [r, g, b] = rgb.map(toLinear) as Rgb;
+  const xyz = [
+    (0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047,
+    0.2126729 * r + 0.7151522 * g + 0.072175 * b,
+    (0.0193339 * r + 0.119192 * g + 0.9503041 * b) / 1.08883,
+  ];
+  const [fx, fy, fz] = xyz.map((t) => (t > 216 / 24389 ? Math.cbrt(t) : (24389 / 27 * t + 16) / 116)) as Rgb;
+  return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+}
+
+/** CIELAB delta E (CIE76): the distance between two colors. Under about 2 reads as the same color. */
+export function deltaE(a: string, b: string): number {
+  const x = rgbToLab(hexToRgb(a));
+  const y = rgbToLab(hexToRgb(b));
+  return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
 }

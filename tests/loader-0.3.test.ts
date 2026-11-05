@@ -201,6 +201,12 @@ describe("modules.office in brand.json", () => {
     delete o.colors.folHlink;
     expect(() => loadBrand(withOffice(o))).toThrow(/modules\.office\.colors\.folHlink/);
   });
+
+  it("warns when two adjacent accents are hard to tell apart", () => {
+    const close = loadBrand(withOffice(office({ accent2: "comet-green" })));
+    expect(close.warnings.map((w) => w.problem)).toContainEqual(expect.stringMatching(/accent1 and accent2 differ by 0\.0 in delta E, under 15/));
+    expect(loadBrand(withOffice(office())).warnings.filter((w) => /delta E/.test(w.problem))).toEqual([]);
+  });
 });
 
 describe("gradient records in colors.json", () => {
