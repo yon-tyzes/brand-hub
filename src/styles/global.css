@@ -1005,6 +1005,41 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
   .template-card .asset-actions .btn { width: 100%; }
 }
 
+/* ---------- Email signature (ENGINE_SPEC.md, section 14) ---------- */
+
+.sig-layout { display: grid; gap: 32px; align-items: start; }
+@media (min-width: 992px) {
+  .sig-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+  .sig-output { position: sticky; top: calc(var(--header-h) + 24px); }
+}
+.sig-form { display: flex; flex-direction: column; gap: 28px; }
+.sig-group { margin: 0; padding: 0; border: 0; min-width: 0; }
+.sig-legend { margin: 0 0 12px; padding: 0; font-size: var(--label-size); line-height: var(--label-leading); font-weight: 600; }
+.sig-designs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.sig-design {
+  display: flex; flex-direction: column; gap: 8px; padding: 8px; cursor: pointer;
+  border: 1px solid var(--border-control); border-radius: var(--radius-lg); background: var(--bg);
+  transition: border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+}
+.sig-design:hover { background: var(--surface-subtle); }
+.sig-design:has(:checked) { border-color: var(--fill-primary); box-shadow: inset 0 0 0 1px var(--fill-primary); }
+.sig-design:has(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+/* The design at half size on paper, cropped to a fixed height. */
+.sig-thumb { display: block; height: 96px; overflow: hidden; padding: 10px; border-radius: var(--radius-md); background: var(--paper); pointer-events: none; }
+.sig-thumb-inner { display: block; width: 200%; transform: scale(0.5); transform-origin: top left; }
+.sig-design-label { font-size: var(--label-size); font-weight: 500; padding: 0 4px 2px; }
+.sig-variant .chip-dot { box-shadow: inset 0 0 0 1px var(--border); }
+.sig-fields { display: grid; gap: 16px; }
+.sig-field { display: grid; gap: 6px; }
+.sig-field label { font-size: var(--label-size); font-weight: 500; }
+.sig-required { font-weight: 400; color: var(--text-secondary); }
+.sig-help { margin: 0; font-size: var(--small-size); color: var(--text-muted); }
+.sig-error { margin: 0; font-size: var(--small-size); color: var(--danger); }
+.sig-field .field[aria-invalid="true"] { border-color: var(--danger); }
+/* Signatures are read on white mail, so the preview stays on paper in both themes. */
+.sig-paper { padding: 24px; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--paper); color-scheme: light; }
+.sig-output { display: flex; flex-direction: column; gap: 0; }
+
 /* ---------- Photos ---------- */
 
 .photo-access { margin: 12px 0 0; font-size: var(--small-size); color: var(--text); }
