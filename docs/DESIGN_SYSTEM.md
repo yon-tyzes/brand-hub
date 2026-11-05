@@ -59,7 +59,8 @@ How to use the roles:
 | `on-primary` | `#ffffff` | Text and icons on `fill-primary`. |
 | `focus` | `#2f6bff` | Focus ring. 4.5:1 on `bg`. |
 | `success` | `#1a7f52` | Copied and downloaded confirmations, with the check icon and a word. |
-| `danger` | `#c93a3a` | Editor errors and failed downloads, with a word. |
+| `danger` | `#c93a3a` | Editor errors, form errors, and failed downloads, with a word. |
+| `paper` | `#ffffff` | Behind email signature previews. White in both themes, because mail apps show signatures on white. |
 | `scrim` | `rgba(10, 11, 13, 0.45)` | Backdrop behind the search dialog and the mobile menu. |
 | `glass-fill` | `rgba(255, 255, 255, 0.42)` | Frosted fill for the hero search field and chips. Text holds 4.5:1 over the darkest point of the mesh behind it (measured each release). |
 | `glass-fill-hover` | `rgba(255, 255, 255, 0.6)` | Hero chip fill on hover. |
@@ -89,7 +90,8 @@ How to use the roles:
 | `on-primary` | `#0b0d10` | Text and icons on `fill-primary`. |
 | `focus` | `#7aa2ff` | Focus ring. 7.9:1 on `bg`. |
 | `success` | `#4cc38a` | Copied and downloaded confirmations, with the check icon and a word. |
-| `danger` | `#f07070` | Editor errors and failed downloads, with a word. |
+| `danger` | `#f07070` | Editor errors, form errors, and failed downloads, with a word. |
+| `paper` | `#ffffff` | Behind email signature previews, as in light. |
 | `scrim` | `rgba(0, 0, 0, 0.6)` | Backdrop behind the search dialog and the mobile menu. |
 | `glass-fill-strong` | `rgba(22, 24, 29, 0.75)` | Frosted fill for the scrolled top bar, the mobile tab bar, the search dialog, and toasts. |
 | `glass-border` | `rgba(255, 255, 255, 0.08)` | Edge of a frosted surface. |

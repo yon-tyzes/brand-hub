@@ -2,6 +2,16 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
+## 0.3.0 (in progress)
+
+### Email signature
+
+- `/create/signature` builds when `signature` is in `modules` and `signature.json` has a design (ENGINE_SPEC.md, section 14). Pick a design and color, fill in the form, see a live preview, and copy the signature as rich HTML with a plain text fallback. Install steps for three Outlook versions follow the preview.
+- `headshot` takes `true` (a 72px circle) or `{ "shape": "circle" | "rect", "width", "height" }`. The photo is cropped in the browser to the design's shape, drawn at twice the display size, and embedded in the copied signature. It is never uploaded.
+- Templates gain `{{href.<field-id>}}` for `mailto:`, `tel:`, and url links. Every value is escaped, url fields keep only http and https, and image paths become absolute from the site address.
+- New shell token `paper`, white in both themes, behind the signature preview.
+- The demo turns the signature page on and adds a second design, Compact.
+
 ## 0.2.3 (2026-10-30)
 
 Four fixes to the public site. No data or config changes: 0.2.2 instances build unchanged.

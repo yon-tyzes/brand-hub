@@ -34,6 +34,19 @@ export function replay(el: Element, className: string): void {
 /** The copied row's success flash (DESIGN_SYSTEM.md, Motion). */
 export const flash = (el: Element) => replay(el, "is-flashing");
 
+/** A copy button's icon swaps to a check for a moment (DESIGN_SYSTEM.md, Motion). */
+export function checked(btn: HTMLElement) {
+  const svg = btn.querySelector("svg");
+  if (!svg || btn.dataset.copied !== undefined) return;
+  const icon = svg.innerHTML;
+  btn.dataset.copied = "";
+  svg.innerHTML = '<path d="m5 12 5 5 9-10"/>';
+  window.setTimeout(() => {
+    svg.innerHTML = icon;
+    delete btn.dataset.copied;
+  }, 1500);
+}
+
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = Object.assign(document.createElement("a"), { href: url, download: filename });

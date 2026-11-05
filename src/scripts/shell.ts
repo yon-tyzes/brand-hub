@@ -1,6 +1,6 @@
 // Site shell behavior, loaded on every page: theme toggle, frosted top bar, the phone chip row, toasts, copy
 // buttons, and the search shortcut. The search dialog and its index load on first use.
-import { copyText, flash, replay, toast, type ToastDetail } from "./client.ts";
+import { checked, copyText, flash, replay, toast, type ToastDetail } from "./client.ts";
 
 const THEME_KEY = "bh-theme";
 
@@ -80,19 +80,6 @@ document.addEventListener("click", (e) => {
     flash(btn);
   });
 });
-
-/** A copy button's icon swaps to a check for a moment (DESIGN_SYSTEM.md, Motion). */
-function checked(btn: HTMLElement) {
-  const svg = btn.querySelector("svg");
-  if (!svg || btn.dataset.copied !== undefined) return;
-  const icon = svg.innerHTML;
-  btn.dataset.copied = "";
-  svg.innerHTML = '<path d="m5 12 5 5 9-10"/>';
-  window.setTimeout(() => {
-    svg.innerHTML = icon;
-    delete btn.dataset.copied;
-  }, 1500);
-}
 
 // ---------- Download arrow: drops out and comes back on click ----------
 document.addEventListener("click", (e) => {

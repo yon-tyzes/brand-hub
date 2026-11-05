@@ -5,7 +5,7 @@ import type { Brand } from "../../schemas/brand.ts";
 import type { ChangelogEntry } from "../../schemas/changelog.ts";
 import type { HubConfig, ModuleId } from "../../schemas/hub-config.ts";
 import type { Onboarding } from "../../schemas/onboarding.ts";
-import type { Signature } from "../../schemas/signature.ts";
+import { headshotOf, type Signature, type SignatureHeadshot } from "../../schemas/signature.ts";
 import type { SearchAction } from "../lib/search-config.ts";
 import { fileName, isExternal } from "../lib/paths.ts";
 import { gradientCss } from "./library.ts";
@@ -29,6 +29,20 @@ export interface SiteInput {
   svgFor: (path: string) => string | undefined;
   /** Size in bytes of a brand file, when known (the build reads it; the editor preview does not). */
   sizeOf?: (path: string) => number | undefined;
+  /** Text of a brand file, when available: the build reads signature templates with it. */
+  textFor?: (path: string) => string | undefined;
+  /** The site's address with no trailing slash, when the build has one. */
+  address?: string;
+}
+
+/** A signature design ready for the page: its template text and each variant's colors as hex (spec section 14). */
+export interface SignatureDesignView {
+  id: string;
+  label: string;
+  fields: string[];
+  headshot?: SignatureHeadshot;
+  template: string;
+  variants: { id: string; label: string; colors: Record<string, string> }[];
 }
 
 export type OfType<T extends AssetType> = Extract<Asset, { type: T }>;
@@ -129,6 +143,18 @@ export function createSite(input: SiteInput) {
     },
     /** A template's formats, in button order. Empty when it has none. */
     templateLinks: (t: TemplateAsset, variant?: TemplateVariant) => templateLinks(t, input.urlFor, variant ?? t.variants?.[0]),
+    /** Signature designs in picker order, with templates read and colors resolved. Empty without signature.json. */
+    signatureDesigns: (): SignatureDesignView[] => {
+      const hexOf = (id: string) => (assetById.get(id) as ColorAsset | undefined)?.hex ?? "";
+      return (input.signature?.designs ?? []).map((d) => ({
+        id: d.id,
+        label: d.label,
+        fields: d.fields,
+        ...(headshotOf(d) ? { headshot: headshotOf(d) } : {}),
+        template: input.textFor?.(d.template) ?? "",
+        variants: d.variants.map((v) => ({ id: v.id, label: v.label, colors: Object.fromEntries(Object.entries(v.colors).map(([name, id]) => [name, hexOf(id)])) })),
+      }));
+    },
     /** Font groups in order, each with its locked fonts. Undefined when the brand sets no groups. Empty groups are left out. */
     fontGroups: () => {
       const groups = input.brand.modules.fonts?.groups;

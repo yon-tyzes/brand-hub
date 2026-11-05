@@ -40,10 +40,8 @@ test.describe("desktop at 1440px", () => {
     await page.goto("/logos/");
     const bar = page.locator("header.topbar");
     expect((await box(bar)).height).toBe(56);
-    await expect(mainTabs(page).getByRole("link")).toHaveText(["Library", "Brand guide"]);
+    await expect(mainTabs(page).getByRole("link")).toHaveText(["Library", "Brand guide", "Create"]);
     await expect(mainTabs(page).getByRole("link", { name: "Library" })).toHaveAttribute("aria-current", "page");
-    // The demo has signature off, so there is no Create tab.
-    await expect(page.getByRole("link", { name: "Create" })).toHaveCount(0);
     const keys = bar.locator(".search-trigger kbd");
     await expect(keys.filter({ visible: true })).toHaveCount(1);
     await expect(keys.filter({ visible: true })).toHaveText(/^(⌘K|Ctrl K)$/);
@@ -109,7 +107,7 @@ test.describe("phone at 390px", () => {
     await expect(page.locator(".topbar-tabs")).toBeHidden();
     const segmented = page.locator(".tabs-segmented");
     await expect(segmented).toBeVisible();
-    await expect(segmented.getByRole("link")).toHaveText(["Library", "Brand guide"]);
+    await expect(segmented.getByRole("link")).toHaveText(["Library", "Brand guide", "Create"]);
     await expect(segmented.getByRole("link", { name: "Library" })).toHaveAttribute("aria-current", "page");
 
     const chips = page.getByRole("navigation", { name: "Library" }).getByRole("link");

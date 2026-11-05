@@ -54,6 +54,35 @@
           }
         }
       ]
+    },
+    {
+      "id": "compact",
+      "label": "Compact",
+      "template": "files/signatures/compact.html",
+      "fields": [
+        "name",
+        "job-title",
+        "email",
+        "phone"
+      ],
+      "variants": [
+        {
+          "id": "green",
+          "label": "Green",
+          "colors": {
+            "accent": "comet-green",
+            "text": "ink"
+          }
+        },
+        {
+          "id": "copper",
+          "label": "Copper",
+          "colors": {
+            "accent": "copper",
+            "text": "ink"
+          }
+        }
+      ]
     }
   ]
 }

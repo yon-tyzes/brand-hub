@@ -20,6 +20,8 @@ export const SHELL_COLORS = {
   focus: { light: "#2f6bff", dark: "#7aa2ff" },
   success: { light: "#1a7f52", dark: "#4cc38a" },
   danger: { light: "#c93a3a", dark: "#f07070" },
+  // Behind email signature previews, which mail apps show on white.
+  paper: { light: "#ffffff", dark: "#ffffff" },
   scrim: { light: "rgba(10, 11, 13, 0.45)", dark: "rgba(0, 0, 0, 0.6)" },
   // The hero search field and chips over the mesh (DESIGN_SYSTEM.md, section 8).
   "glass-fill": { light: "rgba(255, 255, 255, 0.42)", dark: "rgba(22, 24, 29, 0.5)" },
