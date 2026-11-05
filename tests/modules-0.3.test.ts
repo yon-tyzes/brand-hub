@@ -39,8 +39,9 @@ function addData(brandDir: string) {
     designs: [{ id: "basic", label: "Basic", template: "files/signatures/basic.html", fields: ["name"], variants: [{ id: "green", label: "Green", colors: { accent: "comet-green" } }] }],
   }));
   write(brandDir, "onboarding.json", JSON.stringify({ steps: [{ id: "fonts", title: "Install the fonts", links: [{ module: "fonts" }] }] }));
+  // Neighboring accents alternate, so the chart contrast warning stays quiet.
   const slots = ["dk1", "lt1", "dk2", "lt2", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6", "hlink", "folHlink"];
-  edit(brandDir, "brand.json", (b: any) => void (b.modules = { office: { themeName: "Pocket Comet", colors: Object.fromEntries(slots.map((s) => [s, "comet-green"])), fonts: { major: "inter", minor: "inter" } } }));
+  edit(brandDir, "brand.json", (b: any) => void (b.modules = { office: { themeName: "Pocket Comet", colors: Object.fromEntries(slots.map((s, i) => [s, i % 2 ? "kiln-white" : "comet-green"])), fonts: { major: "inter", minor: "inter" } } }));
 }
 
 describe("modules built from brand data", () => {
