@@ -1039,6 +1039,10 @@ textarea.field { line-height: 1.5; font-size: var(--label-size); resize: vertica
 /* Signatures are read on white mail, so the preview stays on paper in both themes. */
 .sig-paper { padding: 24px; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--paper); color-scheme: light; }
 .sig-output { display: flex; flex-direction: column; gap: 0; }
+.sig-copy { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+.sig-install-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.sig-install-name { margin: 0 0 8px; font-size: var(--body-size); line-height: var(--body-leading); font-weight: 600; letter-spacing: 0; }
+.sig-install-steps { margin: 0; padding-left: 1.25em; display: grid; gap: 6px; font-size: var(--small-size); color: var(--text-secondary); }
 .sig-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 
 /* ---------- Photos ---------- */

@@ -5,7 +5,7 @@ import type { SignatureField } from "../../../../schemas/signature.ts";
 import { renderSignature, sampleValues } from "../../../lib/signature.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import type { SignatureDesignView } from "../../data.ts";
-import { LibraryHead, useSite } from "../../ui.tsx";
+import { Button, LibraryHead, useSite } from "../../ui.tsx";
 
 const INPUT_TYPE: Record<SignatureField["kind"], string> = { text: "text", email: "email", phone: "tel", url: "url" };
 const AUTOCOMPLETE: Partial<Record<SignatureField["kind"], string>> = { email: "email", phone: "tel", url: "url" };
@@ -99,6 +99,34 @@ function Headshot({ hidden }: { hidden: boolean }) {
   );
 }
 
+/** Where to paste the signature, by Outlook version. */
+const INSTALL_STEPS = [
+  {
+    title: "New Outlook (Windows and web)",
+    steps: [
+      "Open Settings, then Account, then Signatures.",
+      "Select New signature, give it a name, paste into the box, and select Save.",
+      "Choose it under Default signatures for new messages and replies.",
+    ],
+  },
+  {
+    title: "Classic Outlook on Windows",
+    steps: [
+      "Select File, then Options, then Mail, then Signatures.",
+      "Select New, give it a name, and paste into Edit signature.",
+      "Choose it under Choose default signature, then select OK.",
+    ],
+  },
+  {
+    title: "Outlook on Mac",
+    steps: [
+      "Open Outlook, then Settings, then Signatures.",
+      "Select the plus button, give it a name, paste into the editor, and close the window to save.",
+      "Choose it under Choose default signature.",
+    ],
+  },
+];
+
 export function SignaturePage() {
   const site = useSite();
   const designs = site.signatureDesigns();
@@ -133,8 +161,24 @@ export function SignaturePage() {
               dangerouslySetInnerHTML={{ __html: renderSignature({ template: first.template, fields, values: sampleValues(fields), colors: first.variants[0]!.colors, site: address }) }}
             />
           </div>
+          <div className="sig-copy">
+            <Button variant="primary" icon="copy" data-sig-copy="">Copy signature</Button>
+          </div>
         </section>
       </div>
+      <section className="sig-install" aria-labelledby="sig-install-title">
+        <h2 className="library-section-title" id="sig-install-title">Add it to Outlook</h2>
+        <div className="sig-install-grid">
+          {INSTALL_STEPS.map((app) => (
+            <section key={app.title} className="sig-install-app">
+              <h3 className="sig-install-name">{app.title}</h3>
+              <ol className="sig-install-steps">
+                {app.steps.map((step) => <li key={step}>{step}</li>)}
+              </ol>
+            </section>
+          ))}
+        </div>
+      </section>
       <script type="application/json" data-sig-data="" dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }} />
     </div>
   );

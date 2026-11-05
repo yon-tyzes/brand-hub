@@ -1,7 +1,8 @@
 // Email signature page: the picked design and color, the form, the headshot, and the live preview. Values and
 // the photo stay in the page: nothing is stored or sent.
 import type { SignatureField, SignatureHeadshot } from "../../schemas/signature.ts";
-import { renderSignature, sampleValues, siteAddress } from "../lib/signature.ts";
+import { plainSignature, renderSignature, sampleValues, siteAddress } from "../lib/signature.ts";
+import { checked, flash, toast } from "./client.ts";
 import type { SignatureDesignView } from "../site/data.ts";
 
 const root = document.querySelector<HTMLElement>("[data-sig-root]");
@@ -35,10 +36,10 @@ if (root && dataEl) {
     return crops.get(d.id);
   };
 
-  /** The signature as it would be copied. An empty form shows each field's label instead. */
-  function render(d = design()): string {
+  /** The signature as it would be copied. For the preview, an empty form shows each field's label instead. */
+  function render(d = design(), preview = true): string {
     const typed = values();
-    const empty = d.fields.every((id) => !typed[id]?.trim());
+    const empty = preview && d.fields.every((id) => !typed[id]?.trim());
     return renderSignature({ template: d.template, fields, values: empty ? samples : typed, colors: variant(d).colors, site, headshot: headshot(d) });
   }
 
@@ -97,6 +98,29 @@ if (root && dataEl) {
     update();
   });
 
+  // Copy: every required field first, then rich HTML with a plain text fallback.
+  const copyButton = root.querySelector<HTMLElement>("[data-sig-copy]");
+  copyButton?.addEventListener("click", async () => {
+    const d = design();
+    const typed = values();
+    const missing = d.fields.filter((id) => fields.find((f) => f.id === id)?.required && !typed[id]?.trim());
+    for (const id of missing) {
+      const label = fields.find((f) => f.id === id)!.label;
+      inputs.get(id)?.setAttribute("aria-invalid", "true");
+      const error = root.querySelector<HTMLElement>(`[data-sig-error="${id}"]`);
+      if (error) {
+        error.textContent = `Fill in ${label} to copy.`;
+        error.hidden = false;
+      }
+    }
+    if (missing.length) return inputs.get(missing[0]!)?.focus();
+    const ok = await copyRich(render(d, false), plainSignature(d.fields, fields, typed, site));
+    if (!ok) return toast("Copy did not work in this browser. Select the preview and copy it.");
+    toast("Signature copied");
+    checked(copyButton);
+    flash(copyButton);
+  });
+
   form.addEventListener("submit", (e) => e.preventDefault());
   form.addEventListener("change", (e) => {
     if ((e.target as HTMLElement).matches("[data-sig-design]")) showDesign();
@@ -138,4 +162,32 @@ function cropPhoto(img: ImageBitmap, h: SignatureHeadshot): string {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) * 0.35, sw, sh, 0, 0, w, ht);
   return canvas.toDataURL("image/png");
+}
+
+/** Puts HTML on the clipboard with a plain text fallback. Browsers without ClipboardItem use a copy event. */
+async function copyRich(html: string, text: string): Promise<boolean> {
+  if ("ClipboardItem" in window && navigator.clipboard?.write) {
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([text], { type: "text/plain" }) }),
+      ]);
+      return true;
+    } catch {
+      // Falls through to the copy event.
+    }
+  }
+  let ok = false;
+  const onCopy = (e: ClipboardEvent) => {
+    e.clipboardData?.setData("text/html", html);
+    e.clipboardData?.setData("text/plain", text);
+    e.preventDefault();
+    ok = true;
+  };
+  document.addEventListener("copy", onCopy);
+  try {
+    document.execCommand("copy");
+  } finally {
+    document.removeEventListener("copy", onCopy);
+  }
+  return ok;
 }
