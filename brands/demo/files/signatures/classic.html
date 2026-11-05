@@ -1,11 +1,11 @@
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: {{color.text}};">
   <tr>
-    {{#headshot}}<td style="padding: 0 16px 0 0; vertical-align: top;"><img src="{{headshot}}" width="72" height="72" alt="" style="display: block; border-radius: 36px;"></td>{{/headshot}}
+    {{#headshot}}<td style="padding: 0 16px 0 0; vertical-align: top;"><img src="{{headshot}}" width="72" height="72" alt="{{name}}" style="display: block; border-radius: 36px;"></td>{{/headshot}}
     <td style="vertical-align: top;">
       <div style="font-size: 15px; font-weight: bold; color: {{color.accent}};">{{name}}</div>
       {{#job-title}}<div>{{job-title}}</div>{{/job-title}}
-      <div style="padding: 8px 0 0;"><a href="mailto:{{email}}" style="color: {{color.text}};">{{email}}</a></div>
-      {{#phone}}<div>{{phone}}</div>{{/phone}}
+      <div style="padding: 8px 0 0;"><a href="{{href.email}}" style="color: {{color.text}};">{{email}}</a></div>
+      {{#phone}}<div><a href="{{href.phone}}" style="color: {{color.text}};">{{phone}}</a></div>{{/phone}}
       <div style="padding: 12px 0 0;"><img src="{{site}}/files/logos/pocket-comet-horizontal-full-color.png" width="140" alt="Pocket Comet Teapots" style="display: block;"></div>
     </td>
   </tr>
