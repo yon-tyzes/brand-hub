@@ -2,7 +2,7 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
-## 0.3.0 (in progress)
+## 0.3.0 (2026-11-05)
 
 ### Email signature
 
