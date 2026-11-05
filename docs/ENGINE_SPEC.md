@@ -238,6 +238,7 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 - Logo and icon download buttons, on their Library page and in Quick downloads, read "Download" with the format beside it in small type. Visually hidden text names the asset, so each button has its own accessible name: "Download Stacked logo, PNG", "Download Hot cup icon, SVG".
 - Color values are labeled Web, RGB, Print, and Sign.
 - The home page shows "Quick downloads": the items in `brand.json` `quickDownloads`, chosen in the editor. The label stays "Quick downloads" until the site collects download counts.
+- With New to the team on, the home page shows one entry to it below Quick downloads: the module's label and help line, linked to the page (section 14).
 - Cards show the real asset in their preview area, never an icon standing in for it. Card actions are always visible, on touch and keyboard too.
 
 ### Home hero
@@ -345,26 +346,26 @@ Rules:
 
 ### Build
 
-- `src/office/` writes the theme as an OOXML package: `[Content_Types].xml`, `_rels/.rels`, `theme/theme/theme1.xml` (color scheme, font scheme, and a standard format scheme for fills, lines, and effects), and a thumbnail rendered from the palette.
+- `src/office/` writes the theme as an OOXML package: `[Content_Types].xml`, `_rels/.rels`, `theme/theme/themeManager.xml` with its relationships, `theme/theme/theme1.xml` (color scheme, font scheme, and the standard Office format scheme for fills, lines, and effects), and `docProps/thumbnail.png`, drawn from the palette.
 - Output path: `/downloads/<brand>-office-theme.thmx`. The file name and the theme name inside it come from `themeName`.
 - Deterministic like the serializer: the same brand data produces a byte-identical file, so a rebuild without changes shows no diff.
-- When the editor publishes a change to a color or font in a slot, the next build regenerates the theme, and the change log gets an entry: "Office theme updated: install the new version."
+- Every build regenerates the theme from the slot colors and fonts. Planned with the editor work, not in 0.3: when the editor publishes a change to a color or font in a slot, the change log gets an entry: "Office theme updated: install the new version."
 
 ### Page
 
 `/office` shows:
 
-1. A preview of the twelve colors in slot order and both fonts set in a sample heading and paragraph.
-2. One primary button: "Download Office theme." Under it: the version, the date, and the file size.
-3. Install steps in an accordion: Windows and Mac, each with Word, PowerPoint, and Excel. Each set ends with "Apply it to an open file" and "Make it the default for new files."
-4. A note that the fonts must be installed for headings and body text to show correctly, with a link to `/fonts`. If they are missing, Office substitutes a default font.
-5. A note for Google Workspace users that Docs and Slides do not read `.thmx` files, with a link to the brand's Slides template if one exists in templates data.
+1. One primary button: "Download Office theme." Under it: the date, which is the latest `updated` among the slot colors and fonts, and the file size, measured from the built file. No version is shown.
+2. One line saying the brand fonts must be installed first, linked to `/fonts`. If they are missing, Office substitutes a default font.
+3. A preview of the twelve colors in slot order, each with its Office slot name, and both fonts set in a sample heading and paragraph.
+4. Install steps in two short blocks, Windows and Mac. The steps are the same for Word, PowerPoint, and Excel on each platform, except that Excel keeps Themes on its Page Layout tab. Each block ends with applying the theme to the open file and making it the default for new files.
 
-The download card also appears on `/colors`, `/fonts`, and `/guide/new-to-the-team`, and in search under "Office," "Word," "PowerPoint," "Excel," and "theme."
+`/colors` and `/fonts` end with a short download card: the download, one line each for Windows and Mac on how to apply the theme, and a link to the install steps. New to the team shows the theme only when a step links to the `office` module. Search lists it under "Office," "Word," "PowerPoint," "Excel," and "theme."
 
 ### Tests
 
-- Unit: the generated package unzips, `theme1.xml` is well-formed and valid against the DrawingML theme schema, all twelve colors and both fonts appear with the expected values, and the output is byte-identical across two builds.
+- Unit: the generated package unzips, every XML part is well-formed, `theme1.xml` holds every expected element, all twelve colors and both fonts appear with the expected values, and the output is byte-identical across two builds. The tests do not validate against the DrawingML schema files; the manual check covers what Office accepts.
+- Loader: two adjacent accents closer than 15 in delta E give a warning that names both slots.
 - Loader: a slot that references a missing or pending item fails the build with the slot name in the message.
 - Manual, once per release: open the demo theme in PowerPoint and Word on Windows and on Mac, apply it, and confirm the colors and fonts. Record the Office versions checked in the release notes.
 
@@ -629,6 +630,7 @@ An ordered list of first-week steps, from `onboarding.json`:
 
 - Each step has an id, a title, an optional one-paragraph `body`, and at least one link to the hub: `{ "asset": "<id>" }` for an asset or `{ "module": "<id>" }` for a module page. A link's text is the asset's or module's label, so the data holds no link copy.
 - The page lists the steps in order, numbered. A link to a module that is off, or to an asset that is not on the site, is left out.
+- The home page shows one entry to the page, below Quick downloads. Search lists the page in the Brand guide group.
 - The loader fails the build on a link to an asset id that does not exist, on an unknown module id, and on duplicate step ids. It warns on a link to an asset that is not locked.
 
 ### Office theme
