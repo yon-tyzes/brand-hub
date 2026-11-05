@@ -17,6 +17,12 @@ const TAB_ORDER: NavTabId[] = ["library", "guide", "create"];
 const modulesIn = (site: Site, tab: NavTabId): ModuleDef[] => site.modules.filter((m) => m.tab === tab);
 
 /** True when `path` is `route` or a page under it. Paths and routes have no trailing slash. */
+/** A tab's label. The Create tab takes its page's label while it holds only one ("Email signature"). */
+function tabLabel(site: Site, id: NavTabId): string {
+  const mods = modulesIn(site, id);
+  return id === "create" && mods.length === 1 ? mods[0]!.label : TAB_LABEL[id];
+}
+
 export const isUnder = (path: string, route: string) => path === route || path.startsWith(`${route}/`);
 
 /**
@@ -29,7 +35,7 @@ export function navTabs(site: Site): NavTab[] {
     const mods = modulesIn(site, id);
     if (id !== "library" && !mods.length) continue;
     const href = id === "library" ? "/" : id === "guide" && site.isEnabled("guide") ? MODULES.guide.route : mods[0]!.route;
-    tabs.push({ id, label: TAB_LABEL[id], href });
+    tabs.push({ id, label: tabLabel(site, id), href });
   }
   return tabs;
 }
@@ -103,5 +109,5 @@ export function sidebarFor(site: Site, path: string): Sidebar {
   const items = itemsFor(site, tab);
   const current =
     path === "/" ? "home" : [...items].reverse().find((i) => !i.external && i.href !== "/" && isUnder(path, i.href))?.id;
-  return { tab, label: TAB_LABEL[tab], items, current };
+  return { tab, label: tabLabel(site, tab), items, current };
 }

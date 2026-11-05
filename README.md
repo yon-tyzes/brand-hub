@@ -127,7 +127,7 @@ An instance is a separate, usually private, Astro project that holds one brand's
 
    ```sh
    pnpm add astro @astrojs/react react react-dom
-   pnpm add github:yon-tyzes/brand-hub#v0.3.0
+   pnpm add github:yon-tyzes/brand-hub#v0.3.1
    ```
 
 2. Register the integration in `astro.config.ts`:
@@ -161,7 +161,7 @@ The engine has no install scripts, because pnpm refuses git-hosted dependencies 
 
 ## Upgrading an instance from 0.1
 
-Change the pinned tag to `#v0.3.0`, then build. Most 0.1 data still builds and prints one warning per key to change: the shell colors, fonts, radii, and spacing in `brand.json` `tokens` are ignored (keep only `tokens.color.primary`), `topTasks` is read as `quickDownloads`, the `whats-new` module is read as `changes`, and a template `url` shows as a single "Open template" button until it moves to `formats`. One change stops the build: every rule needs a `chapter`, listed in `guide.chapters` in `brand.json`. The 0.1 routes (`/whats-new`, `/start`, `/signature`, `/boilerplate`, `/guide/<rule-id>`) redirect to their new pages.
+Change the pinned tag to `#v0.3.1`, then build. Most 0.1 data still builds and prints one warning per key to change: the shell colors, fonts, radii, and spacing in `brand.json` `tokens` are ignored (keep only `tokens.color.primary`), `topTasks` is read as `quickDownloads`, the `whats-new` module is read as `changes`, and a template `url` shows as a single "Open template" button until it moves to `formats`. One change stops the build: every rule needs a `chapter`, listed in `guide.chapters` in `brand.json`. The 0.1 routes (`/whats-new`, `/start`, `/signature`, `/boilerplate`, `/guide/<rule-id>`) redirect to their new pages.
 
 `docs/ENGINE_SPEC.md`, section 13, lists every change with how the engine handles it.
 

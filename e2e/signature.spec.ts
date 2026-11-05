@@ -72,3 +72,12 @@ test("adds, changes, and removes a headshot", async ({ page, context }) => {
   await expect(page.getByRole("button", { name: "Add a photo" })).toBeFocused();
   await expect(headshot).toHaveCount(0);
 });
+
+test("search finds the signature page", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("/");
+  await page.getByRole("dialog", { name: "Search the brand" }).getByRole("searchbox").fill("outlook");
+  const result = page.locator(".search-result", { hasText: "Email signature" }).first();
+  await expect(result).toBeVisible();
+  await expect(result.locator(".search-result-main")).toHaveAttribute("href", "/create/signature/");
+});

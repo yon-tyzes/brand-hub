@@ -46,6 +46,13 @@ export function searchDocs(): SearchDoc[] {
       ],
     });
   }
+  if (site.isEnabled("signature")) {
+    docs.push({
+      id: "email-signature", type: "document", typeLabel: "Page", group: MODULES.signature.label, label: MODULES.signature.label, help: MODULES.signature.help,
+      keywords: "email signature outlook mail",
+      actions: [{ kind: "open", label: "Open", href: `${MODULES.signature.route}/` }],
+    });
+  }
   if (site.isEnabled("start")) {
     const steps = site.onboardingSteps();
     docs.push({

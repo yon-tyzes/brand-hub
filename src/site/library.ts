@@ -7,6 +7,7 @@ import { contrastRatio, hexToRgb, relativeLuminance } from "../theme/color.ts";
 import { MIN_RATIO } from "../theme/contrast.ts";
 import { SHELL_COLORS } from "../theme/shell.ts";
 import { fileName } from "../lib/paths.ts";
+import { MODULES, type ModuleDef } from "../modules/registry.ts";
 import type { Site } from "./data.ts";
 import { chapterHref } from "./nav.ts";
 
@@ -192,3 +193,7 @@ export function ruleStrip(site: Site, module: ModuleId, items: Asset[]): RuleStr
     link: chapter ? { href: `${chapterHref(chapter)}/`, label: `All ${noun.toLowerCase()} rules` } : undefined,
   };
 }
+
+/** Pages the home page links to below Quick downloads, in order: the signature, then New to the team. */
+export const homeEntries = (site: Site): ModuleDef[] =>
+  (["signature", "start"] as const).filter((id) => site.isEnabled(id)).map((id) => MODULES[id]);

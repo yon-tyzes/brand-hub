@@ -81,6 +81,7 @@ export default defineHub({
 - A module that is off produces no route, no navigation item, and no search entries.
 - From 0.3, a module whose page is built from brand data stays off until the brand has that data, even when it is listed: `office` needs `modules.office` in `brand.json`, `start` needs `onboarding.json`, `signature` needs `signature.json`, and `boilerplate` needs a locked boilerplate record. Section 14 has the details.
 - A top tab with no enabled modules is hidden. With `signature` off, there is no Create tab.
+- While the Create tab holds only one page, the tab and its sidebar take that page's module label: "Email signature" for the signature. With two or more pages, they read "Create". Routes do not change.
 - The module id `whats-new` from 0.1 is accepted as an alias of `changes` and prints a build warning.
 - `motion: "calm"` turns off decorative motion for every viewer, as section 6, Motion, describes.
 - `admin.enabled: "dev"` keeps the editor for `astro dev` only. A production build then ships no `/admin` route, no editor JavaScript, and no editor entries in search. `true` and `false` behave as before: the editor is in every build, or in none.
@@ -207,6 +208,8 @@ The top bar holds the brand name and mark, three tabs, search, and the theme tog
 | Brand guide | Learn how to use the brand | New to the team, then the chapters from `guide.chapters` |
 | Create | Make something with your own details on it | Email signature, and later tools such as the logo helper |
 
+The Create tab reads "Email signature" while the signature is its only page (section 4).
+
 Below 992px the sidebar becomes a horizontal chip row under the tabs. Below 768px the tabs become a segmented control under the top bar.
 
 The footer links to the change log and the brand contact. The engine version never appears on public pages.
@@ -238,7 +241,7 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 - Logo and icon download buttons, on their Library page and in Quick downloads, read "Download" with the format beside it in small type. Visually hidden text names the asset, so each button has its own accessible name: "Download Stacked logo, PNG", "Download Hot cup icon, SVG".
 - Color values are labeled Web, RGB, Print, and Sign.
 - The home page shows "Quick downloads": the items in `brand.json` `quickDownloads`, chosen in the editor. The label stays "Quick downloads" until the site collects download counts.
-- With New to the team on, the home page shows one entry to it below Quick downloads: the module's label and help line, linked to the page (section 14).
+- Below Quick downloads, the home page shows one entry to each of these pages that is on: Email signature first, then New to the team. Each entry is the module's label and help line, linked to the page (section 14).
 - Cards show the real asset in their preview area, never an icon standing in for it. Card actions are always visible, on touch and keyboard too.
 
 ### Home hero
@@ -543,6 +546,7 @@ CI blocks merge on failure.
 | 0.2.2 | Brand guide PDF, font groups, web font files, calm motion, template variants, editor in local dev only. All optional; 0.2.1 instances build unchanged. | Released (v0.2.2) |
 | 0.2.3 | Stabilization: "Download" button labels, "Copy hex code" on color cards, icon search results, color chips in their own pair. 0.2.2 instances build unchanged. | Released (v0.2.3) |
 | 0.3 | Email signature generator, New to the team, Office theme download, gradient colors. All optional; 0.2.2 instances build unchanged. Section 14. | Released (v0.3.0) |
+| 0.3.1 | The Create tab reads "Email signature" while the signature is its only page; the home page links to the signature below Quick downloads; search lists the signature page. 0.3.0 instances build unchanged. | Released (v0.3.1) |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 
 Work beyond 0.4 is tracked in the product roadmap document, outside this repo.
@@ -577,6 +581,7 @@ Release 0.3 adds four features and plans a fifth. Every one is optional and driv
 - The 0.1 paths `/start` and `/signature` stay redirects to `/guide/new-to-the-team` and `/create/signature`. They are built only when the target page is. Without the data, both paths answer 404, as they do today with the module off.
 - `/start` does not become a page of its own: New to the team belongs under the Brand guide tab, and existing links to `/guide/new-to-the-team` keep working.
 - With `signature` off or without data, there is no Create tab (section 4).
+- With the signature as its only page, the Create tab reads "Email signature" (from 0.3.1, section 4). The route stays `/create/signature`.
 
 ### Email signature
 
@@ -620,6 +625,8 @@ Designs come from instance data, so a brand's signature designs never enter the 
   - The plain text fallback is each filled value in the design's form order, one per line, then the site address.
   - Values and the photo stay in the page: nothing is stored or sent. The preview sits on `paper`, white in both themes.
   - Install steps cover new Outlook (Windows and web), classic Outlook on Windows, and Outlook on Mac.
+- From 0.3.1, the home page shows one entry to the page below Quick downloads, built like the New to the team entry: the module's label and help line. It comes before the New to the team entry when both show.
+- Search lists the page in its own group, Email signature, with an "Open" action (from 0.3.1).
 - The loader fails the build on a design that names a field not in `fields`, a variant color that does not exist or is not locked, a template file that does not exist, and on duplicate ids among fields, designs, or a design's variants. Each message names the id.
 - A `signature.json` in the 0.2 shape (an array of `signature-layout` records) fails the build with a message that points to this section. `signature-layout` records in `assets.json` load with a warning and are not used.
 
@@ -638,7 +645,7 @@ An ordered list of first-week steps, from `onboarding.json`:
 
 - Each step has an id, a title, an optional one-paragraph `body`, and at least one link to the hub: `{ "asset": "<id>" }` for an asset or `{ "module": "<id>" }` for a module page. A link's text is the asset's or module's label, so the data holds no link copy.
 - The page lists the steps in order, numbered. A link to a module that is off, or to an asset that is not on the site, is left out.
-- The home page shows one entry to the page, below Quick downloads. Search lists the page in the Brand guide group.
+- The home page shows one entry to the page, below Quick downloads and after the Email signature entry when that shows. Search lists the page in the Brand guide group.
 - The loader fails the build on a link to an asset id that does not exist, on an unknown module id, and on duplicate step ids. It warns on a link to an asset that is not locked.
 
 ### Office theme

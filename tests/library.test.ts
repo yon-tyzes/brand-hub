@@ -3,7 +3,7 @@ import type { ColorAsset, LogoAsset } from "../schemas/asset.ts";
 import type { ModuleId } from "../schemas/hub-config.ts";
 import { loadBrand } from "../src/content/load.ts";
 import { createSite } from "../src/site/data.ts";
-import { chipText, colorPairs, colorRows, copiedMessage, defaultPairs, iconPairs, logoDownloads, ruleStrip, splitColors } from "../src/site/library.ts";
+import { chipText, colorPairs, colorRows, copiedMessage, defaultPairs, homeEntries, iconPairs, logoDownloads, ruleStrip, splitColors } from "../src/site/library.ts";
 import { demoCopy } from "./helpers.ts";
 
 function site(modules: ModuleId[] = ["colors", "guide"]) {
@@ -139,5 +139,22 @@ describe("icon color pairs", () => {
   it("skips ids that are not live colors and offers nothing without icon colors", () => {
     expect(iconPairs(palette, { colors: ["missing", "ink"], grounds: ["missing", "kiln-white"] }).map((p) => p.id)).toEqual(["ink-on-kiln-white"]);
     expect(iconPairs(palette, undefined)).toEqual([]);
+  });
+});
+
+describe("home entries", () => {
+  const entries = (modules: ModuleId[]) => homeEntries(site(modules)).map((m) => [m.label, m.help, m.route]);
+
+  it("links to the signature with its module label and help line when it is on", () => {
+    expect(entries(["colors", "signature"])).toEqual([["Email signature", "Email signature generator", "/create/signature"]]);
+  });
+
+  it("shows no signature entry when the signature is off", () => {
+    expect(entries(["colors"])).toEqual([]);
+    expect(entries(["colors", "start"])).toEqual([["New to the team", "First steps for new team members", "/guide/new-to-the-team"]]);
+  });
+
+  it("puts the signature first when both entries show", () => {
+    expect(entries(["start", "signature"]).map(([label]) => label)).toEqual(["Email signature", "New to the team"]);
   });
 });
