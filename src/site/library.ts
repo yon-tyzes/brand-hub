@@ -1,4 +1,4 @@
-// What the Library pages show for each asset, worked out from brand data: downloads named by use, color
+// What the Library pages show for each asset, worked out from brand data: downloads by format, color
 // values by use, the rules that apply to a page, and the ground a logo sits on (spec section 6, Library pages).
 // Pure: shared by the build and the editor's preview.
 import type { Asset, ColorAsset, LogoAsset, RuleAsset } from "../../schemas/asset.ts";
@@ -11,11 +11,7 @@ import type { Site } from "./data.ts";
 import { chapterHref } from "./nav.ts";
 
 export interface Download {
-  /** What the file is for, the button's label. */
-  label: string;
-  /** Shorter label where space is tight (phones, home cards). */
-  short: string;
-  /** The format shown beside the label. */
+  /** The format shown beside "Download". */
   format: string;
   href: string;
   filename: string;
@@ -26,20 +22,11 @@ function best(l: LogoAsset, ext: string) {
   return l.files.filter((f) => f.ext === ext).sort((a, b) => (b.width ?? 0) - (a.width ?? 0))[0];
 }
 
-/**
- * A logo's downloads by use, most common first: PNG for Word and PowerPoint, SVG for print and web, then PDF
- * and EPS for print and sign vendors when the logo has them.
- */
+/** A logo's downloads, most common first: PNG, SVG, then PDF and EPS when the logo has them. */
 export function logoDownloads(site: Site, l: LogoAsset): Download[] {
-  const uses = [
-    { ext: "png", label: "For Word and PowerPoint", short: "For slides" },
-    { ext: "svg", label: "For print and web", short: "For print" },
-    { ext: "pdf", label: "For print vendors", short: "For print vendors" },
-    { ext: "eps", label: "For sign makers", short: "For sign makers" },
-  ];
-  return uses.flatMap((u) => {
-    const f = best(l, u.ext);
-    return f ? [{ label: u.label, short: u.short, format: u.ext.toUpperCase(), href: site.urlFor(f.path), filename: fileName(f.path) }] : [];
+  return ["png", "svg", "pdf", "eps"].flatMap((ext) => {
+    const f = best(l, ext);
+    return f ? [{ format: ext.toUpperCase(), href: site.urlFor(f.path), filename: fileName(f.path) }] : [];
   });
 }
 
@@ -144,6 +131,16 @@ export function iconPairs(colors: ColorAsset[], settings: { colors: string[]; gr
       return [{ id: `${icon.id}-on-${ground.id}`, label: `${icon.label} on ${ground.label}`, icon, ground, light: isLight, text: isLight ? dark : light, ratio }];
     }),
   );
+}
+
+/**
+ * The text color of a pair's chip on the Icons page: the icon color when it reaches 4.5:1 on the ground, else the
+ * darkest shell text value that does. The chip keeps the ground as its fill and the icon color for its mark.
+ */
+export function chipText(p: IconPair): string {
+  if (p.ratio >= MIN_RATIO.text) return p.icon.hex;
+  const darkFirst = [SHELL_COLORS.text.light, SHELL_COLORS.text.dark].sort((a, b) => relativeLuminance(a) - relativeLuminance(b));
+  return darkFirst.find((t) => contrastRatio(t, p.ground.hex) >= MIN_RATIO.text) ?? p.text;
 }
 
 /** The pair each theme opens on: the first with a light ground in light, the first with a dark ground in dark. */

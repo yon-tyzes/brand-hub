@@ -6,8 +6,11 @@ import type { CSSProperties } from "react";
 import type { IconAsset } from "../../../../schemas/asset.ts";
 import { MODULES } from "../../../modules/registry.ts";
 import { fileName } from "../../../lib/paths.ts";
-import { defaultPairs, iconPairs, ruleStrip, type IconPair } from "../../library.ts";
+import { chipText, defaultPairs, iconPairs, ruleStrip, type IconPair } from "../../library.ts";
 import { Icon, LibraryHead, RuleStrip, useSite } from "../../ui.tsx";
+
+/** What a query matches: the name, the id without a shared "icon-" prefix, and the keywords. */
+const searchText = (i: IconAsset) => [i.label, i.id.replace(/^icon-/, ""), ...(i.keywords ?? [])].join(" ").toLowerCase();
 
 export function IconsPage() {
   const site = useSite();
@@ -39,16 +42,21 @@ export function IconsPage() {
       <div className="icon-toolbar">
         <label className="visually-hidden" htmlFor="icon-filter">Filter icons by name</label>
         <input id="icon-filter" type="search" placeholder="Filter by name" autoComplete="off" data-icon-filter="" />
+        <button className="btn btn-ghost btn-sm" type="button" hidden data-icon-clear="">
+          <Icon name="close" size={16} />
+          Clear search
+        </button>
         {pairs.length > 0 && (
           <div className="icon-colors" role="radiogroup" aria-label="Icon color">
             {pairs.map((p) => (
               <button
                 key={p.id}
-                className="chip"
+                className="chip pair-chip"
                 type="button"
                 role="radio"
                 aria-checked={p === first}
                 tabIndex={p === first ? 0 : -1}
+                style={{ "--chip-ground": p.ground.hex, "--chip-ink": p.icon.hex, "--chip-text": chipText(p) } as CSSProperties}
                 data-pair={p.id}
                 data-icon-color={p.icon.hex}
                 data-ground={p.ground.hex}
@@ -56,7 +64,9 @@ export function IconsPage() {
                 data-color-id={p.icon.id}
                 data-color-name={p.label}
               >
-                <span className="pair-dot" style={{ background: p.ground.hex, color: p.icon.hex }} aria-hidden="true" />
+                <span className="pair-check" aria-hidden="true"><Icon name="check" size={16} /></span>
+                {/* Text under 4.5:1 in the icon color takes shell text; a mark keeps the icon color on the chip. */}
+                {chipText(p) !== p.icon.hex && <span className="pair-mark" aria-hidden="true" />}
                 {p.label}
               </button>
             ))}
@@ -76,15 +86,14 @@ export function IconsPage() {
                 <p className="icon-panel-meta" data-icon-meta="">{meta(selected)}</p>
               </div>
               <div className="icon-panel-actions">
+                {/* "Download" with the format; the hidden name follows the selected icon. */}
                 <button className="btn btn-primary" type="button" data-icon-download="svg">
                   <Icon name="download" size={16} />
-                  <span className="label-long">For print and slides</span>
-                  <span className="label-short">For slides</span>
+                  Download<span className="visually-hidden"> <span data-icon-name-hidden="">{selected.label}</span> icon, </span>
                   <span className="btn-format">SVG</span>
                 </button>
                 <button className="btn btn-secondary" type="button" data-icon-download="png">
-                  <span className="label-long">For Word and email</span>
-                  <span className="label-short">For Word</span>
+                  Download<span className="visually-hidden"> <span data-icon-name-hidden="">{selected.label}</span> icon, </span>
                   <span className="btn-format">PNG</span>
                 </button>
               </div>
@@ -92,14 +101,15 @@ export function IconsPage() {
             </div>
           </aside>
         )}
-        <div className="icon-groups icon-board">
+        <div className="icon-groups icon-board" data-icon-board="">
+          <p className="icon-empty" hidden data-icon-empty="" />
           {groups.map((g) => (
             <section key={g} aria-labelledby={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`} data-icon-group="">
               <h2 className="icon-group-title" id={`icons-${g.toLowerCase().replace(/\W+/g, "-")}`}>{g}</h2>
               <ul className="icon-grid" role="list">
                 {icons.filter((i) => i.group === g).map((i) => (
-                  <li key={i.id} id={i.id} data-icon-item="" data-text={[i.label, i.group, ...(i.keywords ?? [])].join(" ").toLowerCase()}>
-                    <button className="icon-tile-btn" type="button" aria-pressed={i === selected} data-icon-id={i.id} data-icon-name={i.label} data-icon-group={i.group} data-icon-file={fileName(i.svgPath).replace(/\.svg$/, "")}>
+                  <li key={i.id} id={i.id} data-icon-item="" data-text={searchText(i)}>
+                    <button className="icon-tile-btn" type="button" aria-pressed={i === selected} data-icon-id={i.id} data-icon-name={i.label} data-icon-group-name={i.group} data-icon-file={fileName(i.svgPath).replace(/\.svg$/, "")}>
                       <span className="icon-tile-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg(i, 24) }} />
                       <span className="icon-tile-name">{i.label}</span>
                     </button>

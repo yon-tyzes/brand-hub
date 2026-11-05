@@ -2,6 +2,17 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
+## 0.2.3 (2026-10-30)
+
+Four fixes to the public site. No data or config changes: 0.2.2 instances build unchanged.
+
+### Public site
+
+- Download labels: logo and icon download buttons, on `/logos`, `/icons`, and in Quick downloads, read "Download" with the format beside it. Visually hidden text names the asset, so each button keeps its own accessible name: "Download Stacked logo, PNG". The hero's logo chip shows the logo's label.
+- Copy hex code: each color card on `/colors` has a quiet secondary button, "Copy hex code", with no fill, a `border-control` boundary, and the copy icon. It copies the hex and shows the same confirmation as clicking the hex, which stays clickable.
+- Icon search: a query now shows one flat grid of matching icons across all groups, matched on name, id, and keywords, case-insensitive and on partial words. Before, a query hid every icon and left only the group headings. A count reads `4 icons match "arrow"`, a query with no match says so, and Escape or "Clear search" restores the groups. The browser's own clear button is hidden in that field.
+- Icon color chips: each chip is drawn in its own pair, the icon color on the ground, so the bar reads as the palette. The chosen chip shows a check icon and a 2px ring. When the icon color is under 4.5:1 on its ground, the chip keeps the ground and the icon color (for a dot and the check) and sets its text in the darkest shell text value that reaches 4.5:1.
+
 ## 0.2.2 (2026-10-30)
 
 Six optional additions: a brand guide PDF, font groups, web font files, calm motion, template variants, and an editor kept to local dev. No breaking changes: 0.2.1 instances build unchanged. The one new warning is for fonts with WOFF2 files only.

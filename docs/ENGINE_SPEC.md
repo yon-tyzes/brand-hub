@@ -212,10 +212,10 @@ The footer links to the change log and the brand contact. The engine version nev
 | Route | Tab | Purpose |
 |---|---|---|
 | `/` | Library | Search-first hero, quick downloads, then a preview of each category |
-| `/logos` | Library | Lockups, logo rules, downloads named by use |
+| `/logos` | Library | Lockups, logo rules, downloads by format |
 | `/colors` | Library | Main and supporting colors, every value copyable, approved text-on-color pairs |
 | `/fonts` | Library | Type tester, family cards (in groups when set), downloads, install steps |
-| `/icons` | Library | Grouped library, recolor, filter, detail panel |
+| `/icons` | Library | Grouped library, recolor, search, detail panel |
 | `/photos` | Library | Photo library link, photo rules, headshot standard |
 | `/templates` | Library | Category filters, template cards with their formats, template rules |
 | `/office` | Library | Office theme download and install steps (section 7) |
@@ -231,13 +231,14 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 ### Library pages
 
 - Each Library page opens with a short strip of the rules that apply to it, with a link to the full chapter.
-- Downloads are named by use, with the format beside the label: "For Word and PowerPoint (PNG)", "For print and web (SVG)". Color values are labeled Web, RGB, Print, and Sign.
+- Logo and icon download buttons, on their Library page and in Quick downloads, read "Download" with the format beside it in small type. Visually hidden text names the asset, so each button has its own accessible name: "Download Stacked logo, PNG", "Download Hot cup icon, SVG".
+- Color values are labeled Web, RGB, Print, and Sign.
 - The home page shows "Quick downloads": the items in `brand.json` `quickDownloads`, chosen in the editor. The label stays "Quick downloads" until the site collects download counts.
 - Cards show the real asset in their preview area, never an icon standing in for it. Card actions are always visible, on touch and keyboard too.
 
 ### Home hero
 
-- The brand name and "brand files" as the title, a large search field, and up to four quick-pick chips.
+- The brand name and "brand files" as the title, a large search field, and up to four quick-pick chips. A logo chip shows the logo's label and downloads its PNG.
 - The search placeholder types out real asset names from the brand's data, one after another. It holds still under reduced motion.
 - Behind it, a slow grain mesh gradient in three pale tones tuned from the brand's primary color (section 10). `hero.preset: "contour"` swaps in a field of thin contour lines for brands whose palette is very loud or nearly monochrome.
 - The hero sits inside the content column, about 320px tall, so the quick downloads row shows above the fold on a laptop.
@@ -246,8 +247,10 @@ Routes from 0.1 redirect: `/start` to `/guide/new-to-the-team`, `/signature` to 
 
 - **Search:** build-time index of every rendered asset and rule. Opens with Cmd/Ctrl+K or `/`. The hint shows the shortcut for the viewer's platform only. Results are grouped by type (Colors, Logos, Rules ...) and carry inline actions (copy hex, download, open). Full screen on small screens.
 - **Copy:** a single toast region (`aria-live="polite"`) names what was copied: "Comet Green #1E5B4A copied".
+- **Colors:** each color card on `/colors` has a secondary "Copy hex code" button: no fill, a `border-control` boundary, and the copy icon. It copies the same value as clicking the hex, which stays clickable, and shows the same confirmation. Hidden text adds the color's name: "Copy hex code Comet Green".
 - **Downloads:** direct file links from the site. Font zips, "all logos" zips, and the Office theme are built at build time.
-- **Icons:** each color choice is a brand pair, an icon color on a ground, labeled "<icon color> on <ground>" ("Kiln White on Ink"). Icon colors come from `modules.icons.colors`, grounds from `modules.icons.grounds` (default: the brand's lightest and darkest locked colors). The engine builds every pair from the two lists, keeps those with contrast of at least 3:1, and orders them by icon color, then ground. The grid sits on one panel filled with the pair's ground; tiles are transparent with a hairline in the icon color, and labels take whichever shell text value passes 4.5:1 on that ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground; a viewer's pick is remembered. Downloads are the icon in the exact icon color hex on a transparent background, as SVG and PNG (all SVGs use `currentColor`). Brand colors are never adjusted for display.
+- **Icons:** each color choice is a brand pair, an icon color on a ground, labeled "<icon color> on <ground>" ("Kiln White on Ink"). Icon colors come from `modules.icons.colors`, grounds from `modules.icons.grounds` (default: the brand's lightest and darkest locked colors). The engine builds every pair from the two lists, keeps those with contrast of at least 3:1, and orders them by icon color, then ground. The grid sits on one panel filled with the pair's ground; tiles are transparent with a hairline in the icon color, and labels take whichever shell text value passes 4.5:1 on that ground. Light theme opens on the first pair with a light ground, dark theme on the first with a dark ground; a viewer's pick is remembered. Each color chip is drawn in its own pair, the ground as fill and the icon color for its text and marks, so the bar reads as the palette and every chip shows its real colors. When the icon color is under 4.5:1 on its ground (it needs only 3:1 as an icon), the chip keeps the ground and the icon color for a dot and the check, and draws its text in the darkest shell text value that reaches 4.5:1 on the ground. The chosen chip also shows a check icon and a 2px ring, so the choice never rests on color alone. The chips are a radio group: arrow keys move the choice. Downloads are the icon in the exact icon color hex on a transparent background, as SVG and PNG (all SVGs use `currentColor`). Brand colors are never adjusted for display.
+- **Icon search:** the field above the grid matches each icon's name, id (less a shared `icon-` prefix), and keywords, case-insensitive, on partial words; every word of the query must match. With a query, the groups give way to one flat grid of matches across all groups, and each result works as it does in its group: the chosen pair, download, and details. A count reads `4 icons match "arrow"`; with no match the grid says `No icons match "<query>".` Escape in the field or the "Clear search" button restores the groups. The browser's own clear button is hidden, so "Clear search" is the only one.
 - **Fonts:** a type tester sets the viewer's own words in each brand family. On phones the page offers "Copy page link," since fonts install on a computer.
 - **Photos:** a link card to the instance's photo source, labeled with access type, plus the photo and headshot rules.
 - **Theme:** light by default, following the system setting, with a toggle in the top bar remembered per viewer.
@@ -533,6 +536,7 @@ CI blocks merge on failure.
 | 0.2 | Redesign. Engine-owned shell and interface fonts, Library, Brand guide, and Create navigation, search-first home with tuned hero gradient, frosted surfaces, motion, guide chapters, template formats, logo print files, rebuilt editor with Overview. | Released (v0.2.0) |
 | 0.2.1 | Polish: glass, dark mode icons and logos, micro-interactions. | Released (v0.2.1) |
 | 0.2.2 | Brand guide PDF, font groups, web font files, calm motion, template variants, editor in local dev only. All optional; 0.2.1 instances build unchanged. | Released (v0.2.2) |
+| 0.2.3 | Stabilization: "Download" button labels, "Copy hex code" on color cards, icon search results, color chips in their own pair. 0.2.2 instances build unchanged. | In progress |
 | 0.3 | Email signature generator, New to the team, Office theme download. | Planned |
 | 0.4 | Company descriptions, logo helper, analytics events (which turn Quick downloads into real usage data), curated photo set. | Planned |
 
