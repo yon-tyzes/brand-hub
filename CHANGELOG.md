@@ -2,6 +2,17 @@
 
 Versions follow [Semantic Versioning](https://semver.org). Instances pin a tag, for example `github:yon-tyzes/brand-hub#v0.1.0`.
 
+## 0.3.0 (in progress)
+
+### Public site
+
+- New to the team: `/guide/new-to-the-team` lists the steps from `onboarding.json` in order, numbered. Each link reads as the label of the asset or module it opens; links to a module that is off or an asset not on the site are left out. Home shows one entry to the page below Quick downloads, and search lists it in the Brand guide group.
+- Office theme: with `modules.office` in `brand.json`, the build writes `/downloads/<theme-name>-office-theme.thmx` with the twelve theme colors, the heading and body fonts, and a thumbnail drawn from the palette. Two builds of the same data give the same bytes. `/office` shows the colors in slot order, both fonts, the download with its date and size, and install steps for Windows and Mac. `/colors` and `/fonts` end with the download and one line per platform on how to apply it. Search lists it under Office, Word, PowerPoint, Excel, and theme.
+
+### Data
+
+- The loader warns when two adjacent accents in `modules.office` differ by less than 15 in CIELAB delta E, since charts use them as neighboring series.
+
 ## 0.2.3 (2026-10-30)
 
 Four fixes to the public site. No data or config changes: 0.2.2 instances build unchanged.
