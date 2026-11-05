@@ -80,6 +80,25 @@ function Field({ field: f, hidden }: { field: SignatureField; hidden: boolean })
   );
 }
 
+/** The optional headshot. Shown for designs that offer one; the script crops it to the design's shape. */
+function Headshot({ hidden }: { hidden: boolean }) {
+  return (
+    <fieldset className="sig-group" data-sig-photo="" hidden={hidden}>
+      <legend className="sig-legend">Photo <span className="sig-required">(optional)</span></legend>
+      <input className="visually-hidden" type="file" accept="image/*" tabIndex={-1} aria-hidden="true" data-sig-photo-input="" />
+      <div className="sig-photo-actions" data-sig-photo-empty="">
+        <button className="btn btn-secondary" type="button" data-sig-photo-choose="">Add a photo</button>
+      </div>
+      <div className="sig-photo-actions" data-sig-photo-set="" hidden>
+        <button className="btn btn-secondary" type="button" data-sig-photo-choose="">Choose a different photo</button>
+        <button className="btn btn-quiet" type="button" data-sig-photo-remove="">Remove photo</button>
+      </div>
+      <p className="sig-help">The photo stays in this page. It is never uploaded.</p>
+      <p className="sig-error" role="alert" data-sig-photo-error="" hidden />
+    </fieldset>
+  );
+}
+
 export function SignaturePage() {
   const site = useSite();
   const designs = site.signatureDesigns();
@@ -104,6 +123,7 @@ export function SignaturePage() {
               {ordered.map((f) => <Field key={f.id} field={f} hidden={!first.fields.includes(f.id)} />)}
             </div>
           </fieldset>
+          {designs.some((d) => d.headshot) && <Headshot hidden={!first.headshot} />}
         </form>
         <section className="sig-output" aria-labelledby="sig-preview-title">
           <h2 className="sig-legend" id="sig-preview-title">Preview</h2>
