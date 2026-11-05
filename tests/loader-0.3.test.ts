@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { GradientAsset } from "../schemas/asset.ts";
+import { headshotOf } from "../schemas/signature.ts";
 import { checkBrand } from "../src/content/check.ts";
 import { diskSource, loadBrand } from "../src/content/load.ts";
 import { gradientCss } from "../src/site/library.ts";
@@ -101,6 +102,21 @@ describe("signature.json", () => {
     edit(brandDir, "colors.json", (cs: any[]) => void (cs.find((c) => c.id === "kiln-white").status = "pending"));
     const { problems } = checkBrand(diskSource(brandDir));
     expect(problems.map((p) => p.problem)).toContainEqual(expect.stringMatching(/variants\.1\.colors\.accent: color "kiln-white" is pending/));
+  });
+
+  it("reads a headshot as true (a 72px circle) or a shape and size", () => {
+    const s: any = signature();
+    expect(headshotOf(loadBrand(withSignature(s)).signature!.designs[0]!)).toEqual({ shape: "circle", width: 72, height: 72 });
+    s.designs[0].headshot = { shape: "rect", width: 80, height: 100 };
+    expect(headshotOf(loadBrand(withSignature(s)).signature!.designs[0]!)).toEqual({ shape: "rect", width: 80, height: 100 });
+    s.designs[0].headshot = false;
+    expect(headshotOf(loadBrand(withSignature(s)).signature!.designs[0]!)).toBeUndefined();
+  });
+
+  it("fails on a circle headshot with unequal sides", () => {
+    const s: any = signature();
+    s.designs[0].headshot = { shape: "circle", width: 72, height: 90 };
+    expect(() => loadBrand(withSignature(s))).toThrow(/a circle needs the same width and height/);
   });
 
   it("fails on a missing template file", () => {

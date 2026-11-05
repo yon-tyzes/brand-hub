@@ -77,7 +77,39 @@
           },
           "headshot": {
             "default": false,
-            "type": "boolean"
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "shape": {
+                    "type": "string",
+                    "enum": [
+                      "circle",
+                      "rect"
+                    ]
+                  },
+                  "width": {
+                    "type": "integer",
+                    "minimum": 16,
+                    "maximum": 400
+                  },
+                  "height": {
+                    "type": "integer",
+                    "minimum": 16,
+                    "maximum": 400
+                  }
+                },
+                "required": [
+                  "shape",
+                  "width",
+                  "height"
+                ],
+                "additionalProperties": false
+              }
+            ]
           },
           "variants": {
             "minItems": 1,

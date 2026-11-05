@@ -20,6 +20,19 @@ export const signatureVariant = z.strictObject({
   colors: z.record(id, id).refine((c) => Object.keys(c).length > 0, { message: "needs at least one color" }),
 });
 
+/** Headshot size and shape. The browser draws the photo into a PNG at twice this size. */
+export const signatureHeadshot = z
+  .strictObject({
+    shape: z.enum(["circle", "rect"]),
+    /** Display size in px, as the template's img sets it. */
+    width: z.number().int().min(16).max(400),
+    height: z.number().int().min(16).max(400),
+  })
+  .refine((h) => h.shape !== "circle" || h.width === h.height, { message: "a circle needs the same width and height" });
+
+/** `true` is a 72px circle. */
+export const DEFAULT_HEADSHOT = { shape: "circle", width: 72, height: 72 } as const satisfies z.infer<typeof signatureHeadshot>;
+
 export const signatureDesign = z.strictObject({
   id,
   label: oneLine,
@@ -27,8 +40,8 @@ export const signatureDesign = z.strictObject({
   template: fileWith(".html"),
   /** Field ids from `fields`, in form order. */
   fields: z.array(id).min(1),
-  /** Offers an optional headshot, embedded in the copied signature. */
-  headshot: z.boolean().default(false),
+  /** Offers an optional headshot, embedded in the copied signature: `true` for a 72px circle, or a shape and size. */
+  headshot: z.union([z.boolean(), signatureHeadshot]).default(false),
   /** Color variants. The first is the default. */
   variants: z.array(signatureVariant).min(1).refine(uniqueIds, { message: "variant ids must be unique" }),
 });
@@ -41,7 +54,12 @@ export const signature = z.strictObject({
   designs: z.array(signatureDesign).min(1).refine(uniqueIds, { message: "design ids must be unique" }),
 });
 
+export type SignatureHeadshot = z.infer<typeof signatureHeadshot>;
 export type SignatureField = z.infer<typeof signatureField>;
 export type SignatureVariant = z.infer<typeof signatureVariant>;
 export type SignatureDesign = z.infer<typeof signatureDesign>;
 export type Signature = z.infer<typeof signature>;
+
+/** A design's headshot size and shape, or undefined when it offers none. */
+export const headshotOf = (d: Pick<SignatureDesign, "headshot">): SignatureHeadshot | undefined =>
+  d.headshot === true ? DEFAULT_HEADSHOT : d.headshot || undefined;
